@@ -8,8 +8,8 @@
  ============================================================================
 */
 
-#ifndef HEADERS_TCPSYNPORTSCANNER_H_
-#define HEADERS_TCPSYNPORTSCANNER_H_
+#ifndef HEADERS_TCP_SYN_PORT_SCANNER_H_
+#define HEADERS_TCP_SYN_PORT_SCANNER_H_
 
 #include<stdio.h>
 #include<string.h>
@@ -52,4 +52,4 @@ char * hostname_to_ip(char * );
 void get_local_ip (char *);
 int start_sniffer();
 
-#endif /* HEADERS_TCPSYNPORTSCANNER_H_ */
+#endif /* HEADERS_TCP_SYN_PORT_SCANNER_H_ */

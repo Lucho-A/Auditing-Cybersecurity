@@ -8,7 +8,7 @@
  ============================================================================
 */
 
-#include<TCPSynPortScanner.h>
+#include "TCP_Syn_Port_Scanner.h"
 
 unsigned short csum(unsigned short *ptr,int nbytes){
 	register long sum;

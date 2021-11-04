@@ -8,7 +8,7 @@
  ============================================================================
  */
 
-#include<TCPSynPortScanner.h>
+#include "TCP_Syn_Port_Scanner.h"
 
 char *target="";
 int contClosedPorts=0;
