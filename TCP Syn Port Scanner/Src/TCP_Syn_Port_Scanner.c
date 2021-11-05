@@ -21,7 +21,7 @@ int endProces=FALSE;
 struct timespec tInit, tEnd;
 
 int main(int argc, char *argv[]){
-	int cont=0;
+	int contFilteredPortsChange=-1, endSendPacketes=0;
 	switch(argc){
 	case 3:
 		if(strtol(argv[2],NULL,10)<5001 && strtol(argv[2],NULL,10)>0){
@@ -62,15 +62,14 @@ int main(int argc, char *argv[]){
 	if(inet_addr(target) != -1){
 		printf("It's not nesessary resolve the hostname (%s)\n",target);
 		dest_ip.s_addr = inet_addr(target);
-	}
-	else{
+	}else{
 		char *ip = hostname_to_ip(target);
 		if(ip != NULL){
 			printf("URL (%s) resolved to: %s \n\n" , target , ip);
 			dest_ip.s_addr = inet_addr( hostname_to_ip(target) );
 		}
 		else{
-			printf("Unable to resolve hostname : %s" , target);
+			printf("Unable to resolve hostname : %s\n\n" , target);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -125,7 +124,8 @@ int main(int argc, char *argv[]){
 	for(int i=0;i<cantPortToScan;i++){
 		portStatus[portsToScan[i]]=0;
 	}
-	while(cont<2){
+	while(endSendPacketes!=PACKET_FORWARDING_LIMIT){
+		contFilteredPortsChange=contFilteredPorts;
 		for(i = 0 ; i < 65536 ; i++){
 			if(portStatus[i]==0){
 				tcph->dest = htons (i);
@@ -143,32 +143,33 @@ int main(int argc, char *argv[]){
 				}
 			}
 		}
-		sleep(2);
-		cont++;
+		sleep(1);
+		(contFilteredPortsChange==contFilteredPorts)?(endSendPacketes++):(endSendPacketes=0);
 	}
 	endProces=TRUE;
 	pthread_join(sniffer_thread,NULL);
 	for(int i=0;i<65536;i++){
-		if(portStatus[i]==0){
-			printf("%s",YELLOW);
-			printf("Port %d filtered\n",i);
-			contFilteredPorts++;
-		}
 		if(portStatus[i]==1){
 			printf("%s",RED);
 			printf("Port %d opened\n",i);
 			contOpenedPorts++;
 		}
+		if(portStatus[i]==0){
+			//printf("%s",YELLOW);
+			//printf("Port %d filtered\n",i);
+			contFilteredPorts++;
+		}
 		if(portStatus[i]==2){
-			printf("%s",DEFAULT);
-			printf("Port %d closed\n",i);
+			//printf("%s",DEFAULT);
+			//printf("Port %d closed\n",i);
 			contClosedPorts++;
 		}
 	}
 	clock_gettime(CLOCK_MONOTONIC_RAW, &tEnd);
 	double elapsedTime=(tEnd.tv_nsec - tInit.tv_nsec) / 1000000000.0 + (tEnd.tv_sec  - tInit.tv_sec);
 	printf("%s",DEFAULT);
-	printf("\nScanned ports: %d in %.0f:%.0f:%d\n\n",cantPortToScan, elapsedTime/3600,elapsedTime/60,(int)elapsedTime%60);
+	printf("\nScanned ports: %d in %.3f secs\n\n",cantPortToScan, elapsedTime);
+	printf("%s",GREEN);
 	printf("\tClosed: %d\n", contClosedPorts);
 	printf("%s",YELLOW);
 	printf("\tFiltered: %d\n",contFilteredPorts);

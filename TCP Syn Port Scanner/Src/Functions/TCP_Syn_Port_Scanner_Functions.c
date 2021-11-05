@@ -36,7 +36,7 @@ char* hostname_to_ip(char * hostname){
 	struct in_addr **addr_list;
 	int i;
 	if ( (he = gethostbyname( hostname ) ) == NULL){
-		herror("gethostbyname");
+		//herror("gethostbyname");
 		return NULL;
 	}
 	addr_list = (struct in_addr **) he->h_addr_list;

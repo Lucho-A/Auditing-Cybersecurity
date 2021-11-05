@@ -27,11 +27,13 @@
 #define TRUE 1
 #define FALSE 0
 #define RED "\e[0;91m"
+#define GREEN "\e[0;92m"
 #define CYAN "\e[0;36m"
 #define WHITE "\e[0;37m"
 #define YELLOW "\e[0;93m"
 #define DEFAULT "\e[0m"
 #define CANT_PORTS 5000
+#define PACKET_FORWARDING_LIMIT 10
 static const long RETURN_OK;
 
 struct pseudo_header{
