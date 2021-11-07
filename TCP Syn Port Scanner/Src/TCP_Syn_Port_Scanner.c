@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
 	printf("\n**************************\n");
 	printf("%s",DEFAULT);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &tInit);
-	for(int i=0;i<65536;i++) portStatus[i]=-1;
+	for(int i=0;i<cantPortToScan;i++) portStatus[portsToScan[i]]=-1;
 	printf("%s",WHITE);
 	time_t timestamp = time(NULL);
 	struct tm tm = *localtime(&timestamp);
@@ -121,14 +121,12 @@ int main(int argc, char *argv[]){
 	int i;
 	dest.sin_family = AF_INET;
 	dest.sin_addr.s_addr = dest_ip.s_addr;
-	for(int i=0;i<cantPortToScan;i++){
-		portStatus[portsToScan[i]]=0;
-	}
+	for(int i=0;i<cantPortToScan;i++) portStatus[portsToScan[i]]=0;
 	while(endSendPacketes!=PACKET_FORWARDING_LIMIT){
-		contFilteredPortsChange=contFilteredPorts;
-		for(i = 0 ; i < 65536 ; i++){
-			if(portStatus[i]==0){
-				tcph->dest = htons (i);
+		for(i= 0;i<cantPortToScan;i++){
+			if(portStatus[portsToScan[i]]==0){
+				contFilteredPorts++;
+				tcph->dest = htons (portsToScan[i]);
 				tcph->check = 0;
 				psh.source_address = inet_addr( source_ip );
 				psh.dest_address = dest.sin_addr.s_addr;
@@ -145,24 +143,28 @@ int main(int argc, char *argv[]){
 		}
 		sleep(1);
 		(contFilteredPortsChange==contFilteredPorts)?(endSendPacketes++):(endSendPacketes=0);
+		contFilteredPortsChange=contFilteredPorts;
+		contFilteredPorts=0;
 	}
+	contFilteredPorts=cantPortToScan-contOpenedPorts-contClosedPorts;
 	endProces=TRUE;
 	pthread_join(sniffer_thread,NULL);
-	for(int i=0;i<65536;i++){
-		if(portStatus[i]==1){
+	struct servent *service_resp=NULL;
+	char service_name[50]="";
+	for(int i=0;i<cantPortToScan;i++){
+		service_resp = getservbyport(ntohs(portsToScan[i]), "tcp");
+		(service_resp==NULL)?(strcpy(service_name,"???")):(strcpy(service_name, service_resp->s_name));
+		if(portStatus[portsToScan[i]]==1){
 			printf("%s",RED);
-			printf("Port %d opened\n",i);
-			contOpenedPorts++;
+			printf("Port %d \topened \t\t(%s)\n",portsToScan[i], service_name);
 		}
-		if(portStatus[i]==0){
-			//printf("%s",YELLOW);
-			//printf("Port %d filtered\n",i);
-			contFilteredPorts++;
+		if(portStatus[portsToScan[i]]==0){
+			printf("%s",YELLOW);
+			if(contFilteredPorts<10) printf("Port %d \tfiltered \t(%s)\n",portsToScan[i], service_name);
 		}
-		if(portStatus[i]==2){
-			//printf("%s",DEFAULT);
-			//printf("Port %d closed\n",i);
-			contClosedPorts++;
+		if(portStatus[portsToScan[i]]==2){
+			printf("%s",GREEN);
+			if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
 		}
 	}
 	clock_gettime(CLOCK_MONOTONIC_RAW, &tEnd);
@@ -190,7 +192,6 @@ int start_sniffer(){
 	int data_size;
 	struct sockaddr saddr;
 	unsigned char *buffer = (unsigned char *)malloc(65536);
-	fflush(stdout);
 	sock_raw = socket(AF_INET , SOCK_RAW , IPPROTO_TCP);
 	if(sock_raw < 0){
 		printf("Socket Error\n");
@@ -226,9 +227,11 @@ void process_packet(unsigned char* buffer, int size){
 		dest.sin_addr.s_addr = iph->daddr;
 		if(tcph->syn == 1 && tcph->ack == 1 && source.sin_addr.s_addr == dest_ip.s_addr ){
 			portStatus[ntohs(tcph->source)]=1;
+			contOpenedPorts++;
 		}
 		if(tcph->rst == 1 && source.sin_addr.s_addr == dest_ip.s_addr ){
 			portStatus[ntohs(tcph->source)]=2;
+			contClosedPorts++;
 		}
 	}
 }

@@ -33,7 +33,7 @@
 #define YELLOW "\e[0;93m"
 #define DEFAULT "\e[0m"
 #define CANT_PORTS 5000
-#define PACKET_FORWARDING_LIMIT 10
+#define PACKET_FORWARDING_LIMIT 5
 static const long RETURN_OK;
 
 struct pseudo_header{
