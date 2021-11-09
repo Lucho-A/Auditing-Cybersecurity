@@ -2,7 +2,7 @@
  ============================================================================
  Name        : TCP Syn Port Scanner.c
  Author      : L.
- Version     : 1.0.3
+ Version     : 1.0.4
  Copyright   : GNU General Public License v3.0
  Description : TCP Syn Port Scanner developed in C, Ansi-style
  ============================================================================
