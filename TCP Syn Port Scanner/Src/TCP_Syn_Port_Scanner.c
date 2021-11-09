@@ -21,18 +21,22 @@ int endProces=FALSE;
 
 int main(int argc, char *argv[]){
 	int contFilteredPortsChange=-1, endSendPacketes=0;
+	int checkOpenedPorts=FALSE;
 	struct timespec tInit, tEnd;
 	switch(argc){
-	case 3:
-		if(strtol(argv[2],NULL,10)<5001 && strtol(argv[2],NULL,10)>0){
-			cantPortToScan=strtol(argv[2],NULL,10);
-			target = argv[1];
+	case 3 ... 4:
+	if(strtol(argv[2],NULL,10)<5001 && strtol(argv[2],NULL,10)>0){
+		cantPortToScan=strtol(argv[2],NULL,10);
+		target = argv[1];
+		if(argv[3]==NULL || strcmp(argv[3],"--check-opened-ports")==0) {
+			checkOpenedPorts=TRUE;
 			break;
 		}
-		/* no break */
+	}
+	/* no break */
 	default:
 		printf("%s",WHITE);
-		printf("\nUsage (as root): 'TCP Syn Port Scanner' ip|url cantPortToScan (1-5000)\n");
+		printf("\nUsage (as root): 'TCP Syn Port Scanner' ip|url cantPortToScan (1-5000) [--check-opened-ports]\n");
 		printf("v.gr: 'TCP Syn Port Scanner' www.scanme.org 500\n\n");
 		exit(EXIT_FAILURE);
 	}
@@ -52,6 +56,7 @@ int main(int argc, char *argv[]){
 	int s = socket (AF_INET, SOCK_RAW , IPPROTO_TCP);
 	if(s < 0){
 		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
+		printf("Are you root??\n\n");
 		exit(EXIT_FAILURE);
 	}
 	char datagram[4096];
@@ -156,7 +161,14 @@ int main(int argc, char *argv[]){
 		(service_resp==NULL)?(strcpy(service_name,"???")):(strcpy(service_name, service_resp->s_name));
 		if(portStatus[portsToScan[i]]==1){
 			printf("%s",RED);
-			printf("Port %d \topened \t\t(%s)\n",portsToScan[i], service_name);
+			printf("Port %d \topened \t\t(%s)",portsToScan[i], service_name);
+			if(checkOpenedPorts==TRUE){
+				char *msgReceived=NULL;
+				sendMsg(dest_ip.s_addr,portsToScan[i], &msgReceived);
+				printf("%s",DEFAULT);
+				printf("\nMessage received: \n%s\n", msgReceived);
+			}
+			printf("\n");
 		}
 		if(portStatus[portsToScan[i]]==0){
 			printf("%s",YELLOW);

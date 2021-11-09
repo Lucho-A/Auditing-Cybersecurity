@@ -47,6 +47,7 @@ struct pseudo_header{
 
 struct in_addr dest_ip;
 
+int sendMsg(in_addr_t ip, int port, char **msgResp);
 void * receive_ack( void *ptr );
 void process_packet(unsigned char* , int);
 unsigned short csum(unsigned short * , int );
