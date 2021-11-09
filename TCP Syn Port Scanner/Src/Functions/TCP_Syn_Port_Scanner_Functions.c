@@ -6,32 +6,43 @@
  Copyright   : GNU General Public License v3.0
  Description : Port Scanner in C, Ansi-style
  ============================================================================
-*/
+ */
 
 #include "TCP_Syn_Port_Scanner.h"
 
-int sendMsg(in_addr_t ip, int port, char **msgResp) {
-	int sk;
-	sk=socket(AF_INET,SOCK_STREAM, 0);
-	struct sockaddr_in server_address;
-	server_address.sin_family = AF_INET;
-	server_address.sin_port=htons(port);
-	server_address.sin_addr.s_addr= ip;
-	if(connect(sk, (struct sockaddr *) &server_address, sizeof(server_address))<0){
+int send_msg(in_addr_t ip, int port, char **msgResp) {
+	int sk=socket(AF_INET,SOCK_STREAM, 0);
+	if(sk<0){
+		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	struct sockaddr_in serverAddress;
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port=htons(port);
+	serverAddress.sin_addr.s_addr= ip;
+	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0){
 		printf("Send message connection error\n");
-		fflush(stdout);
 		return -1;
+	}
+	if(fcntl(sk, F_SETFL, fcntl(sk, F_GETFL) | O_NONBLOCK) < 0) {
+		printf("fcntl (no blocking set) error\n");
+		return -3;
 	}
 	char *message = "GET \n";
+	char serverResp[1024];
+	int cont=0;
 	if(send(sk , message , strlen(message) , 0) < 0){
 		printf("Send message error\n");
-		fflush(stdout);
-		return -1;
+		return -2;
 	}
-	char server_resp[1024];
-	recv(sk, &server_resp, sizeof(server_resp),0);
+	while(cont<3){
+		recv(sk, &serverResp, sizeof(serverResp),0);
+		sleep(1);
+		cont++;
+	}
+
 	close(sk);
-	*msgResp=server_resp;
+	*msgResp=serverResp;
 	return 0;
 }
 
@@ -55,40 +66,34 @@ unsigned short csum(unsigned short *ptr,int nbytes){
 	return(r);
 }
 
-
 char* hostname_to_ip(char * hostname){
 	struct hostent *he;
 	struct in_addr **addr_list;
 	int i;
-	if ( (he = gethostbyname( hostname ) ) == NULL){
-		return NULL;
-	}
+	if((he = gethostbyname( hostname ) ) == NULL) return NULL;
 	addr_list = (struct in_addr **) he->h_addr_list;
-	for(i = 0; addr_list[i] != NULL; i++){
-		return inet_ntoa(*addr_list[i]) ;
-	}
+	for(i = 0; addr_list[i] != NULL; i++) return inet_ntoa(*addr_list[i]);
 	return NULL;
 }
-
 
 void get_local_ip (char * buffer){
 	int sk = socket (AF_INET, SOCK_DGRAM, 0);
 	const char* kGoogleDnsIp = "8.8.8.8";
 	int dns_port = 53;
 	struct sockaddr_in serv;
-	memset( &serv, 0, sizeof(serv) );
-	serv.sin_family = AF_INET;
+	memset(&serv, 0, sizeof(serv));
+	serv.sin_family=AF_INET;
 	serv.sin_addr.s_addr = inet_addr(kGoogleDnsIp);
-	serv.sin_port = htons( dns_port );
-	int err = connect( sk , (const struct sockaddr*) &serv , sizeof(serv) );
-	if(err!=0){
+	serv.sin_port=htons(dns_port);
+	int resp=connect(sk,(const struct sockaddr*) &serv,sizeof(serv));
+	if(resp!=0){
 		printf("connect() error\n");
 		exit(EXIT_FAILURE);
 	}
 	struct sockaddr_in name;
 	socklen_t namelen = sizeof(name);
-	err = getsockname(sk, (struct sockaddr*) &name, &namelen);
-	if(err!=0){
+	resp = getsockname(sk, (struct sockaddr*) &name, &namelen);
+	if(resp!=0){
 		printf("getsockname() error\n");
 		exit(EXIT_FAILURE);
 	}

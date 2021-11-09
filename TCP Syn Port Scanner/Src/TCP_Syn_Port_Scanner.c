@@ -44,6 +44,7 @@ int main(int argc, char *argv[]){
 	printf("%s",CYAN);
 	printf("\n**************************\n");
 	printf("\nTCP Syn Port Scanner by L.\n");
+	printf("\nv1.0.4\n");
 	printf("\n**************************\n");
 	printf("%s",DEFAULT);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &tInit);
@@ -53,9 +54,10 @@ int main(int argc, char *argv[]){
 	struct tm tm = *localtime(&timestamp);
 	printf("\nStarting TCP Syn Port Scanning... (%d/%02d/%02d %02d:%02d:%02d)\n\n",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 	printf("%s",DEFAULT);
-	int s = socket (AF_INET, SOCK_RAW , IPPROTO_TCP);
-	if(s < 0){
+	int sk=socket (AF_INET, SOCK_RAW , IPPROTO_TCP);
+	if(sk<0){
 		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
+		printf("%s", WHITE);
 		printf("Are you root??\n\n");
 		exit(EXIT_FAILURE);
 	}
@@ -69,7 +71,7 @@ int main(int argc, char *argv[]){
 		dest_ip.s_addr = inet_addr(target);
 	}else{
 		char *ip = hostname_to_ip(target);
-		if(ip != NULL){
+		if(ip!=NULL){
 			printf("URL (%s) resolved to: %s \n\n" , target , ip);
 			dest_ip.s_addr = inet_addr( hostname_to_ip(target) );
 		}
@@ -101,19 +103,19 @@ int main(int argc, char *argv[]){
 	tcph->dest = htons (80);
 	tcph->seq = htonl(1105024978);
 	tcph->ack_seq = 0;
-	tcph->doff = sizeof(struct tcphdr) / 4;
+	tcph->doff = sizeof(struct tcphdr)/4;
 	tcph->fin=0;
 	tcph->syn=1;
 	tcph->rst=0;
 	tcph->psh=0;
 	tcph->ack=0;
 	tcph->urg=0;
-	tcph->window = htons ( 14600 );
+	tcph->window = htons (14600);
 	tcph->check = 0;
 	tcph->urg_ptr = 0;
 	int one = 1;
 	const int *val = &one;
-	if (setsockopt (s, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0){
+	if (setsockopt (sk, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0){
 		printf ("Error setting IP_HDRINCL. Error number : %d . Error message : %s \n" , errno , strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -140,7 +142,7 @@ int main(int argc, char *argv[]){
 				psh.tcp_length = htons( sizeof(struct tcphdr) );
 				memcpy(&psh.tcp , tcph , sizeof (struct tcphdr));
 				tcph->check = csum( (unsigned short*) &psh , sizeof (struct pseudo_header));
-				if (sendto (s, datagram , sizeof(struct iphdr) + sizeof(struct tcphdr) , 0 , (struct sockaddr *) &dest, sizeof (dest)) < 0){
+				if (sendto (sk, datagram , sizeof(struct iphdr) + sizeof(struct tcphdr) , 0 , (struct sockaddr *) &dest, sizeof (dest)) < 0){
 					printf ("Error sending syn packet. Error number : %d . Error message : %s \n" , errno , strerror(errno));
 					exit(EXIT_FAILURE);
 				}
@@ -164,7 +166,7 @@ int main(int argc, char *argv[]){
 			printf("Port %d \topened \t\t(%s)",portsToScan[i], service_name);
 			if(checkOpenedPorts==TRUE){
 				char *msgReceived=NULL;
-				sendMsg(dest_ip.s_addr,portsToScan[i], &msgReceived);
+				send_msg(dest_ip.s_addr,portsToScan[i], &msgReceived);
 				printf("%s",DEFAULT);
 				printf("\nMessage received: \n%s\n", msgReceived);
 			}
