@@ -26,12 +26,17 @@ int main(int argc, char *argv[]){
 	switch(argc){
 	case 3 ... 4:
 	if(strtol(argv[2],NULL,10)<5001 && strtol(argv[2],NULL,10)>0){
-		cantPortToScan=strtol(argv[2],NULL,10);
+		int argOK=FALSE;
 		target = argv[1];
-		if(argv[3]==NULL || strcmp(argv[3],"--check-opened-ports")==0) {
-			checkOpenedPorts=TRUE;
-			break;
+		cantPortToScan=strtol(argv[2],NULL,10);
+		for(int i=3;i<argc;i++){
+			if(strcmp(argv[i],"--check-opened-ports")==0) {
+				checkOpenedPorts=TRUE;
+				//if(strcmp(argv[i],"--check-opened-ports")==0) checkOpenedPorts=TRUE;
+				argOK=TRUE;
+			}
 		}
+		if(argOK==TRUE) break;
 	}
 	/* no break */
 	default:

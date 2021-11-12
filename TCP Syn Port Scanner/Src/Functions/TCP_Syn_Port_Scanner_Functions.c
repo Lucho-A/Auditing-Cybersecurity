@@ -26,14 +26,23 @@ int send_msg(in_addr_t ip, int port, char **msgResp) {
 	}
 	if(fcntl(sk, F_SETFL, fcntl(sk, F_GETFL) | O_NONBLOCK) < 0) {
 		printf("fcntl (no blocking set) error\n");
-		return -3;
+		return -2;
 	}
-	char *message = "GET \n";
+	char message[500]="POST / HTTP/1.1\r\n\r\n";
+	//char URL[400]="";
+	//char robots[15]="robots.txt";
+	//snprintf(message,sizeof(URL),"POST /%s HTTP/1.0\r\n\r\n";
+			//"Host: %s\r\n"
+			//"Accept: */*\r\n"
+			//"User-Agent: () { :; }; /bin/eject\r\n\r\n";
+			//"User-Agent: fetch.c\r\n"
+			//"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0)\r\n"
+			//"\r\n",URL,inet_ntoa(*((struct in_addr*)&ip)));
 	char serverResp[1024];
 	int cont=0;
 	if(send(sk , message , strlen(message) , 0) < 0){
 		printf("Send message error\n");
-		return -2;
+		return -3;
 	}
 	while(cont<3){
 		recv(sk, &serverResp, sizeof(serverResp),0);

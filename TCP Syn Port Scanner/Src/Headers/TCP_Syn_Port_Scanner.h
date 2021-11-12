@@ -25,6 +25,8 @@
 #include<unistd.h>
 #include<fcntl.h>
 
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+
 #define TRUE 1
 #define FALSE 0
 #define RED "\e[0;91m"
