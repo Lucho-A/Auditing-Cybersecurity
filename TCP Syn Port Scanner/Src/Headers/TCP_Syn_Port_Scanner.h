@@ -29,14 +29,18 @@
 
 #define TRUE 1
 #define FALSE 0
-#define RED "\e[0;91m"
-#define GREEN "\e[0;92m"
+#define HRED "\e[0;91m"
+#define HGREEN "\e[0;92m"
+#define HBLUE "\e[0;94m"
+#define HYELLOW "\e[0;93m"
+#define BLUE "\e[0;34m"
 #define CYAN "\e[0;36m"
 #define WHITE "\e[0;37m"
-#define YELLOW "\e[0;93m"
 #define DEFAULT "\e[0m"
 #define CANT_PORTS 5000
 #define PACKET_FORWARDING_LIMIT 5
+#define BUFFER_RECV_MSG 10240
+
 static const long RETURN_OK;
 
 struct pseudo_header{
@@ -48,9 +52,16 @@ struct pseudo_header{
 	struct tcphdr tcp;
 };
 
+typedef struct message{
+	char descrip[128];
+	char msg[128];
+}Message;
+
 struct in_addr dest_ip;
 
-int send_msg(in_addr_t ip, int port, char **msgResp);
+int check_port_80(in_addr_t ip, int port);
+int check_port_21(in_addr_t ip, int port);
+int check_port(in_addr_t ip, int port);
 void * receive_ack( void *ptr );
 void process_packet(unsigned char* , int);
 unsigned short csum(unsigned short * , int );

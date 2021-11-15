@@ -10,7 +10,7 @@
 
 #include "TCP_Syn_Port_Scanner.h"
 
-char *target="";
+char target[500]="";
 int contClosedPorts=0;
 int contOpenedPorts=0;
 int contFilteredPorts=0;
@@ -26,14 +26,15 @@ int main(int argc, char *argv[]){
 	switch(argc){
 	case 3 ... 4:
 	if(strtol(argv[2],NULL,10)<5001 && strtol(argv[2],NULL,10)>0){
-		int argOK=FALSE;
-		target = argv[1];
+		int argOK=TRUE;
+		snprintf(target,sizeof(target),"%s",argv[1]);
 		cantPortToScan=strtol(argv[2],NULL,10);
 		for(int i=3;i<argc;i++){
 			if(strcmp(argv[i],"--check-opened-ports")==0) {
 				checkOpenedPorts=TRUE;
-				//if(strcmp(argv[i],"--check-opened-ports")==0) checkOpenedPorts=TRUE;
 				argOK=TRUE;
+			}else{
+				argOK=FALSE;
 			}
 		}
 		if(argOK==TRUE) break;
@@ -167,22 +168,18 @@ int main(int argc, char *argv[]){
 		service_resp = getservbyport(ntohs(portsToScan[i]), "tcp");
 		(service_resp==NULL)?(strcpy(service_name,"???")):(strcpy(service_name, service_resp->s_name));
 		if(portStatus[portsToScan[i]]==1){
-			printf("%s",RED);
-			printf("Port %d \topened \t\t(%s)",portsToScan[i], service_name);
+			printf("%s",HRED);
+			printf("Port %d \topened \t\t(%s)\n",portsToScan[i], service_name);
 			if(checkOpenedPorts==TRUE){
-				char *msgReceived=NULL;
-				send_msg(dest_ip.s_addr,portsToScan[i], &msgReceived);
-				printf("%s",DEFAULT);
-				printf("\nMessage received: \n%s\n", msgReceived);
+				check_port(dest_ip.s_addr,portsToScan[i]);
 			}
-			printf("\n");
 		}
 		if(portStatus[portsToScan[i]]==0){
-			printf("%s",YELLOW);
+			printf("%s",HYELLOW);
 			if(contFilteredPorts<10) printf("Port %d \tfiltered \t(%s)\n",portsToScan[i], service_name);
 		}
 		if(portStatus[portsToScan[i]]==2){
-			printf("%s",GREEN);
+			printf("%s",HGREEN);
 			if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
 		}
 	}
@@ -190,11 +187,11 @@ int main(int argc, char *argv[]){
 	double elapsedTime=(tEnd.tv_nsec - tInit.tv_nsec) / 1000000000.0 + (tEnd.tv_sec  - tInit.tv_sec);
 	printf("%s",DEFAULT);
 	printf("\nScanned ports: %d in %.3f secs\n\n",cantPortToScan, elapsedTime);
-	printf("%s",GREEN);
+	printf("%s",HGREEN);
 	printf("\tClosed: %d\n", contClosedPorts);
-	printf("%s",YELLOW);
+	printf("%s",HYELLOW);
 	printf("\tFiltered: %d\n",contFilteredPorts);
-	printf("%s",RED);
+	printf("%s",HRED);
 	printf("\tOpened: %d\n\n",contOpenedPorts);
 	printf("%s",DEFAULT);
 	return RETURN_OK;
