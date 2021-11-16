@@ -30,11 +30,26 @@ int check_port_21(in_addr_t ip, int port){
 	char serverResp[BUFFER_RECV_MSG]={'\0'};
 	char message[500]="";
 	struct timeval timeout;
-	printf("%s",HBLUE);
-	printf("\nTrying anonymous login...\n");
-	printf("%s",BLUE);
-	snprintf(message,sizeof(message),"\nUSER anonymous\nPASS anonymous\n");
 	int bytesTransmm=0;
+	printf("%s",HBLUE);
+	printf("\nTrying anonymous/anonymous login...\n");
+	printf("%s",BLUE);
+	snprintf(message,sizeof(message),"USER %s\r\n","anonymous");
+	bytesTransmm=send(sk, message, strlen(message), MSG_NOSIGNAL);
+	if(bytesTransmm < 0) printf("Send message error: %s\n", strerror(errno));
+	do{
+		FD_ZERO(&read_fd_set);
+		FD_SET((unsigned int)sk, &read_fd_set);
+		timeout.tv_sec = 5;
+		timeout.tv_usec = 0;
+		select(sk+1, &read_fd_set, NULL, NULL, &timeout);
+		if (!(FD_ISSET(sk, &read_fd_set))) break;
+		int bytesReciv=recv(sk, serverResp, sizeof(serverResp),0);
+		if(bytesReciv==0) break;
+		if(bytesReciv>0) printf("\n%s\n",serverResp);
+	}while(TRUE);
+	snprintf(message,sizeof(message),"PASS %s\r\n","anonymous");
+	bytesTransmm=0;
 	bytesTransmm=send(sk, message, strlen(message), MSG_NOSIGNAL);
 	if(bytesTransmm < 0) printf("Send message error: %s\n", strerror(errno));
 	do{
@@ -47,16 +62,13 @@ int check_port_21(in_addr_t ip, int port){
 		int bytesReciv=recv(sk, serverResp, sizeof(serverResp),0);
 		if(bytesReciv==0) break;
 		printf("%s",BLUE);
-		if(bytesReciv>0) printf("\n%s\n\n",serverResp);
+		if(bytesReciv>0) printf("\n%s\n",serverResp);
 	}while(TRUE);
 	char *logSuccess="Login successful";
 	if(strstr(serverResp, logSuccess) != NULL){
 		printf("%s",HRED);
-		printf("******************\n");
-		printf("Service Vulnerable\n");
-		printf("******************\n\n");
+		printf("Service Vulnerable\n\n");
 	}
-	memset(serverResp,'\0',sizeof(serverResp));
 	close(sk);
 	return 0;
 }

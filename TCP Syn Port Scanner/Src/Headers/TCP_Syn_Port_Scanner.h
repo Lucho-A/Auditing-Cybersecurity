@@ -24,6 +24,11 @@
 #include<time.h>
 #include<unistd.h>
 #include<fcntl.h>
+#define LIBSSH_STATIC 1
+#include<libssh2.h>
+#include<libssh2_sftp.h>
+#include <sys/types.h>
+#include <ctype.h>
 
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
@@ -61,6 +66,7 @@ struct in_addr dest_ip;
 
 int check_port_80(in_addr_t ip, int port);
 int check_port_21(in_addr_t ip, int port);
+int check_port_22(in_addr_t ip, int port);
 int check_port(in_addr_t ip, int port);
 void * receive_ack( void *ptr );
 void process_packet(unsigned char* , int);
