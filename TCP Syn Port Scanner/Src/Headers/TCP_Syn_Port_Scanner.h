@@ -67,6 +67,7 @@ struct in_addr dest_ip;
 int check_port_80(in_addr_t ip, int port);
 int check_port_21(in_addr_t ip, int port);
 int check_port_22(in_addr_t ip, int port);
+int check_port_23(in_addr_t ip, int port);
 int check_port(in_addr_t ip, int port);
 void * receive_ack( void *ptr );
 void process_packet(unsigned char* , int);

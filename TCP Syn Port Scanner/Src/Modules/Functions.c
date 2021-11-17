@@ -24,8 +24,11 @@ int check_port(in_addr_t ip, int port) {
 	case 22:
 		check_port_22(ip, port);
 		break;
+	case 23:
+		check_port_23(ip, port);
+		break;
 	default:
-		printf("\nPort checking not implemented yet for this port\n\n");
+		printf("\nPort checking not implemented for this port, yet\n\n");
 		break;
 	}
 	return 0;
