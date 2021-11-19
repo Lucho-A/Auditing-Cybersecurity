@@ -2,7 +2,7 @@
  ============================================================================
  Name        : TCP Syn Port Scanner.h
  Author      : L.
- Version     : 1.0.4
+ Version     : 1.0.5
  Copyright   : GNU General Public License v3.0
  Description : Port Scanner in C, Ansi-style
  ============================================================================
@@ -24,11 +24,13 @@
 #include<time.h>
 #include<unistd.h>
 #include<fcntl.h>
+#include <curl/curl.h>
 #define LIBSSH_STATIC 1
 #include<libssh2.h>
 #include<libssh2_sftp.h>
 #include <sys/types.h>
 #include <ctype.h>
+
 
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
@@ -45,6 +47,9 @@
 #define CANT_PORTS 5000
 #define PACKET_FORWARDING_LIMIT 5
 #define BUFFER_RECV_MSG 10240
+#define PATH_TO_RESOURCES "/home/lucho/git/TCP Syn Port Scanner/TCP Syn Port Scanner/Src/Resources/"
+#define CURL_PERFORM_DELAY 100000
+#define BRUTE_FORCE_TIMEOUT 3
 
 static const long RETURN_OK;
 
@@ -64,11 +69,13 @@ typedef struct message{
 
 struct in_addr dest_ip;
 
-int check_port_80(in_addr_t ip, int port);
-int check_port_21(in_addr_t ip, int port);
-int check_port_22(in_addr_t ip, int port);
-int check_port_23(in_addr_t ip, int port);
-int check_port(in_addr_t ip, int port);
+int hack_port_80(in_addr_t ip, int port);
+int hack_port_21(in_addr_t ip, int port);
+int hack_port_22(in_addr_t ip, int port);
+int hack_port_23(in_addr_t ip, int port);
+int hack_port(in_addr_t ip, int port);
+int open_file(char *fileName, FILE **f);
+void show_error(char *errMsg);
 void * receive_ack( void *ptr );
 void process_packet(unsigned char* , int);
 unsigned short csum(unsigned short * , int );

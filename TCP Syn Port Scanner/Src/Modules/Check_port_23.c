@@ -10,7 +10,7 @@
 
 #include "TCP_Syn_Port_Scanner.h"
 
-int check_port_23(in_addr_t ip, int port){
+int hack_port_23(in_addr_t ip, int port){
 	char msg[3][50]={"admin\n",
 					"admin\n",
 					"\n"};

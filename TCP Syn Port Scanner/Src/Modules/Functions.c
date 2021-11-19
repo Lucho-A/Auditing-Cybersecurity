@@ -2,7 +2,7 @@
  ============================================================================
  Name        : TCP Syn Port Scanner Functions.c
  Author      : L.
- Version     : 1.0.4
+ Version     : 1.0.5
  Copyright   : GNU General Public License v3.0
  Description : Port Scanner in C, Ansi-style
  ============================================================================
@@ -10,28 +10,44 @@
 
 #include "TCP_Syn_Port_Scanner.h"
 
-int check_port(in_addr_t ip, int port) {
+int hack_port(in_addr_t ip, int port) {
 	printf("%s",DEFAULT);
 	switch(port){
 	case 80:
 	case 8080:
 	case 443:
-		check_port_80(ip, port);
+		hack_port_80(ip, port);
 		break;
 	case 21:
-		check_port_21(ip, port);
+		hack_port_21(ip, port);
 		break;
 	case 22:
-		check_port_22(ip, port);
+		hack_port_22(ip, port);
 		break;
 	case 23:
-		check_port_23(ip, port);
+		hack_port_23(ip, port);
 		break;
 	default:
 		printf("\nPort checking not implemented for this port, yet\n\n");
 		break;
 	}
 	return 0;
+}
+
+int open_file(char *fileName, FILE **f){
+	char file[256]="";
+	snprintf(file,sizeof(file),"%s%s", PATH_TO_RESOURCES,fileName);
+	if((*f=fopen(file,"r"))==NULL){
+		printf("%s",HRED);
+		printf("Users and passwords file opening error\n");
+		printf("%s",DEFAULT);
+		return -1;
+	}
+	int entries=0;
+	char buffer[256]="";
+	while(fscanf(*f, "%s ", buffer)!=EOF) entries++;
+	rewind(*f);
+	return entries;
 }
 
 unsigned short csum(unsigned short *ptr,int nbytes){
@@ -93,4 +109,8 @@ void get_local_ip (char * buffer){
 	close(sk);
 }
 
-
+void show_error(char *errMsg){
+	printf("%s",HRED);
+	printf("%s\n", errMsg);
+	printf("%s",DEFAULT);
+}

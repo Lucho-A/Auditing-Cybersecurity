@@ -12,7 +12,7 @@
 
 #define LIBSSH2_INIT_NO_CRYPTO 0x0001
 
-int check_port_22(in_addr_t ip, int port){
+int hack_port_22(in_addr_t ip, int port){
 	printf("%s", DEFAULT);
 	const char *username = "Admin";
 	const char *password = "Admin";
