@@ -53,7 +53,7 @@ int main(int argc, char *argv[]){
 	printf("\nv1.0.5\n");
 	printf("\n*******************************************************\n");
 	printf("%s",DEFAULT);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &tInit);
+	clock_gettime(CLOCK_REALTIME, &tInit);
 	FILE *f=NULL;
 	if((f=fopen(PATH_TO_RESOURCES "Ports.txt","r"))==NULL){
 		printf("%s",HRED);
@@ -199,10 +199,10 @@ int main(int argc, char *argv[]){
 			if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
 		}
 	}
-	clock_gettime(CLOCK_MONOTONIC_RAW, &tEnd);
-	double elapsedTime=(tEnd.tv_nsec - tInit.tv_nsec) / 1000000000.0 + (tEnd.tv_sec  - tInit.tv_sec);
+	clock_gettime(CLOCK_REALTIME, &tEnd);
+	double elapsedTime=(tEnd.tv_sec-tInit.tv_sec) + (tEnd.tv_nsec-tInit.tv_nsec) / 1000000000L;
 	printf("%s",DEFAULT);
-	printf("\nScanned ports: %d in %.3f secs\n\n",cantPortToScan, elapsedTime);
+	printf("\nScanned ports: %d in %.3lf secs\n\n",cantPortToScan, elapsedTime);
 	printf("%s",HGREEN);
 	printf("\tClosed: %d\n", contClosedPorts);
 	printf("%s",HYELLOW);

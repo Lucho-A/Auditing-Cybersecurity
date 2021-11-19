@@ -48,7 +48,7 @@
 #define PACKET_FORWARDING_LIMIT 5
 #define BUFFER_RECV_MSG 10240
 #define PATH_TO_RESOURCES "/home/lucho/git/TCP Syn Port Scanner/TCP Syn Port Scanner/Src/Resources/"
-#define CURL_PERFORM_DELAY 100000
+#define BRUTE_FORCE_DELAY 100000
 #define BRUTE_FORCE_TIMEOUT 3
 
 static const long RETURN_OK;
@@ -74,6 +74,7 @@ int hack_port_21(in_addr_t ip, int port);
 int hack_port_22(in_addr_t ip, int port);
 int hack_port_23(in_addr_t ip, int port);
 int hack_port(in_addr_t ip, int port);
+void cert_grabbing(char url[50]);
 int open_file(char *fileName, FILE **f);
 void show_error(char *errMsg);
 void * receive_ack( void *ptr );

