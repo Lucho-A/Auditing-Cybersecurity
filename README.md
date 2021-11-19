@@ -1,7 +1,7 @@
 # TCP-Syn-Port-Scanner
 TCP Syn Port Scanner developed in C, Ansi-style
 
-(In development) Intended for auditing/security assessment, the program scan by using a TCP Stealth mode, the X top risk ports of a server (max. 5000) and, eventually ('--hack-opened-ports' argument), it tries to carry out some hacking procedures (CERT grabbing, BFA, etc.). 
+***(In development)*** Intended for auditing/security assessment and educational purposes, the program scan by using a TCP Stealth mode, the X top risk ports of a server (max. 5000) and, eventually ('--hack-opened-ports' argument), it tries to carry out some hacking procedures (CERT grabbing, BFA, etc.). 
 
 Example: sudo ./TCP\ Syn\ Port\ Scanner lucho-alfie.ddns.net 100 --hack-opened-ports
 
