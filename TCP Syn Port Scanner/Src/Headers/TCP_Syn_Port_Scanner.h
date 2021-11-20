@@ -4,7 +4,7 @@
  Author      : L.
  Version     : 1.0.5
  Copyright   : GNU General Public License v3.0
- Description : Port Scanner in C, Ansi-style
+ Description : Header file
  ============================================================================
 */
 
@@ -30,7 +30,6 @@
 #include<libssh2_sftp.h>
 #include <sys/types.h>
 #include <ctype.h>
-
 
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
@@ -72,6 +71,7 @@ struct in_addr dest_ip;
 int hack_port_80(in_addr_t ip, int port);
 int hack_port_21(in_addr_t ip, int port);
 int hack_port_22(in_addr_t ip, int port);
+int create_SSH_handshake_session(LIBSSH2_SESSION **session, in_addr_t ip, int port);
 int hack_port_23(in_addr_t ip, int port);
 int hack_port(in_addr_t ip, int port);
 void cert_grabbing(char url[50]);
