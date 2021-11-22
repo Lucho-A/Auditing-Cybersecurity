@@ -6,7 +6,7 @@
  Copyright   : GNU General Public License v3.0
  Description : TCP Syn Port Scanner developed in C, Ansi-style
  ============================================================================
-*/
+ */
 
 #include "TCP_Syn_Port_Scanner.h"
 
@@ -20,6 +20,10 @@ int cantPortToScan=0;
 int endProces=FALSE;
 
 int main(int argc, char *argv[]){
+	if(getuid()!=0){
+		show_error("\nYou must be root for running the program.\n");
+		exit(EXIT_FAILURE);
+	}
 	int contFilteredPortsChange=-1, endSendPacketes=0;
 	int hackOpenedPorts=FALSE, i;
 	struct timespec tInit, tEnd;
@@ -72,8 +76,6 @@ int main(int argc, char *argv[]){
 	int sk=socket (AF_INET, SOCK_RAW , IPPROTO_TCP);
 	if(sk<0){
 		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
-		printf("%s", WHITE);
-		printf("Are you root??\n\n");
 		exit(EXIT_FAILURE);
 	}
 	char datagram[4096];
@@ -218,7 +220,6 @@ int hack_port(in_addr_t ip, int port) {
 	switch(port){
 	case 80:
 	case 8080:
-	case 443:
 		hack_port_80(ip, port);
 		break;
 	case 21:
@@ -230,6 +231,8 @@ int hack_port(in_addr_t ip, int port) {
 	case 23:
 		hack_port_23(ip, port);
 		break;
+	case 139:
+	case 445:
 	default:
 		printf("\nHacking not implemented for this port, yet\n\n");
 		break;

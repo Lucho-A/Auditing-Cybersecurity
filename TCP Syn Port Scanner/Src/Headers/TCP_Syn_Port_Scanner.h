@@ -30,6 +30,9 @@
 #include<libssh2_sftp.h>
 #include <sys/types.h>
 #include <ctype.h>
+#include <samba-4.0/libsmbclient.h>
+#include <libtelnet.h>
+#include <libcli.h>
 
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
@@ -68,6 +71,7 @@ typedef struct message{
 
 struct in_addr dest_ip;
 
+int hack_port_139_445(in_addr_t ip, int port);
 int hack_port_80(in_addr_t ip, int port);
 int hack_port_21(in_addr_t ip, int port);
 int hack_port_22(in_addr_t ip, int port);
