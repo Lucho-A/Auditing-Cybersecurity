@@ -30,7 +30,12 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 	return realsize;
 }
 
-int hack_port_21(in_addr_t ip, int port){
+int hack_port_21(in_addr_t ip, int port, int scanType){
+	// Port banner grabbing
+	printf("%s", HBLUE);
+	printf("\nTrying to port grabbing...\n\n");
+	printf("%s",BLUE);
+	port_grabbing(ip, port);
 	// CERT grabbing
 	printf("%s", HBLUE);
 	printf("\nTrying to obtain certs...\n\n");
@@ -39,6 +44,7 @@ int hack_port_21(in_addr_t ip, int port){
 	char url[50]="";
 	snprintf(url,sizeof(url),"ftp://%s/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
 	cert_grabbing(url);
+	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
 	// Brute Force Attack
 	printf("%s", HBLUE);
 	printf("\nTrying to perform connections by using brute force...\n\n");
@@ -47,7 +53,7 @@ int hack_port_21(in_addr_t ip, int port){
 	int i=0, timeouts=0;
 	FILE *f=NULL;
 	int totalUsernames=0;
-	if((totalUsernames=open_file("usernames.txt",&f))==-1){
+	if((totalUsernames=open_file("p21_p22_usernames.txt",&f))==-1){
 		show_error("Opening usernames.txt file error");
 		return -1;
 	}

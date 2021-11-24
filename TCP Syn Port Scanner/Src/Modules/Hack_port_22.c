@@ -12,8 +12,14 @@
 
 #define LIBSSH2_INIT_NO_CRYPTO 0x0001
 
-int hack_port_22(in_addr_t ip, int port){
-	//BFA
+int hack_port_22(in_addr_t ip, int port, int scanType){
+	// Port banner grabbing
+	printf("%s", HBLUE);
+	printf("\nTrying to port grabbing...\n\n");
+	printf("%s",BLUE);
+	port_grabbing(ip, port);
+	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
+	// BFA
 	printf("%s",HBLUE);
 	printf("\nTrying to perform connections by using brute force...\n\n");
 	printf("%s",BLUE);
@@ -30,8 +36,8 @@ int hack_port_22(in_addr_t ip, int port){
 	printf("\n");
 	FILE *f=NULL;
 	int i=0;
-	int totalUsernames=0, totalComb=0, cont=0;
-	if((totalUsernames=open_file("usernames.txt",&f))==-1){
+	double totalUsernames=0, totalComb=0, cont=0;
+	if((totalUsernames=open_file("p21_p22_usernames.txt",&f))==-1){
 		show_error("Opening usernames.txt file error");
 		return -1;
 	}

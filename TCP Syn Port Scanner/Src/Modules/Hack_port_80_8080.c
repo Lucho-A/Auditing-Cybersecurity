@@ -11,6 +11,7 @@
 #include "TCP_Syn_Port_Scanner.h"
 
 static size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata){
+	printf("%s\n", buffer);
 	return nitems * size;
 }
 
@@ -26,7 +27,12 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 	return realsize;
 }
 
-int hack_port_80(in_addr_t ip, int port){
+int hack_port_80_8080(in_addr_t ip, int port, int scanType){
+	// Port banner grabbing
+	printf("%s", HBLUE);
+	printf("\nTrying to port grabbing...\n\n");
+	printf("%s",BLUE);
+	port_grabbing(ip, port);
 	// CERT grabbing
 	printf("%s", HBLUE);
 	printf("\nTrying to obtain certs...\n\n");
@@ -47,6 +53,8 @@ int hack_port_80(in_addr_t ip, int port){
 		curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, header_callback);
 		curl_easy_perform(mCurl);
 	}
+	curl_easy_reset(mCurl);
+	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
 	// Webpages and files requests
 	printf("%s", HBLUE);
 	printf("\nTrying to obtain webpages and some files...\n\n");
@@ -64,7 +72,6 @@ int hack_port_80(in_addr_t ip, int port){
 	while(fscanf(f,"%s", files[i])!=EOF) i++;
 	strcpy(files[0],"");
 	struct memory chunk = {0};
-	curl_easy_reset(mCurl);
 	if(mCurl) {
 		for(i=0;i<totalFiles;i++, cont++){
 			printf("\rPercentaje completed: %.4lf%% (%s)                          ",(double)((cont/totalFiles)*100.0),files[i]);

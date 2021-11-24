@@ -10,7 +10,12 @@
 
 #include "TCP_Syn_Port_Scanner.h"
 
-int hack_port_23(in_addr_t ip, int port){
+int hack_port_23(in_addr_t ip, int port, int scanType){
+	// Port banner grabbing
+	printf("%s", HBLUE);
+	printf("\nTrying to port grabbing...\n\n");
+	printf("%s",BLUE);
+	port_grabbing(ip, port);
 	// CERT grabbing
 	printf("%s", HBLUE);
 	printf("\nTrying to obtain certs...\n\n");

@@ -52,6 +52,9 @@
 #define PATH_TO_RESOURCES "/home/lucho/git/TCP Syn Port Scanner/TCP Syn Port Scanner/Src/Resources/"
 #define BRUTE_FORCE_DELAY 100000
 #define BRUTE_FORCE_TIMEOUT 3
+#define FOOTPRINTING_SCAN 1
+#define FULL_SCAN 2
+#define SECS_WAIT_BEFORE_CONTINUE_SCAN 5
 
 static const long RETURN_OK;
 
@@ -71,13 +74,13 @@ typedef struct message{
 
 struct in_addr dest_ip;
 
-int hack_port_139_445(in_addr_t ip, int port);
-int hack_port_80(in_addr_t ip, int port);
-int hack_port_21(in_addr_t ip, int port);
-int hack_port_22(in_addr_t ip, int port);
+int hack_port_80_8080(in_addr_t ip, int port,int scanType);
+int hack_port_21(in_addr_t ip, int port,int scanType);
+int hack_port_22(in_addr_t ip, int port,int scanType);
 int create_SSH_handshake_session(LIBSSH2_SESSION **session, in_addr_t ip, int port);
-int hack_port_23(in_addr_t ip, int port);
-int hack_port(in_addr_t ip, int port);
+int hack_port_23(in_addr_t ip, int port, int scanType);
+int hack_port(in_addr_t ip, int port, int scanType);
+int port_grabbing(in_addr_t ip, int port);
 void cert_grabbing(char url[50]);
 int open_file(char *fileName, FILE **f);
 void show_error(char *errMsg);

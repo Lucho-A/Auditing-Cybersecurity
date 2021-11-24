@@ -184,21 +184,22 @@ int main(int argc, char *argv[]){
 				char c[128]="n";
 				printf("%s",WHITE);
 				do{
-					printf("\nTry to hack this port? (y|N): ");
+					printf("\nTry to hack this port? (y=footprinting only, Y=full | N): ");
 					fgets(c,sizeof(c),stdin);
 				}while(strcmp(c,"y\n")!=0 && strcmp(c,"n\n")!=0 && strcmp(c,"\n")!=0);
-				if(strcmp(c,"y\n")==0) hack_port(dest_ip.s_addr,portsToScan[i]);
+				if(strcmp(c,"y\n")==0) hack_port(dest_ip.s_addr,portsToScan[i], FOOTPRINTING_SCAN);
+				if(strcmp(c,"Y\n")==0) hack_port(dest_ip.s_addr,portsToScan[i], FULL_SCAN);
 				printf("%s",DEFAULT);
 				printf("\n");
 			}
-		}
-		if(portStatus[portsToScan[i]]==0){
-			printf("%s",HYELLOW);
-			if(contFilteredPorts<10) printf("Port %d \tfiltered \t(%s)\n",portsToScan[i], service_name);
-		}
-		if(portStatus[portsToScan[i]]==2){
-			printf("%s",HGREEN);
-			if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
+			if(portStatus[portsToScan[i]]==0){
+				printf("%s",HYELLOW);
+				if(contFilteredPorts<10) printf("Port %d \tfiltered \t(%s)\n",portsToScan[i], service_name);
+			}
+			if(portStatus[portsToScan[i]]==2){
+				printf("%s",HGREEN);
+				if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
+			}
 		}
 	}
 	clock_gettime(CLOCK_REALTIME, &tEnd);
@@ -215,26 +216,28 @@ int main(int argc, char *argv[]){
 	return RETURN_OK;
 }
 
-int hack_port(in_addr_t ip, int port) {
+int hack_port(in_addr_t ip, int port, int scanType) {
 	printf("%s",DEFAULT);
 	switch(port){
 	case 80:
 	case 8080:
-		hack_port_80(ip, port);
+		hack_port_80_8080(ip, port, scanType);
 		break;
 	case 21:
-		hack_port_21(ip, port);
+		hack_port_21(ip, port, scanType);
 		break;
 	case 22:
-		hack_port_22(ip, port);
+		hack_port_22(ip, port, scanType);
 		break;
 	case 23:
-		hack_port_23(ip, port);
+		hack_port_23(ip, port, scanType);
 		break;
+	case 110:
+	case 995:
 	case 139:
 	case 445:
 	default:
-		printf("\nHacking not implemented for this port, yet\n\n");
+		port_grabbing(ip, port);
 		break;
 	}
 	return 0;
