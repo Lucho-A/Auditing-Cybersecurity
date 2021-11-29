@@ -203,7 +203,7 @@ int main(int argc, char *argv[]){
 		}
 	}
 	clock_gettime(CLOCK_REALTIME, &tEnd);
-	double elapsedTime=(tEnd.tv_sec-tInit.tv_sec) + (tEnd.tv_nsec-tInit.tv_nsec) / 1000000000L;
+	double elapsedTime=(tEnd.tv_sec-tInit.tv_sec) + (tEnd.tv_nsec-tInit.tv_nsec) / 1000000000.0;
 	printf("%s",DEFAULT);
 	printf("\nScanned ports: %d in %.3lf secs\n\n",cantPortToScan, elapsedTime);
 	printf("%s",HGREEN);
