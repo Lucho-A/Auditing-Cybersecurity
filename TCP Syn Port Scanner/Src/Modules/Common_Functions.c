@@ -41,7 +41,7 @@ int port_grabbing(in_addr_t ip, int port){
 	if(mCurl && port!=445 && port!=139) {
 		curl_easy_setopt(mCurl, CURLOPT_URL, url);
 		curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, header_callback);
-		curl_easy_setopt(mCurl,CURLOPT_NOBODY ,1 );
+		curl_easy_setopt(mCurl, CURLOPT_NOBODY ,1 );
 		res = curl_easy_perform(mCurl);
 		if(res != CURLE_OK) itHasHttpHeader=FALSE;
 	}

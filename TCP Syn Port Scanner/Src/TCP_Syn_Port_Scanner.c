@@ -177,14 +177,14 @@ int main(int argc, char *argv[]){
 	for(int i=0;i<cantPortToScan;i++){
 		service_resp = getservbyport(ntohs(portsToScan[i]), "tcp");
 		(service_resp==NULL)?(strcpy(service_name,"???")):(strcpy(service_name, service_resp->s_name));
-		if(portStatus[portsToScan[i]]==1){
+		if(portStatus[portsToScan[i]]==PORT_OPENED){
 			printf("%s",HRED);
 			printf("Port %d \topened \t\t(%s)\n",portsToScan[i], service_name);
 			if(hackOpenedPorts==TRUE){
 				char c[128]="n";
 				printf("%s",WHITE);
 				do{
-					printf("\nTry to hack this port? (y=footprinting only, Y=full | N): ");
+					printf("\nTry to hack this port? (y=footprinting only, Y=full scan) | N (default): ");
 					fgets(c,sizeof(c),stdin);
 				}while(strcmp(c,"y\n")!=0 && strcmp(c,"Y\n")!=0 && strcmp(c,"n\n")!=0 && strcmp(c,"\n")!=0);
 				if(strcmp(c,"y\n")==0) hack_port(dest_ip.s_addr,portsToScan[i], FOOTPRINTING_SCAN);
@@ -192,14 +192,14 @@ int main(int argc, char *argv[]){
 				printf("%s",DEFAULT);
 				printf("\n");
 			}
-			if(portStatus[portsToScan[i]]==0){
-				printf("%s",HYELLOW);
-				if(contFilteredPorts<10) printf("Port %d \tfiltered \t(%s)\n",portsToScan[i], service_name);
-			}
-			if(portStatus[portsToScan[i]]==2){
-				printf("%s",HGREEN);
-				if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
-			}
+		}
+		if(portStatus[portsToScan[i]]==PORT_FILTERED){
+			printf("%s",HYELLOW);
+			if(contFilteredPorts<10) printf("Port %d \tfiltered \t(%s)\n",portsToScan[i], service_name);
+		}
+		if(portStatus[portsToScan[i]]==PORT_CLOSED){
+			printf("%s",HGREEN);
+			if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
 		}
 	}
 	clock_gettime(CLOCK_REALTIME, &tEnd);
@@ -287,11 +287,11 @@ void process_packet(unsigned char* buffer, int size){
 		memset(&dest, 0, sizeof(dest));
 		dest.sin_addr.s_addr = iph->daddr;
 		if(tcph->syn == 1 && tcph->ack == 1 && source.sin_addr.s_addr == dest_ip.s_addr && portStatus[ntohs(tcph->source)]==0){
-			portStatus[ntohs(tcph->source)]=1;
+			portStatus[ntohs(tcph->source)]=PORT_OPENED;
 			contOpenedPorts++;
 		}
 		if(tcph->rst == 1 && source.sin_addr.s_addr == dest_ip.s_addr && portStatus[ntohs(tcph->source)]==0){
-			portStatus[ntohs(tcph->source)]=2;
+			portStatus[ntohs(tcph->source)]=PORT_CLOSED;
 			contClosedPorts++;
 		}
 	}

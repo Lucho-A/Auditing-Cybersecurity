@@ -55,6 +55,9 @@
 #define FOOTPRINTING_SCAN 1
 #define FULL_SCAN 2
 #define SECS_WAIT_BEFORE_CONTINUE_SCAN 5
+#define PORT_FILTERED 0
+#define PORT_OPENED 1
+#define PORT_CLOSED 2
 
 static const long RETURN_OK;
 

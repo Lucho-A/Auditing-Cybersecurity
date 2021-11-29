@@ -51,6 +51,7 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	if(mCurl) {
 		curl_easy_setopt(mCurl, CURLOPT_URL, url);
 		curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, header_callback);
+		curl_easy_setopt(mCurl,CURLOPT_NOBODY ,1 );
 		curl_easy_perform(mCurl);
 	}
 	curl_easy_reset(mCurl);
