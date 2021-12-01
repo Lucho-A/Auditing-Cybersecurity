@@ -184,7 +184,7 @@ int main(int argc, char *argv[]){
 				char c[128]="n";
 				printf("%s",WHITE);
 				do{
-					printf("\nTry to hack this port? (y=footprinting only, Y=full scan) | N (default): ");
+					printf("\nTry to hack this port? (y=footprinting only, Y=full hack) | N (default): ");
 					fgets(c,sizeof(c),stdin);
 				}while(strcmp(c,"y\n")!=0 && strcmp(c,"Y\n")!=0 && strcmp(c,"n\n")!=0 && strcmp(c,"\n")!=0);
 				if(strcmp(c,"y\n")==0) hack_port(dest_ip.s_addr,portsToScan[i], FOOTPRINTING_SCAN);

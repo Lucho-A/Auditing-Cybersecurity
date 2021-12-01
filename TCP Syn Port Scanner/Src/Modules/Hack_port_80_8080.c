@@ -29,12 +29,12 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 
 int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	// Port banner grabbing
-	printf("%s", HBLUE);
+	printf("%s", WHITE);
 	printf("\nTrying to port grabbing...\n\n");
 	printf("%s",BLUE);
 	port_grabbing(ip, port);
 	// CERT grabbing
-	printf("%s", HBLUE);
+	printf("%s", WHITE);
 	printf("\nTrying to obtain certs...\n\n");
 	printf("%s",BLUE);
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -42,7 +42,7 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	snprintf(url,sizeof(url),"%s:%d/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)),port);
 	cert_grabbing(url);
 	// Headers
-	printf("%s", HBLUE);
+	printf("%s", WHITE);
 	printf("\nTrying to obtain headers...\n\n");
 	printf("%s",BLUE);
 	CURL *mCurl = curl_easy_init();
@@ -55,9 +55,27 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 		curl_easy_perform(mCurl);
 	}
 	curl_easy_reset(mCurl);
+	// Test OPTIONS Method
+	printf("%s", WHITE);
+	printf("\nTrying to evaluate OPTIONS in the server...\n\n");
+	printf("%s",BLUE);
+	struct curl_slist *list=NULL;
+	char host[128]="";
+	snprintf(host, sizeof(host),"Host: %s",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
+	list = curl_slist_append(list, host);
+	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	curl_easy_setopt(mCurl, CURLOPT_CUSTOMREQUEST, "OPTIONS");
+	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
+	res = curl_easy_perform(mCurl);
+	curl_easy_reset(mCurl);
+	if(res != CURLE_OK){
+		printf("%s\n",curl_easy_strerror(res));
+		return -1;
+	}
+	curl_easy_cleanup(mCurl);
 	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
 	// Webpages and files requests
-	printf("%s", HBLUE);
+	printf("%s", WHITE);
 	printf("\nTrying to obtain webpages and some files...\n\n");
 	printf("%s",BLUE);
 	FILE *f;

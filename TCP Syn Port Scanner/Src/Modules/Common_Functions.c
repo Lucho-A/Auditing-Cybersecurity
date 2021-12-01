@@ -132,7 +132,7 @@ int open_file(char *fileName, FILE **f){
 	snprintf(file,sizeof(file),"%s%s", PATH_TO_RESOURCES,fileName);
 	if((*f=fopen(file,"r"))==NULL){
 		printf("%s",HRED);
-		printf("Users and passwords file opening error\n");
+		printf("File opening error: %d (%s)\n", errno, strerror(errno));
 		printf("%s",DEFAULT);
 		return -1;
 	}

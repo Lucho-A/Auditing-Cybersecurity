@@ -14,13 +14,13 @@
 
 int hack_port_22(in_addr_t ip, int port, int scanType){
 	// Port banner grabbing
-	printf("%s", HBLUE);
+	printf("%s", WHITE);
 	printf("\nTrying to port grabbing...\n\n");
 	printf("%s",BLUE);
 	port_grabbing(ip, port);
 	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
 	// BFA
-	printf("%s",HBLUE);
+	printf("%s",WHITE);
 	printf("\nTrying to perform connections by using brute force...\n\n");
 	printf("%s",BLUE);
 	char *userauthlist;

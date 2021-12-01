@@ -12,12 +12,12 @@
 
 int hack_port_23(in_addr_t ip, int port, int scanType){
 	// Port banner grabbing
-	printf("%s", HBLUE);
+	printf("%s", WHITE);
 	printf("\nTrying to port grabbing...\n\n");
 	printf("%s",BLUE);
 	port_grabbing(ip, port);
 	// CERT grabbing
-	printf("%s", HBLUE);
+	printf("%s", WHITE);
 	printf("\nTrying to obtain certs...\n\n");
 	printf("%s",BLUE);
 	curl_global_init(CURL_GLOBAL_ALL);
