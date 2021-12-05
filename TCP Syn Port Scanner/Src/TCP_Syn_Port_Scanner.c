@@ -221,6 +221,7 @@ int hack_port(in_addr_t ip, int port, int scanType) {
 	switch(port){
 	case 80:
 	case 8080:
+	case 443:
 		hack_port_80_8080(ip, port, scanType);
 		break;
 	case 21:

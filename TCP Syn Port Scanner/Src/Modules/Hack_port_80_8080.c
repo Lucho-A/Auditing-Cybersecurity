@@ -41,7 +41,7 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	char url[50]="";
 	snprintf(url,sizeof(url),"%s:%d/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)),port);
 	cert_grabbing(url);
-	// Headers
+	// Headers grabbing
 	printf("%s", WHITE);
 	printf("\nTrying to obtain headers...\n\n");
 	printf("%s",BLUE);
@@ -60,19 +60,66 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	printf("\nTrying to evaluate OPTIONS in the server...\n\n");
 	printf("%s",BLUE);
 	struct curl_slist *list=NULL;
-	char host[128]="";
-	snprintf(host, sizeof(host),"Host: %s",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
-	list = curl_slist_append(list, host);
+	char hostHeader[128]="";
+	snprintf(hostHeader, sizeof(hostHeader),"Host: %s",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
+	list = curl_slist_append(list, hostHeader);
 	curl_easy_setopt(mCurl, CURLOPT_URL, url);
 	curl_easy_setopt(mCurl, CURLOPT_CUSTOMREQUEST, "OPTIONS");
 	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
 	res = curl_easy_perform(mCurl);
+	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
 	curl_easy_reset(mCurl);
-	if(res != CURLE_OK){
-		printf("%s\n",curl_easy_strerror(res));
-		return -1;
-	}
-	curl_easy_cleanup(mCurl);
+	// Evaluate Headers response
+	printf("%s", WHITE);
+	printf("\nTrying to evaluate Headers response...\n");
+	printf("\nSending \"Host: ???\"...\n\n");
+	printf("%s", BLUE);
+	snprintf(url,sizeof(url),"%s:%d/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)), port);
+	snprintf(hostHeader, sizeof(hostHeader),"Host: ???");
+	list = curl_slist_append(list, hostHeader);
+	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
+	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	res = curl_easy_perform(mCurl);
+	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	printf("%s", WHITE);
+	printf("\nSending \"Host: %s\" & \"Host: ???\"...\n\n", inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
+	printf("%s", BLUE);
+	snprintf(hostHeader, sizeof(hostHeader),"Host: %s", inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
+	list = curl_slist_append(list, hostHeader);
+	snprintf(hostHeader, sizeof(hostHeader),"Host: ???");
+	list = curl_slist_append(list, hostHeader);
+	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
+	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	res = curl_easy_perform(mCurl);
+	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	printf("%s", WHITE);
+	printf("\nSending \"Host: %s:???\"...\n\n",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
+	printf("%s", BLUE);
+	snprintf(hostHeader, sizeof(hostHeader),"Host: %s:???",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
+	list = curl_slist_append(list, hostHeader);
+	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
+	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	res = curl_easy_perform(mCurl);
+	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	printf("%s", WHITE);
+	printf("\nSending \"Host:\"...\n\n");
+	printf("%s", BLUE);
+	list = curl_slist_append(list, "Host;");
+	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
+	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	res = curl_easy_perform(mCurl);
+	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	printf("%s", WHITE);
+	printf("\nSending \"Host: google.com\"...\n\n");
+	printf("%s", BLUE);
+	list = curl_slist_append(list, "Host: google.com");
+	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
+	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	res = curl_easy_perform(mCurl);
+	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	curl_slist_free_all(list);
+	curl_easy_reset(mCurl);
+	printf("\n");
 	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
 	// Webpages and files requests
 	printf("%s", WHITE);
