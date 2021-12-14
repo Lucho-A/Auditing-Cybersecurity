@@ -24,15 +24,15 @@
 #include<time.h>
 #include<unistd.h>
 #include<fcntl.h>
-#include <curl/curl.h>
+#include<curl/curl.h>
 #define LIBSSH_STATIC 1
 #include<libssh2.h>
 #include<libssh2_sftp.h>
-#include <sys/types.h>
-#include <ctype.h>
-#include <samba-4.0/libsmbclient.h>
-#include <libtelnet.h>
-#include <libcli.h>
+#include<sys/types.h>
+#include<ctype.h>
+#include<samba-4.0/libsmbclient.h>
+#include<libtelnet.h>
+#include<libcli.h>
 
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
@@ -77,6 +77,7 @@ typedef struct message{
 
 struct in_addr dest_ip;
 
+int hack_port_53(in_addr_t ip, int port,int scanType);
 int hack_port_80_8080(in_addr_t ip, int port,int scanType);
 int hack_port_21(in_addr_t ip, int port,int scanType);
 int hack_port_22(in_addr_t ip, int port,int scanType);

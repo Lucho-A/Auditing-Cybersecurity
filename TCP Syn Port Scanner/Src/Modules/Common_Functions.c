@@ -50,7 +50,7 @@ int port_grabbing(in_addr_t ip, int port){
 	if(itHasHttpHeader==TRUE) return EXIT_SUCCESS;
 	int sk=socket(AF_INET,SOCK_STREAM, 0);
 	if(sk<0){
-		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
+		printf ("socket() error. Error: %d (%s)\n", errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	struct sockaddr_in serverAddress;
@@ -58,7 +58,7 @@ int port_grabbing(in_addr_t ip, int port){
 	serverAddress.sin_port=htons(port);
 	serverAddress.sin_addr.s_addr= ip;
 	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0){
-		printf("Send message connection error. Error message: %s (%d)\n", strerror(errno),errno);
+		printf("connect() error. Error: %d (%s)\n", errno, strerror(errno));
 		return -1;
 	}
 	fd_set read_fd_set;
@@ -69,7 +69,7 @@ int port_grabbing(in_addr_t ip, int port){
 	int bytesTransmm=0;
 	bytesTransmm=send(sk, "\r\n", strlen("\r\n"), MSG_NOSIGNAL);
 	if(bytesTransmm < 0){
-		printf("\nSend message error: %s\n", strerror(errno));
+		printf("send() error. Error: %d (%s)\n", errno, strerror(errno));
 		if(strstr(strerror(errno), "Broken pipe") != NULL){
 			printf("Possibly the host is closing the connections. Aborting");
 			return 0;
@@ -132,7 +132,7 @@ int open_file(char *fileName, FILE **f){
 	snprintf(file,sizeof(file),"%s%s", PATH_TO_RESOURCES,fileName);
 	if((*f=fopen(file,"r"))==NULL){
 		printf("%s",HRED);
-		printf("File opening error: %d (%s)\n", errno, strerror(errno));
+		printf("fopen(%s) error: Error: %d (%s)\n", fileName, errno, strerror(errno));
 		printf("%s",DEFAULT);
 		return -1;
 	}

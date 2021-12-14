@@ -30,15 +30,13 @@ int hack_port_22(in_addr_t ip, int port, int scanType){
 	const char *fingerprint;
 	fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
 	printf("Fingerprint: ");
-	for(int i = 0; i < 20; i++) {
-		printf("%02X ", (unsigned char)fingerprint[i]);
-	}
+	for(int i = 0; i < 20; i++) printf("%02X ", (unsigned char)fingerprint[i]);
 	printf("\n");
 	FILE *f=NULL;
 	int i=0;
 	double totalUsernames=0, totalComb=0, cont=0;
 	if((totalUsernames=open_file("p21_p22_usernames.txt",&f))==-1){
-		show_error("Opening usernames.txt file error");
+		printf("fopen(%s) error: Error: %d (%s)\n", "p21_p22_usernames.txt", errno, strerror(errno));
 		return -1;
 	}
 	char **usernames = (char**)malloc(totalUsernames * sizeof(char*));
@@ -47,7 +45,7 @@ int hack_port_22(in_addr_t ip, int port, int scanType){
 	while(fscanf(f,"%s", usernames[i])!=EOF) i++;
 	int totalPasswords=0;
 	if((totalPasswords=open_file("p22_SSH_passwords.txt",&f))==-1){
-		show_error("Opening p22_SSH_passwords.txt file error");
+		printf("fopen(%s) error: Error: %d (%s)\n", "p22_SSH_passwords.txt", errno, strerror(errno));
 		return -1;
 	}
 	char **passwords = (char**)malloc(totalPasswords * sizeof(char*));
@@ -61,7 +59,7 @@ int hack_port_22(in_addr_t ip, int port, int scanType){
 				libssh2_session_disconnect(session, "");
 				sk=create_SSH_handshake_session(&session, ip, port);
 				if(sk<0){
-					show_error("Error creating handshake");
+					printf("create_SSH_handshake_session() error: Error: %d (%s)\n", errno, strerror(errno));
 					goto exit;
 				}
 				timeouts=0;
@@ -114,25 +112,25 @@ int hack_port_22(in_addr_t ip, int port, int scanType){
 int create_SSH_handshake_session(LIBSSH2_SESSION **session, in_addr_t ip, int port){
 	int rc = libssh2_init(0);
 	if(rc != 0) {
-		printf("libssh2 initialization failed (%d)\n", rc);
-		return 1;
+		printf("libssh2_init() error: Error: %d (%s)\n", errno, strerror(errno));
+		return -1;
 	}
 	int sk=socket(AF_INET,SOCK_STREAM, 0);
 	if(sk<0){
-		printf ("Error creating socket. Error number : %d . Error message : %s \n" , errno , strerror(errno));
-		exit(EXIT_FAILURE);
+		printf("socket() error: Error: %d (%s)\n", errno, strerror(errno));
+		return -1;
 	}
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port=htons(port);
 	serverAddress.sin_addr.s_addr= ip;
 	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0){
-		printf("Send message connection error. Error message: %s (%d)\n", strerror(errno),errno);
+		printf("connect() error: Error: %d (%s)\n", errno, strerror(errno));
 		return -1;
 	}
 	*session = libssh2_session_init();
 	if(libssh2_session_handshake(*session, sk)) {
-		printf("Failure establishing SSH session: %s (%d)\n", strerror(errno),errno);
+		printf("libssh2_session_handshake() error: Error: %d (%s)\n", errno, strerror(errno));
 		return -1;
 	}
 	return sk;

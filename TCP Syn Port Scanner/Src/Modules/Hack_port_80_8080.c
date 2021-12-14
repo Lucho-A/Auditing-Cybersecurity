@@ -6,7 +6,7 @@
  Copyright   : GNU General Public License v3.0
  Description : Check Port 80
  ============================================================================
- */
+*/
 
 #include "TCP_Syn_Port_Scanner.h"
 
@@ -74,6 +74,7 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	printf("\nTrying to evaluate Headers response...\n");
 	printf("\nSending \"Host: ???\"...\n\n");
 	printf("%s", BLUE);
+	long httpResponseCode=0;
 	snprintf(url,sizeof(url),"%s:%d/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)), port);
 	snprintf(hostHeader, sizeof(hostHeader),"Host: ???");
 	list = curl_slist_append(list, hostHeader);
@@ -81,6 +82,10 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	curl_easy_setopt(mCurl, CURLOPT_URL, url);
 	res = curl_easy_perform(mCurl);
 	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &httpResponseCode);
+	printf("\n\nServer responsed with code: ");
+	if(httpResponseCode==200) printf("%s", HRED);
+	printf("%ld \n\n", httpResponseCode);
 	printf("%s", WHITE);
 	printf("\nSending \"Host: %s\" & \"Host: ???\"...\n\n", inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
 	printf("%s", BLUE);
@@ -90,8 +95,13 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	list = curl_slist_append(list, hostHeader);
 	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
 	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	curl_easy_setopt(mCurl, CURLOPT_VERBOSE, 1);
 	res = curl_easy_perform(mCurl);
 	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &httpResponseCode);
+	printf("\n\nServer responsed with code: ");
+	if(httpResponseCode==200) printf("%s", HRED);
+	printf("%ld \n\n", httpResponseCode);
 	printf("%s", WHITE);
 	printf("\nSending \"Host: %s:???\"...\n\n",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
 	printf("%s", BLUE);
@@ -99,16 +109,26 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	list = curl_slist_append(list, hostHeader);
 	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
 	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	curl_easy_setopt(mCurl, CURLOPT_VERBOSE, 1);
 	res = curl_easy_perform(mCurl);
 	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &httpResponseCode);
+	printf("\n\nServer responsed with code: ");
+	if(httpResponseCode==200) printf("%s", HRED);
+	printf("%ld \n\n", httpResponseCode);
 	printf("%s", WHITE);
 	printf("\nSending \"Host:\"...\n\n");
 	printf("%s", BLUE);
 	list = curl_slist_append(list, "Host;");
 	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
 	curl_easy_setopt(mCurl, CURLOPT_URL, url);
+	curl_easy_setopt(mCurl, CURLOPT_VERBOSE, 1);
 	res = curl_easy_perform(mCurl);
 	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &httpResponseCode);
+	printf("\n\nServer responsed with code: ");
+	if(httpResponseCode==200) printf("%s", HRED);
+	printf("%ld \n\n", httpResponseCode);
 	printf("%s", WHITE);
 	printf("\nSending \"Host: google.com\"...\n\n");
 	printf("%s", BLUE);
@@ -117,6 +137,10 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	curl_easy_setopt(mCurl, CURLOPT_URL, url);
 	res = curl_easy_perform(mCurl);
 	if(res != CURLE_OK) printf("%s\n",curl_easy_strerror(res));
+	curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &httpResponseCode);
+	printf("\n\nServer responsed with code: ");
+	if(httpResponseCode==200) printf("%s", HRED);
+	printf("%ld \n\n", httpResponseCode);
 	curl_slist_free_all(list);
 	curl_easy_reset(mCurl);
 	printf("\n");
@@ -129,7 +153,7 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 	double totalFiles=0, cont=0.0;
 	int i=0;
 	if((totalFiles=open_file("p80_HTTP_dirs_and_files.txt",&f))==-1){
-		show_error("Opening p80_HTTP_files.txt file error");
+		printf("fopen(%s) error: Error: %d (%s)\n", "p80_HTTP_dirs_and_files.txt", errno, strerror(errno));
 		return -1;
 	}
 	char **files = (char**)malloc(totalFiles * sizeof(char*) + 1);
@@ -150,18 +174,15 @@ int hack_port_80_8080(in_addr_t ip, int port, int scanType){
 			curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, (void *)&chunk);
 			curl_easy_setopt(mCurl, CURLOPT_TIMEOUT, 10L);
 			res = curl_easy_perform(mCurl);
-			curl_easy_reset(mCurl);
 			if(res == CURLE_OK && chunk.response!=NULL){
-				if(strstr(chunk.response,"403 Forbidden")==NULL
-						&& strstr(chunk.response,"404 Not Found")==NULL
-						&& strstr(chunk.response,"400 Bad Request")==NULL){
-					printf("\n\n%s\n\n", chunk.response);
-				}
+				curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, httpResponseCode);
+				if(httpResponseCode==200) printf("\n\n%s\n\n", chunk.response);
 			}
 			if(res != CURLE_OK){
 				printf("%s\n",curl_easy_strerror(res));
 				return -1;
 			}
+			curl_easy_reset(mCurl);
 		}
 		curl_easy_cleanup(mCurl);
 		curl_global_cleanup();
