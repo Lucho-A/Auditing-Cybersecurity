@@ -20,7 +20,7 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 	struct memory *mem = (struct memory *)userp;
 	char *ptr = realloc(mem->response, mem->size + realsize + 1);
 	if(ptr == NULL){
-		show_error("Out of Memory");
+		show_error("Out of Memory",0);
 		return -1;
 	}
 	mem->response = ptr;
@@ -54,7 +54,7 @@ int hack_port_21(in_addr_t ip, int port, int scanType){
 	FILE *f=NULL;
 	int totalUsernames=0;
 	if((totalUsernames=open_file("p21_p22_usernames.txt",&f))==-1){
-		show_error("Opening usernames.txt file error");
+		show_error("Opening usernames.txt file error",errno);
 		return -1;
 	}
 	char **usernames = (char**)malloc(totalUsernames * sizeof(char*));
@@ -63,7 +63,7 @@ int hack_port_21(in_addr_t ip, int port, int scanType){
 	while(fscanf(f,"%s", usernames[i])!=EOF) i++;
 	int totalPasswords=0;
 	if((totalPasswords=open_file("p21_FTP_passwords.txt",&f))==-1){
-		show_error("Opening p21_FTP_passwords.txt file error");
+		show_error("Opening p21_FTP_passwords.txt file error", errno);
 		return -1;
 	}
 	char **passwords = (char**)malloc(totalPasswords * sizeof(char*));

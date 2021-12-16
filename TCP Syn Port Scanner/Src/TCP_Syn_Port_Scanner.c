@@ -21,7 +21,7 @@ int endProces=FALSE;
 
 int main(int argc, char *argv[]){
 	if(getuid()!=0){
-		show_error("\nYou must be root for running the program.\n");
+		show_error("\nYou must be root for running the program.\n",0);
 		exit(EXIT_FAILURE);
 	}
 	int contFilteredPortsChange=-1, endSendPacketes=0;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 	printf("%s",DEFAULT);
 	int sk=socket (AF_INET, SOCK_RAW , IPPROTO_TCP);
 	if(sk<0){
-		printf("socket() error. Error: %d (%s)\n", errno, strerror(errno));
+		show_error("socket() error.", errno);
 		exit(EXIT_FAILURE);
 	}
 	char datagram[4096];
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]){
 	char *threadMsg = "Sniffer Thread";
 	pthread_t sniffer_thread;
 	if( pthread_create( &sniffer_thread , NULL ,  receive_ack , (void*) threadMsg) < 0){
-		printf ("pthread_create() error. Error: %d (%s)\n", errno, strerror(errno));
+		show_error("pthread_create() error.", errno);
 		exit(EXIT_FAILURE);
 	}
 	dest.sin_family = AF_INET;
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]){
 				memcpy(&psh.tcp , tcph , sizeof (struct tcphdr));
 				tcph->check = csum( (unsigned short*) &psh , sizeof (struct pseudo_header));
 				if (sendto (sk, datagram , sizeof(struct iphdr) + sizeof(struct tcphdr) , 0 , (struct sockaddr *) &dest, sizeof (dest)) < 0){
-					printf ("Error sending syn packet. Error: %d (%s)\n", errno, strerror(errno));
+					show_error("Error sending syn packet.", errno);
 					exit(EXIT_FAILURE);
 				}
 			}
@@ -222,7 +222,7 @@ int hack_port(in_addr_t ip, int port, int scanType) {
 	case 80:
 	case 8080:
 	case 443:
-		hack_port_80_8080(ip, port, scanType);
+		hack_port_80_8080_443(ip, port, scanType);
 		break;
 	case 21:
 		hack_port_21(ip, port, scanType);
@@ -257,7 +257,7 @@ int start_sniffer(){
 	unsigned char *buffer = (unsigned char *)malloc(65536);
 	sock_raw = socket(AF_INET , SOCK_RAW , IPPROTO_TCP);
 	if(sock_raw < 0){
-		printf("socket() Error. Error: %d (%s)\n", errno, strerror(errno));
+		show_error("socket() Error.", errno);
 		fflush(stdout);
 		exit(EXIT_FAILURE);
 	}
@@ -265,7 +265,7 @@ int start_sniffer(){
 	while(endProces==FALSE){
 		data_size = recvfrom(sock_raw , buffer , 65536 , 0 , &saddr , &saddr_size);
 		if(data_size <0 ){
-			printf("recvfrom() error, failed to get packets. Error: %d (%s)\n", errno, strerror(errno));
+			show_error("recvfrom() error.", errno);
 			fflush(stdout);
 			exit(EXIT_FAILURE);
 		}
@@ -339,19 +339,19 @@ void get_local_ip (char * buffer){
 	serv.sin_port=htons(dns_port);
 	int resp=connect(sk,(const struct sockaddr*) &serv,sizeof(serv));
 	if(resp!=0){
-		printf("connect() error. Error: %d (%s)\n", errno, strerror(errno));
+		show_error("connect() error.", errno);
 		exit(EXIT_FAILURE);
 	}
 	struct sockaddr_in name;
 	socklen_t namelen = sizeof(name);
 	resp = getsockname(sk, (struct sockaddr*) &name, &namelen);
 	if(resp!=0){
-		printf("getsockname() error. Error: %d (%s)\n", errno, strerror(errno));
+		show_error("getsockname() error.", errno);
 		exit(EXIT_FAILURE);
 	}
 	const char *p = inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
 	if(p==NULL){
-		printf("inet_ntop() error. Error: %d (%s)\n", errno, strerror(errno));
+		show_error("inet_ntop() error.", errno);
 		exit(EXIT_FAILURE);
 	}
 	close(sk);
