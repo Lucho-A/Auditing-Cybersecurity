@@ -6,7 +6,7 @@
  Copyright   : GNU General Public License v3.0
  Description : Cert Grabbing
  ============================================================================
- */
+*/
 
 #include "TCP_Syn_Port_Scanner.h"
 
@@ -16,9 +16,12 @@ static size_t wrfu(void *ptr,  size_t  size,  size_t  nmemb,  void *stream){
 	return size * nmemb;
 }
 
-void cert_grabbing(char url[50]){
+void cert_grabbing(in_addr_t ip, int port, char *protocol){
+	printf("%s",BLUE);
 	CURL *mCurl = curl_easy_init();
 	CURLcode res;
+	char url[50]="";
+	snprintf(url,sizeof(url),"%s://%s:%d/",protocol, inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)),port);
 	if(mCurl) {
 		curl_easy_setopt(mCurl, CURLOPT_URL, url);
 		curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, wrfu);
@@ -44,5 +47,6 @@ void cert_grabbing(char url[50]){
 		}
 	}
 	curl_easy_cleanup(mCurl);
+	printf("%s",DEFAULT);
 	return;
 }

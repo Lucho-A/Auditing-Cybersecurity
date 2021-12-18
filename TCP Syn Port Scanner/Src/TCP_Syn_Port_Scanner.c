@@ -24,29 +24,20 @@ int main(int argc, char *argv[]){
 		show_error("\nYou must be root for running the program.\n",0);
 		exit(EXIT_FAILURE);
 	}
-	int contFilteredPortsChange=-1, endSendPacketes=0;
-	int hackOpenedPorts=FALSE, i;
+	int contFilteredPortsChange=-1, endSendPacketes=0, i=0;
 	struct timespec tInit, tEnd;
 	switch(argc){
-	case 3 ... 4:
-	if(strtol(argv[2],NULL,10)<5001 && strtol(argv[2],NULL,10)>0){
-		int argOK=TRUE;
-		snprintf(target,sizeof(target),"%s",argv[1]);
-		cantPortToScan=strtol(argv[2],NULL,10);
-		for(i=3;i<argc;i++){
-			if(strcmp(argv[3],"--hack-opened-ports")==0) {
-				hackOpenedPorts=TRUE;
-				argOK=TRUE;
-			}else{
-				argOK=FALSE;
-			}
+	case 3:
+		if(strtol(argv[2],NULL,10)>0 && strtol(argv[2],NULL,10)<5001){
+			int argOK=TRUE;
+			snprintf(target,sizeof(target),"%s",argv[1]);
+			cantPortToScan=strtol(argv[2],NULL,10);
+			if(argOK==TRUE) break;
 		}
-		if(argOK==TRUE) break;
-	}
-	/* no break */
+		/* no break */
 	default:
 		printf("%s",WHITE);
-		printf("\nUsage (as root): 'TCP Syn Port Scanner' ip|url cantPortToScan (1-5000) [--hack-opened-ports]\n");
+		printf("\nUsage (as root): 'TCP Syn Port Scanner' ip|url cantPortToScan (1-5000)\n");
 		printf("v.gr: 'TCP Syn Port Scanner' www.scanme.org 500\n\n");
 		exit(EXIT_FAILURE);
 	}
@@ -180,18 +171,6 @@ int main(int argc, char *argv[]){
 		if(portStatus[portsToScan[i]]==PORT_OPENED){
 			printf("%s",HRED);
 			printf("Port %d \topened \t\t(%s)\n",portsToScan[i], service_name);
-			if(hackOpenedPorts==TRUE){
-				char c[128]="n";
-				printf("%s",WHITE);
-				do{
-					printf("\nTry to hack this port? (y=footprinting only, Y=full hack) | N (default): ");
-					fgets(c,sizeof(c),stdin);
-				}while(strcmp(c,"y\n")!=0 && strcmp(c,"Y\n")!=0 && strcmp(c,"n\n")!=0 && strcmp(c,"\n")!=0);
-				if(strcmp(c,"y\n")==0) hack_port(dest_ip.s_addr,portsToScan[i], FOOTPRINTING_SCAN);
-				if(strcmp(c,"Y\n")==0) hack_port(dest_ip.s_addr,portsToScan[i], FULL_SCAN);
-				printf("%s",DEFAULT);
-				printf("\n");
-			}
 		}
 		if(portStatus[portsToScan[i]]==PORT_FILTERED){
 			printf("%s",HYELLOW);
@@ -199,12 +178,13 @@ int main(int argc, char *argv[]){
 		}
 		if(portStatus[portsToScan[i]]==PORT_CLOSED){
 			printf("%s",HGREEN);
-			if(contClosedPorts<10) printf("Port %d \tClosed \t\t(%s)\n",portsToScan[i], service_name);
+			if(contClosedPorts<10) printf("Port %d \tclosed \t\t(%s)\n",portsToScan[i], service_name);
 		}
 	}
 	clock_gettime(CLOCK_REALTIME, &tEnd);
 	double elapsedTime=(tEnd.tv_sec-tInit.tv_sec) + (tEnd.tv_nsec-tInit.tv_nsec) / 1000000000.0;
 	printf("%s",DEFAULT);
+	printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n");
 	printf("\nScanned ports: %d in %.3lf secs\n\n",cantPortToScan, elapsedTime);
 	printf("%s",HGREEN);
 	printf("\tClosed: %d\n", contClosedPorts);
@@ -213,35 +193,74 @@ int main(int argc, char *argv[]){
 	printf("%s",HRED);
 	printf("\tOpened: %d\n\n",contOpenedPorts);
 	printf("%s",DEFAULT);
-	return RETURN_OK;
+	char c[128]="n";
+	int selectedPort=0;
+	do{
+		do{
+			printf("%s",WHITE);
+			selectedPort=0;
+			printf("Insert port to hack (0 = exit, default): ");
+			fgets(c,sizeof(c),stdin);
+			if(strcmp(c,"0\n")==0 || strcmp(c,"\n")==0){
+				printf("\n\n");
+				exit(0);
+			}
+			(portStatus[strtol(c,NULL,10)]==PORT_OPENED)?(selectedPort=strtol(c,NULL,10)):(show_error("\nInsert an opened port\n", 0));
+		}while(selectedPort==0);
+		hack_port(dest_ip.s_addr,selectedPort);
+	}while(TRUE);
 }
 
-int hack_port(in_addr_t ip, int port, int scanType) {
-	printf("%s",DEFAULT);
-	switch(port){
-	case 80:
-	case 8080:
-	case 443:
-		hack_port_80_8080_443(ip, port, scanType);
-		break;
-	case 21:
-		hack_port_21(ip, port, scanType);
-		break;
-	case 22:
-		hack_port_22(ip, port, scanType);
-		break;
-	case 23:
-		hack_port_23(ip, port, scanType);
-		break;
-	case 110:
-	case 995:
-	case 139:
-	case 445:
-	default:
-		port_grabbing(ip, port);
-		break;
+int hack_port(in_addr_t ip, int port) {
+	char c[128]="n";
+	show_options(port);
+	while(TRUE){
+		printf("\n%s",DEFAULT);
+		do{
+			printf(": ");
+			fgets(c,sizeof(c),stdin);
+		}while(strcmp(c,"1\n")!=0 && strcmp(c,"2\n")!=0 && strcmp(c,"3\n")!=0
+				&& strcmp(c,"4\n")!=0 && strcmp(c,"5\n")!=0 && strcmp(c,"6\n")!=0
+				&& strcmp(c,"7\n")!=0 && strcmp(c,"8\n")!=0 && strcmp(c,"9\n")!=0
+				&& strcmp(c,"10\n")!=0 && strcmp(c,"i\n")!=0 && strcmp(c,"s\n")!=0
+				&& strcmp(c,"h\n")!=0 && strcmp(c,"c\n")!=0 && strcmp(c,"e\n")!=0);
+		printf("\n");
+		if(strcmp(c,"1\n")==0) port_grabbing(ip, port, HEADER_GRABBING);
+		if(strcmp(c,"2\n")==0) port_grabbing(ip, port, SOCKET_GRABBING);
+		if(strcmp(c,"3\n")==0) cert_grabbing(ip, port, "https");
+		if(strcmp(c,"4\n")==0) cert_grabbing(ip, port, "sftp");
+		if(strcmp(c,"5\n")==0) hack_web(ip, port, HEADER_GRABBING);
+		if(strcmp(c,"6\n")==0) hack_web(ip, port, METHODS_ALLOWED_GRABBING);
+		if(strcmp(c,"7\n")==0) hack_web(ip, port, SERVER_RESP_SPOOFED_HEADERS);
+		if(strcmp(c,"8\n")==0) hack_web(ip, port, GET_WEBPAGES);
+		if(strcmp(c,"9\n")==0) hack_ssh(ip, port);
+		if(strcmp(c,"10\n")==0) hack_ftp(ip, port);
+		if(strcmp(c,"i\n")==0) interactive_mode(ip, port);
+		if(strcmp(c,"s\n")==0) system_call();
+		if(strcmp(c,"h\n")==0) show_options(port);
+		if(strcmp(c,"c\n")==0) return RETURN_OK;
+		if(strcmp(c,"e\n")==0) exit(0);
 	}
-	return 0;
+}
+
+void show_options(int port){
+	printf("%s",DEFAULT);
+	printf("\nSelect the activity to be performed in port %s%d%s: \n", HRED, port, DEFAULT);
+	printf("\t 1) Banner grabbing by using HTTP headers (http/https)\n");
+	printf("\t 2) Banner grabbing by using socket connection (any service)\n");
+	printf("\t 3) TLS certificate grabbing (https)\n");
+	printf("\t 4) TLS certificate grabbing (sftp/ssh)\n");
+	printf("\t 5) Headers grabbing (http/https)\n");
+	printf("\t 6) Evaluate HTTP methods allowed by server (http/https)\n");
+	printf("\t 7) Evaluate server code responses with spoofed host headers (http/https)\n");
+	printf("\t 8) Trying to get webpages and interesting files (http/https)\n");
+	printf("\t 9) Trying to perform logins by using brute force (sftp/ssh)\n");
+	printf("\t10) Trying to perform logins by using brute force (ftp)\n");
+	printf("\t i) Interactive mode (any service)\n");
+	printf("\t s) System Call\n");
+	printf("\t h) Show options\n");
+	printf("\t c) Change port\n");
+	printf("\t e) Exit\n");
 }
 
 void * receive_ack( void *ptr ){
