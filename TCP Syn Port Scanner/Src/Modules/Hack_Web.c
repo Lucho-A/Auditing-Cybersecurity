@@ -49,6 +49,7 @@ int hack_web(in_addr_t ip, int port, int type){
 	char hostHeaders[4][128]={"Host: ???",
 			"Host: anyhost.com",
 			"Host:"};
+	snprintf(hostHeaders[3],sizeof(hostHeaders[3]),"Host: %s:???",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
 	struct memory chunk = {0};
 	CURL *mCurl = curl_easy_init();
 	CURLcode res;
@@ -81,7 +82,6 @@ int hack_web(in_addr_t ip, int port, int type){
 		curl_easy_reset(mCurl);
 		break;
 	case SERVER_RESP_SPOOFED_HEADERS:
-		snprintf(hostHeaders[3],sizeof(hostHeaders[3]),"Host: %s:???",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
 		printf("%s", BLUE);
 		for(int i=0;i<4;i++){
 			printf("%s", WHITE);

@@ -22,5 +22,6 @@ int system_call(void){
 		}
 		printf("%s\n",BLUE);
 		system(cmd);
+		printf("\n");
 	}while(TRUE);
 }
