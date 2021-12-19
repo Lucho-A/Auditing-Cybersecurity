@@ -23,7 +23,7 @@ int interactive_mode(in_addr_t ip, int port){
 	serverAddress.sin_addr.s_addr= ip;
 	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0){
 		show_error("Error connecting to server.", errno);
-		return -1;
+		return RETURN_ERROR;
 	}
 	do{
 		printf("%s",DEFAULT);
@@ -47,7 +47,7 @@ int interactive_mode(in_addr_t ip, int port){
 				show_error("Possibly the host closed the connection. Aborting", 0);
 				close(sk);
 				printf("%s",DEFAULT);
-				return -1;
+				return RETURN_ERROR;
 			}
 		}
 		do{

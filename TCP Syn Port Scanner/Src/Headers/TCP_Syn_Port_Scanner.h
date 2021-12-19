@@ -33,9 +33,13 @@
 #include<samba-4.0/libsmbclient.h>
 #include<libtelnet.h>
 #include<libcli.h>
+#include <mysql/mysql.h>
 
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
+//static const long RETURN_OK;
+#define RETURN_ERROR -1
+#define RETURN_OK 0
 #define TRUE 1
 #define FALSE 0
 #define HRED "\e[0;91m"
@@ -62,8 +66,6 @@
 #define SERVER_RESP_SPOOFED_HEADERS 4
 #define GET_WEBPAGES 5
 
-static const long RETURN_OK;
-
 struct pseudo_header{
 	unsigned int source_address;
 	unsigned int dest_address;
@@ -83,6 +85,7 @@ struct in_addr dest_ip;
 //int hack_port_53(in_addr_t ip, int port,int scanType);
 int system_call(void);
 int interactive_mode(in_addr_t ip, int port);
+int hack_mysql(in_addr_t ip, int port);
 int hack_web(in_addr_t ip, int port, int type);
 int hack_ftp(in_addr_t ip, int port);
 int hack_ssh(in_addr_t ip, int port);

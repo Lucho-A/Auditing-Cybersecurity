@@ -111,7 +111,7 @@ int hack_web(in_addr_t ip, int port, int type){
 		int i=0;
 		if((totalFiles=open_file("dirs_and_files_HTTP.txt",&f))==-1){
 			printf("fopen(%s) error: Error: %d (%s)\n", "p80_HTTP_dirs_and_files.txt", errno, strerror(errno));
-			return -1;
+			return RETURN_ERROR;
 		}
 		char **files = (char**)malloc(totalFiles * sizeof(char*) + 1);
 		for (i=0;i<totalFiles;i++) files[i] = (char*)malloc(50 * sizeof(char));
@@ -136,7 +136,7 @@ int hack_web(in_addr_t ip, int port, int type){
 				}
 				if(res != CURLE_OK){
 					printf("%s\n",curl_easy_strerror(res));
-					return -1;
+					return RETURN_ERROR;
 				}
 				curl_easy_reset(mCurl);
 			}
@@ -148,5 +148,5 @@ int hack_web(in_addr_t ip, int port, int type){
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
 	printf("%s",DEFAULT);
-	return 0;
+	return RETURN_OK;
 }

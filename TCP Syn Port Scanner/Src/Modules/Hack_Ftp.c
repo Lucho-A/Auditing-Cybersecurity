@@ -41,19 +41,13 @@ int hack_ftp(in_addr_t ip, int port){
 	int i=0, timeouts=0;
 	FILE *f=NULL;
 	int totalUsernames=0;
-	if((totalUsernames=open_file("usernames_FTP_SSH.txt",&f))==-1){
-		show_error("Opening usernames_FTP_SSH.txt file error",errno);
-		return -1;
-	}
+	if((totalUsernames=open_file("usernames_FTP_SSH.txt",&f))==-1) return RETURN_ERROR;
 	char **usernames = (char**)malloc(totalUsernames * sizeof(char*));
 	for (i=0;i<totalUsernames;i++) usernames[i] = (char*)malloc(50 * sizeof(char));
 	i=0;
 	while(fscanf(f,"%s", usernames[i])!=EOF) i++;
 	int totalPasswords=0;
-	if((totalPasswords=open_file("passwords_FTP.txt",&f))==-1){
-		show_error("Opening passwords_FTP.txt file error", errno);
-		return -1;
-	}
+	if((totalPasswords=open_file("passwords_FTP.txt",&f))==-1) return RETURN_ERROR;
 	char **passwords = (char**)malloc(totalPasswords * sizeof(char*));
 	for (i=0;i<totalPasswords;i++) passwords[i] = (char*)malloc(50 * sizeof(char));
 	i=0;
@@ -107,5 +101,5 @@ int hack_ftp(in_addr_t ip, int port){
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
 	printf("%s",DEFAULT);
-	return 0;
+	return RETURN_OK;
 }

