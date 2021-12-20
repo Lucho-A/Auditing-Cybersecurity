@@ -45,7 +45,7 @@ int hack_ssh(in_addr_t ip, int port){
 	totalComb=totalUsernames*totalPasswords;
 	for(i=0;i<totalUsernames;i++){
 		for(int j=0;j<totalPasswords;j++,cont++){
-			if(timeouts==1){
+			if(timeouts==1 || sk==-1){
 				libssh2_session_disconnect(session, "");
 				sk=create_SSH_handshake_session(&session, ip, port);
 				if(sk<0){
@@ -75,6 +75,8 @@ int hack_ssh(in_addr_t ip, int port){
 					printf("Authentication by password succeeded. User: %s, password: %s\n", usernames[i],passwords[j]);
 					printf("Service Vulnerable\n\n");
 					printf("%s",BLUE);
+					libssh2_session_disconnect(session, "");
+					sk=-1;
 				}
 			}else if(auth_pw & 2) {
 				timeouts++;

