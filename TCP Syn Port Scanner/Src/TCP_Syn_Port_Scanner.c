@@ -222,7 +222,8 @@ int hack_port(in_addr_t ip, int port) {
 		}while(strcmp(c,"1\n")!=0 && strcmp(c,"2\n")!=0 && strcmp(c,"3\n")!=0
 				&& strcmp(c,"4\n")!=0 && strcmp(c,"5\n")!=0 && strcmp(c,"6\n")!=0
 				&& strcmp(c,"7\n")!=0 && strcmp(c,"8\n")!=0 && strcmp(c,"9\n")!=0
-				&& strcmp(c,"10\n")!=0 && strcmp(c,"11\n")!=0 && strcmp(c,"i\n")!=0
+				&& strcmp(c,"10\n")!=0 && strcmp(c,"11\n")!=0 && strcmp(c,"12\n")!=0
+				&& strcmp(c,"i\n")!=0
 				&& strcmp(c,"s\n")!=0 && strcmp(c,"h\n")!=0 && strcmp(c,"c\n")!=0
 				&& strcmp(c,"e\n")!=0);
 		printf("\n");
@@ -237,6 +238,7 @@ int hack_port(in_addr_t ip, int port) {
 		if(strcmp(c,"9\n")==0) hack_ssh(ip, port);
 		if(strcmp(c,"10\n")==0) hack_ftp(ip, port);
 		if(strcmp(c,"11\n")==0) hack_mysql(ip, port);
+		if(strcmp(c,"12\n")==0) hack_buffer_overflow(ip, port, CODE_RED);
 		if(strcmp(c,"i\n")==0) interactive_mode(ip, port);
 		if(strcmp(c,"s\n")==0) system_call();
 		if(strcmp(c,"h\n")==0) show_options(port);
@@ -259,6 +261,7 @@ void show_options(int port){
 	printf("\t 9) Trying to perform logins by using brute force (sftp/ssh)\n");
 	printf("\t10) Trying to perform logins by using brute force (ftp)\n");
 	printf("\t11) Trying to perform logins by using brute force (mysql)\n");
+	printf("\t12) Trying to perform Code Red virus attack - Buffer Overflow (any -GET- service)\n");
 	printf("\t i) Interactive mode (any service)\n");
 	printf("\t s) System Call\n");
 	printf("\t h) Show options\n");

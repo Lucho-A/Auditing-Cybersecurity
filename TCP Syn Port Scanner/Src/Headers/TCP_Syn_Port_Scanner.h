@@ -65,6 +65,7 @@
 #define METHODS_ALLOWED_GRABBING 3
 #define SERVER_RESP_SPOOFED_HEADERS 4
 #define GET_WEBPAGES 5
+#define CODE_RED 1
 
 struct pseudo_header{
 	unsigned int source_address;
@@ -85,6 +86,7 @@ struct in_addr dest_ip;
 //int hack_port_53(in_addr_t ip, int port,int scanType);
 int system_call(void);
 int interactive_mode(in_addr_t ip, int port);
+int hack_buffer_overflow(in_addr_t ip, int port, int type);
 int hack_mysql(in_addr_t ip, int port);
 int hack_web(in_addr_t ip, int port, int type);
 int hack_ftp(in_addr_t ip, int port);
