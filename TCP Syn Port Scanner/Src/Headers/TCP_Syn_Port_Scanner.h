@@ -37,7 +37,6 @@
 
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
-//static const long RETURN_OK;
 #define RETURN_ERROR -1
 #define RETURN_OK 0
 #define TRUE 1
@@ -51,7 +50,7 @@
 #define WHITE "\e[0;37m"
 #define DEFAULT "\e[0m"
 #define CANT_PORTS 5000
-#define PACKET_FORWARDING_LIMIT 5
+#define PACKET_FORWARDING_LIMIT 3
 #define BUFFER_RECV_MSG 10240
 #define PATH_TO_RESOURCES "/home/lucho/git/TCP Syn Port Scanner/TCP Syn Port Scanner/Src/Resources/"
 #define BRUTE_FORCE_DELAY 100000
@@ -66,6 +65,8 @@
 #define SERVER_RESP_SPOOFED_HEADERS 4
 #define GET_WEBPAGES 5
 #define CODE_RED 1
+
+static const long RETURN_SNIFFER_OK;
 
 struct pseudo_header{
 	unsigned int source_address;
