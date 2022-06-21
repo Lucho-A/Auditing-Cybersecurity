@@ -95,7 +95,6 @@ int port_grabbing(in_addr_t ip, int port, int type){
 			if(bytesReciv>0){
 				printf("Banner grabbed by socket query: ");
 				printf("%s",HRED);
-				//for(int i=0; serverResp[i]!='\n';i++) printf("%c",serverResp[i]);
 				for(int i=0;i<bytesReciv;i++){
 					if(isprint(serverResp[i]) || serverResp[i]=='\n') printf("%c",serverResp[i]);
 				}
