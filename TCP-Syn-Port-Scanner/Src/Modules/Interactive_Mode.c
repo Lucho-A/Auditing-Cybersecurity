@@ -72,9 +72,8 @@ int interactive_mode(in_addr_t ip, int port){
 			if(bytesReciv>0){
 				printf("\nServer response: \n");
 				printf("%s",BLUE);
-				//printf("%s",serverResp);
-				for(int i=0;i<50;i++){
-					if(isprint(serverResp[i])) printf("%c",serverResp[i]);
+				for(int i=0;i<bytesReciv;i++){
+					if(isprint(serverResp[i]) || serverResp[i]=='\n') printf("%c",serverResp[i]);
 				}
 				printf("\n");
 				printf("%s",DEFAULT);
