@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
 	system("clear");
 	printf("%s",CYAN);
 	printf("\n*******************************************************\n");
-	printf("\n%sTCP Syn Port Scanner by L.\n",HCYAN);
+	printf("\n%sTCP Syn Port Scanner by L. <luis.alfie@gmail.com>\n",HCYAN);
 	printf("\n%sv1.0.5\n",CYAN);
 	printf("\n*******************************************************\n");
 	printf("%s",DEFAULT);
@@ -44,8 +44,8 @@ int main(int argc, char *argv[]){
 		/* no break */
 	default:
 		printf("%s",WHITE);
-		printf("\nUsage (as root): 'TCP Syn Port Scanner' ip|url cantPortToScan (1-5000)\n");
-		printf("v.gr: 'TCP Syn Port Scanner' www.scanme.org 500\n\n");
+		printf("\nUsage (as root): 'TCP-Syn-Port-Scanner' ip|url cantPortToScan (1-5000)\n");
+		printf("v.gr: ./TCP-Syn-Port-Scanner www.scanme.org 500\n\n");
 		exit(EXIT_FAILURE);
 	}
 	clock_gettime(CLOCK_REALTIME, &tInit);

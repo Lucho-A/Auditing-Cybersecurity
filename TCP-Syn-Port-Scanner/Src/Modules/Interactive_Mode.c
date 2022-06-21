@@ -1,6 +1,6 @@
 /*
  ============================================================================
- Name        : .c
+ Name        : Interactive Mode
  Author      : L.
  Version     : 1.0.5
  Copyright   : GNU General Public License v3.0
