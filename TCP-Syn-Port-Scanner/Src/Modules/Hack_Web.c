@@ -19,11 +19,10 @@ struct memory {
 
 static size_t options_callback(char *buffer, size_t size, size_t nitems, void *userdata){
 	if(strstr(buffer,"Allow:")!=NULL || strstr(buffer,"ALLOW:")!=NULL || strstr(buffer,"allow:")!=NULL){
-		printf("%s",BLUE);
 		printf("Methods allowed found: ");
 		printf("%s",HRED);
 		printf("%s\n", buffer);
-		printf("%s",BLUE);
+		printf("%s",DEFAULT);
 		itHasOptions=TRUE;
 		return nitems * size;
 	}
@@ -43,6 +42,7 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 }
 
 int hack_web(in_addr_t ip, int port, int type){
+	signal(SIGINT, sigintHandler);
 	char url[50]="";
 	struct curl_slist *list=NULL;
 	long httpResponseCode=0;
@@ -55,7 +55,7 @@ int hack_web(in_addr_t ip, int port, int type){
 	CURLcode res;
 	switch(type){
 	case HEADER_GRABBING:
-		printf("%s",BLUE);
+		printf("%s",DEFAULT);
 		snprintf(url,sizeof(url),"%s:%d",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)),port);
 		if(mCurl) {
 			curl_easy_setopt(mCurl, CURLOPT_URL, url);
@@ -66,7 +66,7 @@ int hack_web(in_addr_t ip, int port, int type){
 		curl_easy_reset(mCurl);
 		break;
 	case METHODS_ALLOWED_GRABBING:
-		printf("%s",BLUE);
+		printf("%s",DEFAULT);
 		char hostHeader[128]="";
 		snprintf(hostHeader, sizeof(hostHeader),"Host: %s",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)));
 		list = curl_slist_append(list, hostHeader);
@@ -82,11 +82,9 @@ int hack_web(in_addr_t ip, int port, int type){
 		curl_easy_reset(mCurl);
 		break;
 	case SERVER_RESP_SPOOFED_HEADERS:
-		printf("%s", BLUE);
+		printf("%s", DEFAULT);
 		for(int i=0;i<4;i++){
-			printf("%s", WHITE);
 			printf("\nSending \"%s\"\n", hostHeaders[i]);
-			printf("%s", BLUE);
 			snprintf(url,sizeof(url),"%s:%d/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)), port);
 			list = curl_slist_append(list, hostHeaders[i]);
 			curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, list);
@@ -105,7 +103,7 @@ int hack_web(in_addr_t ip, int port, int type){
 		}
 		break;
 	case GET_WEBPAGES:
-		printf("%s",BLUE);
+		printf("%s",DEFAULT);
 		FILE *f;
 		double totalFiles=0, cont=0.0;
 		int i=0;
@@ -119,7 +117,8 @@ int hack_web(in_addr_t ip, int port, int type){
 		while(fscanf(f,"%s", files[i])!=EOF) i++;
 		strcpy(files[0],"");
 		if(mCurl) {
-			for(i=0;i<totalFiles;i++, cont++){
+			for(i=0;i<totalFiles && finishCurrentProcess==FALSE;i++, cont++){
+				printf("%s",HWHITE);
 				printf("\rPercentage completed: %.4lf%% (%s)                          ",(double)((cont/totalFiles)*100.0),files[i]);
 				fflush(stdout);
 				usleep(BRUTE_FORCE_DELAY);
@@ -148,5 +147,6 @@ int hack_web(in_addr_t ip, int port, int type){
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
 	printf("%s",DEFAULT);
+	finishCurrentProcess=FALSE;
 	return RETURN_OK;
 }

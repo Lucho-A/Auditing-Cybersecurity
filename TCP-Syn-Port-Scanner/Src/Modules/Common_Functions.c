@@ -10,6 +10,12 @@
 
 #include "TCP_Syn_Port_Scanner.h"
 
+void sigintHandler(int sig_num){
+	signal(sig_num, SIG_IGN);
+	finishCurrentProcess=TRUE;
+	printf("%s\n",DEFAULT);
+}
+
 int open_file(char *fileName, FILE **f){
 	char file[256]="";
 	snprintf(file,sizeof(file),"%s%s", PATH_TO_RESOURCES,fileName);

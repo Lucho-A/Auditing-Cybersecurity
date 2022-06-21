@@ -60,12 +60,12 @@ int hack_buffer_overflow(in_addr_t ip, int port, int type){
 		timeout.tv_usec = 0;
 		select(sk+1, &read_fd_set, NULL, NULL, &timeout);
 		if (!(FD_ISSET(sk, &read_fd_set))) {
-			printf("Server response: No response (timeout)\n");
+			printf("No response (timeout)\n");
 			break;
 		}
 		int bytesReciv=recv(sk, serverResp, sizeof(serverResp),0);
 		if(bytesReciv==0){
-			printf("Server response: No response\n");
+			printf("No response\n");
 			break;
 		}
 		if(bytesReciv<0){
@@ -73,9 +73,8 @@ int hack_buffer_overflow(in_addr_t ip, int port, int type){
 			break;
 		}
 		if(bytesReciv>0){
-			printf("\nServer response: \n");
-			printf("%s",BLUE);
-			printf("%s",serverResp);
+			printf("%s",HRED);
+			for(int i=0;i<bytesReciv;i++) printf("%c",serverResp[i]);
 			printf("\n");
 			printf("%s",DEFAULT);
 			break;

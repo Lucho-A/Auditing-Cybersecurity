@@ -31,12 +31,13 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 }
 
 int hack_ftp(in_addr_t ip, int port){
+	signal(SIGINT, sigintHandler);
 	curl_global_init(CURL_GLOBAL_ALL);
 	char url[50]="";
 	snprintf(url,sizeof(url),"ftp://%s:%d/",inet_ntoa(*((struct in_addr*)&dest_ip.s_addr)), port);
 	CURL *mCurl=curl_easy_init();
 	printf("\nTrying to perform connections by using brute force...\n\n");
-	printf("%s",BLUE);
+	printf("%s",HWHITE);
 	double totalComb=0, cont=0;
 	int i=0, timeouts=0;
 	FILE *f=NULL;
@@ -53,13 +54,12 @@ int hack_ftp(in_addr_t ip, int port){
 	i=0;
 	while(fscanf(f,"%s", passwords[i])!=EOF) i++;
 	totalComb=totalUsernames*totalPasswords;
-	int abort=FALSE;
 	char *ftpEntryPath=NULL;
 	struct memory chunk = {0};
 	CURLcode res;
 	if (mCurl){
-		for(i=0;i<totalUsernames && timeouts<BRUTE_FORCE_TIMEOUT && abort==FALSE;i++){
-			for(int j=0;j<totalPasswords && timeouts<BRUTE_FORCE_TIMEOUT && abort==FALSE;j++,cont++){
+		for(i=0;i<totalUsernames && timeouts<BRUTE_FORCE_TIMEOUT && finishCurrentProcess==FALSE;i++){
+			for(int j=0;j<totalPasswords && timeouts<BRUTE_FORCE_TIMEOUT && finishCurrentProcess==FALSE;j++,cont++){
 				printf("\rPercentaje completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),usernames[i], passwords[j]);
 				fflush(stdout);
 				usleep(BRUTE_FORCE_DELAY);
@@ -78,7 +78,7 @@ int hack_ftp(in_addr_t ip, int port){
 					printf("\n\nLoging successfull with user: %s, password: %s. Service Vulnerable\n\n",usernames[i], passwords[j]);
 					printf("Directory accessed: %s\n\n",ftpEntryPath);
 					printf("%s\n\n", chunk.response);
-					printf("%s",BLUE);
+					printf("%s",HWHITE);
 				}else{
 					switch(res){
 					case 67:
@@ -88,7 +88,7 @@ int hack_ftp(in_addr_t ip, int port){
 						break;
 					default:
 						printf("libcurl error: %d (%s)\n", res,curl_easy_strerror(res));
-						abort=TRUE;
+						finishCurrentProcess=TRUE;
 						break;
 					}
 				}
@@ -101,5 +101,6 @@ int hack_ftp(in_addr_t ip, int port){
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
 	printf("%s",DEFAULT);
+	finishCurrentProcess=FALSE;
 	return RETURN_OK;
 }

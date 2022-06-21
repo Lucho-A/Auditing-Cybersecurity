@@ -17,7 +17,7 @@ static size_t wrfu(void *ptr,  size_t  size,  size_t  nmemb,  void *stream){
 }
 
 void cert_grabbing(in_addr_t ip, int port, char *protocol){
-	printf("%s",BLUE);
+	printf("%s",DEFAULT);
 	CURL *mCurl = curl_easy_init();
 	CURLcode res;
 	char url[50]="";

@@ -20,7 +20,6 @@ int system_call(void){
 			printf("%s\n",DEFAULT);
 			return RETURN_OK;
 		}
-		printf("%s\n",BLUE);
 		system(cmd);
 		printf("\n");
 	}while(TRUE);

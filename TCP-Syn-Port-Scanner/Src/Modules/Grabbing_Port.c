@@ -14,11 +14,8 @@ int bannerHeaderFound=FALSE;
 
 static size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata){
 	if(strstr(buffer,"Server:")!=NULL || strstr(buffer,"SERVER:")!=NULL || strstr(buffer,"server:")!=NULL){
-		printf("%s",BLUE);
-		printf("\nBanner grabbed by header: ");
 		printf("%s",HRED);
 		printf("%s\n", buffer);
-		printf("%s",BLUE);
 		bannerHeaderFound=TRUE;
 		return nitems * size;
 	}
@@ -26,7 +23,7 @@ static size_t header_callback(char *buffer, size_t size, size_t nitems, void *us
 }
 
 int port_grabbing(in_addr_t ip, int port, int type){
-	printf("%s",BLUE);
+	printf("%s",DEFAULT);
 	curl_global_init(CURL_GLOBAL_ALL);
 	int res=0;
 	char url[50]="";
@@ -80,12 +77,12 @@ int port_grabbing(in_addr_t ip, int port, int type){
 			timeout.tv_usec = 0;
 			select(sk+1, &read_fd_set, NULL, NULL, &timeout);
 			if (!(FD_ISSET(sk, &read_fd_set))) {
-				printf("Banner grabbed by socket query: No response (timeout)\n");
+				printf("No response (timeout)\n");
 				break;
 			}
 			int bytesReciv=recv(sk, serverResp, sizeof(serverResp),0);
 			if(bytesReciv==0){
-				printf("Banner grabbed by socket query: No response\n");
+				printf("No response\n");
 				break;
 			}
 			if(bytesReciv<0){
@@ -99,7 +96,7 @@ int port_grabbing(in_addr_t ip, int port, int type){
 					if(isprint(serverResp[i]) || serverResp[i]=='\n') printf("%c",serverResp[i]);
 				}
 				printf("\n");
-				printf("%s",BLUE);
+				printf("%s",DEFAULT);
 				break;
 			}
 		}while(TRUE);

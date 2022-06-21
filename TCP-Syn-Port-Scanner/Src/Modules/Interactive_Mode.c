@@ -57,12 +57,12 @@ int interactive_mode(in_addr_t ip, int port){
 			timeout.tv_usec = 0;
 			select(sk+1, &read_fd_set, NULL, NULL, &timeout);
 			if (!(FD_ISSET(sk, &read_fd_set))) {
-				printf("Server response: No response (timeout)\n");
+				printf("No response (timeout)\n");
 				break;
 			}
 			int bytesReciv=recv(sk, serverResp, sizeof(serverResp),0);
 			if(bytesReciv==0){
-				printf("Server response: No response\n");
+				printf("No response\n");
 				break;
 			}
 			if(bytesReciv<0){
@@ -71,7 +71,7 @@ int interactive_mode(in_addr_t ip, int port){
 			}
 			if(bytesReciv>0){
 				printf("\nServer response: \n");
-				printf("%s",BLUE);
+				printf("%s",HRED);
 				for(int i=0;i<bytesReciv;i++){
 					if(isprint(serverResp[i]) || serverResp[i]=='\n') printf("%c",serverResp[i]);
 				}

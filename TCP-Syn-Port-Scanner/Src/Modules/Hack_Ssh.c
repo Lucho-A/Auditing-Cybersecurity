@@ -13,8 +13,9 @@
 #define LIBSSH2_INIT_NO_CRYPTO 0x0001
 
 int hack_ssh(in_addr_t ip, int port){
+	signal(SIGINT, sigintHandler);
+	printf("%s",DEFAULT);
 	printf("\nTrying to perform connections by using brute force...\n\n");
-	printf("%s",BLUE);
 	char *userauthlist;
 	int auth_pw = 0, timeouts=0;
 	LIBSSH2_SESSION *session=NULL;
@@ -26,7 +27,9 @@ int hack_ssh(in_addr_t ip, int port){
 	const char *fingerprint;
 	fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
 	printf("Fingerprint: ");
+	printf("%s",HWHITE);
 	for(int i = 0; i < 20; i++) printf("%02X ", (unsigned char)fingerprint[i]);
+	printf("%s",DEFAULT);
 	printf("\n");
 	FILE *f=NULL;
 	int i=0;
@@ -43,7 +46,8 @@ int hack_ssh(in_addr_t ip, int port){
 	i=0;
 	while(fscanf(f,"%s", passwords[i])!=EOF) i++;
 	totalComb=totalUsernames*totalPasswords;
-	for(i=0;i<totalUsernames;i++){
+	for(i=0;i<totalUsernames && finishCurrentProcess==FALSE;i++){
+		printf("%s",HWHITE);
 		for(int j=0;j<totalPasswords;j++,cont++){
 			if(timeouts==1 || sk==-1){
 				libssh2_session_disconnect(session, "");
@@ -74,7 +78,6 @@ int hack_ssh(in_addr_t ip, int port){
 					printf("%s",HRED);
 					printf("Authentication by password succeeded. User: %s, password: %s\n", usernames[i],passwords[j]);
 					printf("Service Vulnerable\n\n");
-					printf("%s",BLUE);
 					libssh2_session_disconnect(session, "");
 					sk=-1;
 				}
@@ -86,6 +89,7 @@ int hack_ssh(in_addr_t ip, int port){
 				continue;
 			}
 			else {
+				printf("%s",DEFAULT);
 				printf("No supported authentication methods found\n");
 				timeouts++;
 				continue;
@@ -98,6 +102,7 @@ int hack_ssh(in_addr_t ip, int port){
 	libssh2_session_free(session);
 	printf("%s", DEFAULT);
 	close(sk);
+	finishCurrentProcess=FALSE;
 	return RETURN_ERROR;
 }
 
