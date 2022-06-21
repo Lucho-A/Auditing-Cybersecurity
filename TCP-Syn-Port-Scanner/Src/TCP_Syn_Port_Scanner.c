@@ -20,6 +20,13 @@ int cantPortToScan=0;
 int endProces=FALSE;
 
 int main(int argc, char *argv[]){
+	system("clear");
+	printf("%s",CYAN);
+	printf("\n*******************************************************\n");
+	printf("\n%sTCP Syn Port Scanner by L.\n",HCYAN);
+	printf("\n%sv1.0.5\n",CYAN);
+	printf("\n*******************************************************\n");
+	printf("%s",DEFAULT);
 	if(getuid()!=0){
 		show_error("\nYou must be root for running the program.\n",0);
 		exit(EXIT_FAILURE);
@@ -41,13 +48,6 @@ int main(int argc, char *argv[]){
 		printf("v.gr: 'TCP Syn Port Scanner' www.scanme.org 500\n\n");
 		exit(EXIT_FAILURE);
 	}
-	system("clear");
-	printf("%s",CYAN);
-	printf("\n*******************************************************\n");
-	printf("\nTCP Syn Port Scanner by L.\n");
-	printf("\nv1.0.5\n");
-	printf("\n*******************************************************\n");
-	printf("%s",DEFAULT);
 	clock_gettime(CLOCK_REALTIME, &tInit);
 	FILE *f=NULL;
 	if((f=fopen(PATH_TO_RESOURCES "Ports.txt","r"))==NULL){
@@ -219,26 +219,26 @@ int hack_port(in_addr_t ip, int port) {
 		do{
 			printf(": ");
 			fgets(c,sizeof(c),stdin);
-		}while(strcmp(c,"1\n")!=0 && strcmp(c,"2\n")!=0 && strcmp(c,"3\n")!=0
-				&& strcmp(c,"4\n")!=0 && strcmp(c,"5\n")!=0 && strcmp(c,"6\n")!=0
-				&& strcmp(c,"7\n")!=0 && strcmp(c,"8\n")!=0 && strcmp(c,"9\n")!=0
-				&& strcmp(c,"10\n")!=0 && strcmp(c,"11\n")!=0 && strcmp(c,"12\n")!=0
+		}while(strcmp(c,"1.1\n")!=0 && strcmp(c,"1.2\n")!=0 && strcmp(c,"1.3\n")!=0
+				&& strcmp(c,"1.4\n")!=0 && strcmp(c,"1.5\n")!=0 && strcmp(c,"2.1\n")!=0
+				&& strcmp(c,"2.2\n")!=0 && strcmp(c,"2.3\n")!=0 && strcmp(c,"3.1\n")!=0
+				&& strcmp(c,"3.2\n")!=0 && strcmp(c,"3.3\n")!=0 && strcmp(c,"4.1\n")!=0
 				&& strcmp(c,"i\n")!=0
 				&& strcmp(c,"s\n")!=0 && strcmp(c,"h\n")!=0 && strcmp(c,"c\n")!=0
 				&& strcmp(c,"e\n")!=0);
 		printf("\n");
-		if(strcmp(c,"1\n")==0) port_grabbing(ip, port, HEADER_GRABBING);
-		if(strcmp(c,"2\n")==0) port_grabbing(ip, port, SOCKET_GRABBING);
-		if(strcmp(c,"3\n")==0) cert_grabbing(ip, port, "https");
-		if(strcmp(c,"4\n")==0) cert_grabbing(ip, port, "sftp");
-		if(strcmp(c,"5\n")==0) hack_web(ip, port, HEADER_GRABBING);
-		if(strcmp(c,"6\n")==0) hack_web(ip, port, METHODS_ALLOWED_GRABBING);
-		if(strcmp(c,"7\n")==0) hack_web(ip, port, SERVER_RESP_SPOOFED_HEADERS);
-		if(strcmp(c,"8\n")==0) hack_web(ip, port, GET_WEBPAGES);
-		if(strcmp(c,"9\n")==0) hack_ssh(ip, port);
-		if(strcmp(c,"10\n")==0) hack_ftp(ip, port);
-		if(strcmp(c,"11\n")==0) hack_mysql(ip, port);
-		if(strcmp(c,"12\n")==0) hack_buffer_overflow(ip, port, CODE_RED);
+		if(strcmp(c,"1.1\n")==0) port_grabbing(ip, port, HEADER_GRABBING);
+		if(strcmp(c,"1.2\n")==0) port_grabbing(ip, port, SOCKET_GRABBING);
+		if(strcmp(c,"1.3\n")==0) cert_grabbing(ip, port, "https");
+		if(strcmp(c,"1.4\n")==0) cert_grabbing(ip, port, "sftp");
+		if(strcmp(c,"1.5\n")==0) hack_web(ip, port, HEADER_GRABBING);
+		if(strcmp(c,"2.1\n")==0) hack_web(ip, port, METHODS_ALLOWED_GRABBING);
+		if(strcmp(c,"2.2\n")==0) hack_web(ip, port, SERVER_RESP_SPOOFED_HEADERS);
+		if(strcmp(c,"2.3\n")==0) hack_web(ip, port, GET_WEBPAGES);
+		if(strcmp(c,"3.1\n")==0) hack_ssh(ip, port);
+		if(strcmp(c,"3.2\n")==0) hack_ftp(ip, port);
+		if(strcmp(c,"3.3\n")==0) hack_mysql(ip, port,MYSQL_BRUTE_FORCE);
+		if(strcmp(c,"4.1\n")==0) hack_buffer_overflow(ip, port, CODE_RED);
 		if(strcmp(c,"i\n")==0) interactive_mode(ip, port);
 		if(strcmp(c,"s\n")==0) system_call();
 		if(strcmp(c,"h\n")==0) show_options(port);
@@ -249,19 +249,25 @@ int hack_port(in_addr_t ip, int port) {
 
 void show_options(int port){
 	printf("%s",DEFAULT);
-	printf("\nSelect the activity to be performed in port %s%d%s: \n", HRED, port, DEFAULT);
-	printf("\t 1) Banner grabbing by using HTTP headers (http/https)\n");
-	printf("\t 2) Banner grabbing by using socket connection (any service)\n");
-	printf("\t 3) TLS certificate grabbing (https)\n");
-	printf("\t 4) TLS certificate grabbing (sftp/ssh)\n");
-	printf("\t 5) Headers grabbing (http/https)\n");
-	printf("\t 6) Evaluate HTTP methods allowed by server (http/https)\n");
-	printf("\t 7) Evaluate server code responses with spoofed host headers (http/https)\n");
-	printf("\t 8) Trying to get webpages and interesting files (http/https)\n");
-	printf("\t 9) Trying to perform logins by using brute force (sftp/ssh)\n");
-	printf("\t10) Trying to perform logins by using brute force (ftp)\n");
-	printf("\t11) Trying to perform logins by using brute force (mysql)\n");
-	printf("\t12) Trying to perform Code Red virus attack - Buffer Overflow (any -GET- service)\n");
+	printf("\nSelect the activity to be performed in port %s%d%s: \n\n", HRED, port, DEFAULT);
+	printf("\t 1) Banner grabbing:\n");
+	printf("\t 1.1) Banner grabbing by using HTTP headers (http/https)\n");
+	printf("\t 1.2) Banner grabbing by using socket connection (any service)\n");
+	printf("\t 1.3) MySQL Banner grabbing by using socket connection\n");
+	printf("\t 1.4) TLS certificate grabbing (https)\n");
+	printf("\t 1.5) TLS certificate grabbing (sftp/ssh)\n");
+	printf("\t 1.6) Headers grabbing (http/https)\n\n");
+	printf("\t 2) HTTP:\n");
+	printf("\t 2.1) Evaluate HTTP methods allowed by server (http/https)\n");
+	printf("\t 2.2) Evaluate server code responses with spoofed host headers (http/https)\n");
+	printf("\t 2.3) Trying to get webpages and interesting files (http/https)\n\n");
+	printf("\t 3) Brute Force:\n");
+	printf("\t 3.1) Trying to perform logins by using brute force (sftp/ssh)\n");
+	printf("\t 3.2) Trying to perform logins by using brute force (ftp)\n");
+	printf("\t 3.3) Trying to perform logins by using brute force (mysql)\n\n");
+	printf("\t 4) Buffer Overflow:\n");
+	printf("\t 4.1) Trying to perform Code Red virus attack - Buffer Overflow (any -GET- service)\n\n");
+	printf("\t 5) Others:\n");
 	printf("\t i) Interactive mode (any service)\n");
 	printf("\t s) System Call\n");
 	printf("\t h) Show options\n");

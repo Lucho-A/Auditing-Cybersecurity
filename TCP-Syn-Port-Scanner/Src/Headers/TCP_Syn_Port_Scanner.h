@@ -47,12 +47,13 @@
 #define HYELLOW "\e[0;93m"
 #define BLUE "\e[0;34m"
 #define CYAN "\e[0;36m"
+#define HCYAN "\e[0;96m"
 #define WHITE "\e[0;37m"
 #define DEFAULT "\e[0m"
 #define CANT_PORTS 5000
 #define PACKET_FORWARDING_LIMIT 3
 #define BUFFER_RECV_MSG 10240
-#define PATH_TO_RESOURCES "/home/lucho/git/TCP Syn Port Scanner/TCP Syn Port Scanner/Src/Resources/"
+#define PATH_TO_RESOURCES "/home/lucho/git/TCP-Syn-Port-Scanner/TCP-Syn-Port-Scanner/Src/Resources/"
 #define BRUTE_FORCE_DELAY 100000
 #define BRUTE_FORCE_TIMEOUT 3
 #define SECS_WAIT_BEFORE_CONTINUE_SCAN 5
@@ -65,6 +66,8 @@
 #define SERVER_RESP_SPOOFED_HEADERS 4
 #define GET_WEBPAGES 5
 #define CODE_RED 1
+#define MYSQL_GRABBING 1
+#define MYSQL_BRUTE_FORCE 2
 
 static const long RETURN_SNIFFER_OK;
 
@@ -88,7 +91,7 @@ struct in_addr dest_ip;
 int system_call(void);
 int interactive_mode(in_addr_t ip, int port);
 int hack_buffer_overflow(in_addr_t ip, int port, int type);
-int hack_mysql(in_addr_t ip, int port);
+int hack_mysql(in_addr_t ip, int port, int type);
 int hack_web(in_addr_t ip, int port, int type);
 int hack_ftp(in_addr_t ip, int port);
 int hack_ssh(in_addr_t ip, int port);

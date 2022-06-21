@@ -57,7 +57,7 @@ int port_grabbing(in_addr_t ip, int port, int type){
 		serverAddress.sin_addr.s_addr= ip;
 		if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0){
 			show_error("connect() error", (int) errno);
-			return -1;
+			return RETURN_ERROR;
 		}
 		fd_set read_fd_set;
 		FD_ZERO(&read_fd_set);
@@ -70,7 +70,7 @@ int port_grabbing(in_addr_t ip, int port, int type){
 			show_error("send() error", errno);
 			if(strstr(strerror(errno), "Broken pipe") != NULL){
 				show_error("Possibly the host is closing the connections. Aborting", 0);
-				return 0;
+				return RETURN_OK;
 			}
 		}
 		do{
@@ -95,7 +95,10 @@ int port_grabbing(in_addr_t ip, int port, int type){
 			if(bytesReciv>0){
 				printf("Banner grabbed by socket query: ");
 				printf("%s",HRED);
-				for(int i=0; serverResp[i]!='\n';i++) printf("%c",serverResp[i]);
+				//for(int i=0; serverResp[i]!='\n';i++) printf("%c",serverResp[i]);
+				for(int i=0;i<bytesReciv;i++){
+					if(isprint(serverResp[i]) || serverResp[i]=='\n') printf("%c",serverResp[i]);
+				}
 				printf("\n");
 				printf("%s",BLUE);
 				break;
