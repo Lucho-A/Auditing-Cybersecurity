@@ -9,7 +9,7 @@ Example: sudo ./Auditing-Cybersecurity lucho-alfie.ddns.net 10
 
 ![imagen](https://user-images.githubusercontent.com/40904281/175184992-1e2152c8-fbd4-4558-9c76-323ef0768460.png)
 
-![imagen](https://user-images.githubusercontent.com/40904281/175185030-43491e29-a0dd-48c3-bd11-dfa440d72eb1.png)
+![imagen](https://user-images.githubusercontent.com/40904281/175187770-2668e0b1-258f-4fba-9ad4-37e3b6c6da64.png)
 
 
 
