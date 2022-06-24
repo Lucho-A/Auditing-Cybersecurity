@@ -5,5 +5,7 @@ Cybersecurity framework developed in C, Ansi-style
 
 Example: sudo ./Auditing-Cybersecurity lucho-alfie.ddns.net 10
 
-![YouCut_20220623_215046745-3](https://user-images.githubusercontent.com/40904281/175440157-b5834f3a-cfbd-48e1-9e22-ca076f43ee52.gif)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/40904281/175440157-b5834f3a-cfbd-48e1-9e22-ca076f43ee52.gif" alt="animated" />
+</p>
 
