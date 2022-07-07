@@ -5,7 +5,7 @@ Cybersecurity framework developed in C, Ansi-style
 
 The main idea of the program is provide a framework with the essentials commands/tools in order to ensure, by their use, a well-knowledge of the effectiveness and efficiency of the implemented controls, in order to evaluate the residual risk of the processes.
 
-Example: sudo ./Auditing-Cybersecurity lucho-alfie.ddns.net 10
+Examples:
 
 
 <p align="center">
