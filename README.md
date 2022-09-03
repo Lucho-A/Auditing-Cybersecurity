@@ -7,8 +7,8 @@ The main idea of the program is provide a framework with the essentials commands
 
 Screenshots:
 <p float="center">
-  <img src="https://user-images.githubusercontent.com/40904281/188255485-c9713291-0ae7-42d4-bde0-c0a9e717021e.png" width="500" />
-  <img src="https://user-images.githubusercontent.com/40904281/188255507-a132cb75-0a89-44f6-949b-7cdb3ebaac26.png" width="500" />
+  <img src="https://user-images.githubusercontent.com/40904281/188255485-c9713291-0ae7-42d4-bde0-c0a9e717021e.png" width="300" />
+  <img src="https://user-images.githubusercontent.com/40904281/188255507-a132cb75-0a89-44f6-949b-7cdb3ebaac26.png" width="300" />
 </p>
 
 Examples:
