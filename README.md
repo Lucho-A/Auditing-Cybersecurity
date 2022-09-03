@@ -5,6 +5,10 @@ Cybersecurity framework developed in C, Ansi-style
 
 The main idea of the program is provide a framework with the essentials commands/tools in order to ensure, by their use, a well-knowledge of the effectiveness and efficiency of the implemented controls, in order to evaluate the residual risk of the processes.
 
+Screenshots:
+<img src="https://user-images.githubusercontent.com/40904281/188255255-aca546d4-8b17-4788-8af7-dff7c644ed87.png" width="500"> |
+<img src="https://user-images.githubusercontent.com/40904281/188255273-67a15ca5-e2af-4fd0-ae19-a7536730b5a5.png" width="500">
+
 Examples:
 
 <p align="center">
