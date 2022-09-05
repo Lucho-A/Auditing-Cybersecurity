@@ -7,7 +7,7 @@ The main idea of the program is provide a framework with the essentials commands
 
 Screenshots:
 <p align="middle">
-  <img src="https://user-images.githubusercontent.com/40904281/188340045-2b8317f8-8dbd-4e27-a22b-16004dcad28f.png" width="400" hspace="20"/>
+  <img src="https://user-images.githubusercontent.com/40904281/188340182-ac7fb60d-e76a-4627-9099-5532629d061d.png" width="400" hspace="20"/>
 </p>
 <p align="middle">
   <img src="https://user-images.githubusercontent.com/40904281/188255485-c9713291-0ae7-42d4-bde0-c0a9e717021e.png" width="400" hspace="20"/>
