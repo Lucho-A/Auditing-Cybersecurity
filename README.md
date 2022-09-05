@@ -11,7 +11,7 @@ Screenshots:
 </p>
 <p align="middle">
   <img src="https://user-images.githubusercontent.com/40904281/188255485-c9713291-0ae7-42d4-bde0-c0a9e717021e.png" width="400" hspace="20"/>
-  <img src="https://user-images.githubusercontent.com/40904281/188255507-a132cb75-0a89-44f6-949b-7cdb3ebaac26.png" width="400" />
+  <img src="https://user-images.githubusercontent.com/40904281/188340366-ef9249fa-6c7c-4b9d-bd1a-feb098b48a90.png" width="400" />
 </p>
 
 Examples:
