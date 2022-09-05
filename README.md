@@ -9,7 +9,7 @@ Screenshots:
 <p align="center">
   <img src="https://user-images.githubusercontent.com/40904281/188500203-1430cbdd-2d00-4f69-bbb4-f15537752674.png"/>
   <img src="https://user-images.githubusercontent.com/40904281/188500283-ba4a8b18-8623-4bc3-9dc9-34a8a2ea9630.png"/>
-  <img src="https://user-images.githubusercontent.com/40904281/188504968-f486dbd6-4f22-46c6-8bbe-9ea1a08abdc4.png"/>
+  <img src="https://user-images.githubusercontent.com/40904281/188505256-0cce8bc2-acd0-4c13-b795-fd3023f49345.png"/>
 </p>
 
 Examples:
