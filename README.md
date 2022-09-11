@@ -7,9 +7,9 @@ The main objective of the program is provide a framework with the essentials com
 
 Screenshots:
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/40904281/188500203-1430cbdd-2d00-4f69-bbb4-f15537752674.png"/>
-  <img src="https://user-images.githubusercontent.com/40904281/188500283-ba4a8b18-8623-4bc3-9dc9-34a8a2ea9630.png"/>
-  <img src="https://user-images.githubusercontent.com/40904281/188505256-0cce8bc2-acd0-4c13-b795-fd3023f49345.png"/>
+  <img src="https://user-images.githubusercontent.com/40904281/189545286-e5327404-3d63-4073-8bef-efd66270ff39.png"/>
+  <img src="https://user-images.githubusercontent.com/40904281/189545322-daca1b4b-3bed-43c3-8379-88d8bbe457db.png"/>
+  <img src="https://user-images.githubusercontent.com/40904281/189545354-29e2da3e-6b6c-4c5e-947b-7e6464a1b708.png"/>
 </p>
 
 Examples:
