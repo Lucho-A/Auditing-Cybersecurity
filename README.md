@@ -10,6 +10,13 @@ Use apt-get for resolving dependencies:
 ```
 sudo apt-get install auditingcybersecurity_1.0_1.deb
 ```
+Then, I recommend you to edit the different brute force attack usernames & password files, HTTP grabbing files, etc. located into /usr/share/Auditing-Cybersecurity/resources/
+
+Then:
+```
+sudo Auditing-Cybersecurity --help
+```
+
 ### Screenshots:
 <p align="center">
   <img src="https://user-images.githubusercontent.com/40904281/189545286-e5327404-3d63-4073-8bef-efd66270ff39.png"/>
