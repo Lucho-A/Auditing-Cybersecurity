@@ -10,7 +10,7 @@ Use apt-get for resolving dependencies:
 ```
 sudo apt-get install auditingcybersecurity_1.0_1.deb
 ```
-Screenshots:
+### Screenshots:
 <p align="center">
   <img src="https://user-images.githubusercontent.com/40904281/189545286-e5327404-3d63-4073-8bef-efd66270ff39.png"/>
   <img src="https://user-images.githubusercontent.com/40904281/189545322-daca1b4b-3bed-43c3-8379-88d8bbe457db.png"/>
