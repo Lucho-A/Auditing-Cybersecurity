@@ -6,7 +6,7 @@ Intended for auditing/security assessment, the program scan by using a TCP Steal
 The main objective of the program is provide a framework with the essentials commands/tools in order to ensure, by their use, a well-knowledge of the effectiveness and efficiency of the implemented controls, in order to evaluate the residual risk of the assessment.
 
 ### Installation
-Use apt-get for resolving dependencies:
+Download the file, and use apt-get for resolving dependencies:
 ```
 sudo apt-get install auditingcybersecurity_1.0_1.deb
 ```
