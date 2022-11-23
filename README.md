@@ -8,7 +8,11 @@ The main objective of the program is provide a framework with the essentials com
 ### Installation
 Download the file, and use apt-get for resolving dependencies:
 ```
-sudo apt-get install auditingcybersecurity_1.0_1.deb
+sudo apt-get install ./auditingcybersecurity_1.0_2.deb
+```
+Optional (recommended): If you want to run third-parties sofwares:
+```
+sudo apt-get install nmap metasploit-framework sqlmap whatweb nikto fierce dnsenum traceroute whois
 ```
 Then:
 ```
