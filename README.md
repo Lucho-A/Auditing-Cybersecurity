@@ -20,6 +20,8 @@ sudo Auditing-Cybersecurity --help
 ```
 Finally, I recommend you to edit the different brute force attack usernames & password files, HTTP grabbing files, etc. located into /usr/share/Auditing-Cybersecurity/resources/
 
+Any doubt, question or feedback, pls, just contact me.
+
 Have fun!
 
 ### Screenshots:
