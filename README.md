@@ -10,7 +10,7 @@ Download the file, and use apt-get for resolving dependencies:
 ```
 sudo apt-get install ./auditingcybersecurity_1.0_2.deb
 ```
-Optional (recommended): If you want to run third-parties sofwares:
+Optional (recommended) if you want to run third-parties sofwares:
 ```
 sudo apt-get install nmap metasploit-framework sqlmap whatweb nikto fierce dnsenum traceroute whois
 ```
