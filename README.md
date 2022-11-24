@@ -28,9 +28,9 @@ Have fun!
 
 ### Screenshots:
 <p align="center">
-![imagen](https://user-images.githubusercontent.com/40904281/203682762-fd4e5a9a-1198-4787-9aee-a1b146a91cb6.png)
-![imagen](https://user-images.githubusercontent.com/40904281/203682947-e159e999-e5ab-4842-b6b6-58c6e8324373.png)
-![imagen](https://user-images.githubusercontent.com/40904281/203682987-3244b6a2-5f34-4c6e-b314-23e108430a79.png)
+<image src=https://user-images.githubusercontent.com/40904281/203682762-fd4e5a9a-1198-4787-9aee-a1b146a91cb6.png>
+<image src=https://user-images.githubusercontent.com/40904281/203682947-e159e999-e5ab-4842-b6b6-58c6e8324373.png>
+<image src=https://user-images.githubusercontent.com/40904281/203682987-3244b6a2-5f34-4c6e-b314-23e108430a79.png>
 </p>
 
 Examples:
