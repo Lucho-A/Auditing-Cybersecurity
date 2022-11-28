@@ -23,7 +23,7 @@ Finally, I recommend you to edit the different brute force attack usernames & pa
 cd /usr/share/Auditing-Cybersecurity/resources/
 ```
 ### Documentation about activity descriptions
-You can find a brief descritpion here().
+You can find a brief description [here](https://github.com/Lucho-A/Auditing-Cybersecurity/blob/master/Auditing-Cybersecurity-README_v1.0.3.txt).
 ### Feedback
 Any doubt, suggestion or feedback, pls, just contact me.
 
