@@ -23,7 +23,7 @@ Finally, I recommend you to edit the different brute force attack usernames & pa
 cd /usr/share/Auditing-Cybersecurity/resources/
 ```
 ### Documentation about activity descriptions
-_(Under development)_
+You can find a brief descritpion here().
 ### Feedback
 Any doubt, suggestion or feedback, pls, just contact me.
 
