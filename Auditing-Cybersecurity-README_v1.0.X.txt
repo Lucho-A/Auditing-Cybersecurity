@@ -43,7 +43,7 @@ $ sudo Auditing-Cybersecurity lucho-a.ddns.net -p 2221 -n
 
 Brief descriptions of activities:
 
-1.1) Open a socket connection and send an empty msg in order to get a response. In addtion, evaluate the ttl value in IP header for establishing the probable OS
+1.1) Open a socket connection and send msgs in order to get a response. In addtion, evaluate the ttl value in IP header for establishing the probable OS
 1.2) Generate a random IP source, and send (until the user cancel with crl+c) syn flag TCP/IP packets without finishing or closing the connection. As usual, use it under your own risk ;)
 1.3) Call: nmap -sV -p [port] --script vulners [ip]
 1.4) Open a socket connection and send a Code Red string
@@ -75,6 +75,7 @@ Brief descriptions of activities:
 7.2) Execute 'mssql_payload' msfconsole module
 8.1) Execute 'smtp_ntlm_domain' msfconsole module
 8.2) Execute 'smtp_relay' msfconsole module
+8.3) Try to guess user and passwords accounts
 9.1) Try to guess user and passwords accounts
 10.1) Try to guess user and passwords accounts
 11.1) Try to guess user and passwords accounts
