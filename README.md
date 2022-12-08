@@ -8,7 +8,7 @@ The main objective of the program is provide a framework with the essentials com
 ### Installation
 Download the file, and use apt-get for resolving dependencies:
 ```
-sudo apt-get install ./auditingcybersecurity_1.0_2.deb
+sudo apt-get install ./auditing-cybersecurity_X.X_X.deb
 ```
 Optional (recommended) if you want to run third-parties softwares:
 ```
@@ -16,27 +16,28 @@ sudo apt-get install nmap metasploit-framework sqlmap whatweb nikto fierce dnsen
 ```
 Then:
 ```
-sudo Auditing-Cybersecurity --help
+sudo auditing-cybersecurity --help
 ```
 Finally, I recommend you to edit the different brute force attack usernames & password files, HTTP grabbing files, etc. located into:
 ```
-cd /usr/share/Auditing-Cybersecurity/resources/
+cd /usr/share/auditing-cybersecurity/resources/
 ```
-### Documentation about activity descriptions
-You can find a brief description [here](https://github.com/Lucho-A/Auditing-Cybersecurity/blob/master/Auditing-Cybersecurity-README_v1.0.3.txt).
+<!-- ### Documentation about activity descriptions -->
+<!-- You can find a brief description [here](https://github.com/Lucho-A/Auditing-Cybersecurity/blob/master/Auditing-Cybersecurity-README_v1.0.3.txt). -->
 ### Feedback
 Any doubt, suggestion or feedback, pls, just contact me.
 
 Have fun!
 
+<!--
 ### Screenshots:
 <p align="center">
 <image src=https://user-images.githubusercontent.com/40904281/203682762-fd4e5a9a-1198-4787-9aee-a1b146a91cb6.png>
 <image src=https://user-images.githubusercontent.com/40904281/203682947-e159e999-e5ab-4842-b6b6-58c6e8324373.png>
 <image src=https://user-images.githubusercontent.com/40904281/203682987-3244b6a2-5f34-4c6e-b314-23e108430a79.png>
 </p>
-
-Examples:
+-->
+Examples (a bit out-of-dated):
 
 <p align="center">
 <video src="https://user-images.githubusercontent.com/40904281/177245945-6bf3ead6-f04d-44d4-8b78-b8dad5701785.mp4" autoplay loop muted> </video>
