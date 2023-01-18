@@ -27,6 +27,8 @@ cd /usr/share/auditing-cybersecurity/resources/
 ```
 <!-- ### Documentation about activity descriptions -->
 <!-- You can find a brief description [here](https://github.com/Lucho-A/Auditing-Cybersecurity/blob/master/Auditing-Cybersecurity-README_v1.0.3.txt). -->
+### Documentation
+_(Under development)_
 ### Feedback
 Any doubt, suggestion or feedback, pls, just contact me.
 
