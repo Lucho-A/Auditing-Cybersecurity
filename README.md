@@ -19,7 +19,7 @@ sudo apt-get install nmap metasploit-framework sqlmap whatweb nikto fierce dnsen
 ```
 Then:
 ```
-sudo auditing-cybersecurity --help
+auditing-cybersecurity --help
 ```
 Finally, I recommend you to edit the different brute force attack usernames & password files, HTTP grabbing files, etc. located into:
 ```
