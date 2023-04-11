@@ -36,9 +36,17 @@ Have fun!
 
 ### Screenshots:
 <p align="center">
-<image src=https://user-images.githubusercontent.com/40904281/206345132-a4effd4f-4ede-4982-b905-31d5353330af.png>
-<image src=https://user-images.githubusercontent.com/40904281/206345182-72322bda-9162-40c0-8bc3-24351756e615.png>
+
+<image src=https://user-images.githubusercontent.com/40904281/231218349-d322d772-c1f7-475b-8feb-fddc62799345.png>
+
+<image src=https://user-images.githubusercontent.com/40904281/231218141-0fed0c9a-2678-4c6e-8e66-1b95a63d646b.png>
+
+<image src=https://user-images.githubusercontent.com/40904281/231218543-ef696a3f-984b-443f-bbdc-80920fe4b142.png>
+
 </p>
+
+
+
 <!--
 
 <image src=https://user-images.githubusercontent.com/40904281/203682762-fd4e5a9a-1198-4787-9aee-a1b146a91cb6.png>
