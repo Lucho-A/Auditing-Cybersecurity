@@ -37,10 +37,10 @@ Have fun!
 ### Screenshots:
 <p align="center">
 
+<image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/62795c6c-1ab7-41ec-baca-be495bd24a24>
+
 <image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/644cb4ad-b530-44e0-8658-59483f011998>
 
-<image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/62795c6c-1ab7-41ec-baca-be495bd24a24>
-  
 <image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/bacc3733-40bd-4d26-a2b9-11ad5baa8023>
 
 <image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/e80a17dc-b0de-419f-a14f-18c27e2b9733>
