@@ -45,7 +45,7 @@ Have fun!
 
 <image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/e80a17dc-b0de-419f-a14f-18c27e2b9733>
 
-<image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/2498bf50-77ef-4a36-88bd-e74322ac919f>
+<image src=https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/37708aa9-d48c-43ad-82c8-e5fcbbfd5443>
 
 </p>
 
