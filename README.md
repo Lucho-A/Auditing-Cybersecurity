@@ -13,7 +13,11 @@ For those folks who ask me if I will release the source code: yes, I will. Two r
 ```
 sudo apt-get install ./auditing-cybersecurity_X.X_X.deb
 ```
-Optional (recommended) if you want to run third-parties softwares:
+Note: if you already have installed the program, since v1.2.2, it's possible to perform the update executing:
+```
+auditing-cybersecurity --update
+```
+Optional (recommended) third-parties softwares:
 ```
 sudo apt-get install nmap metasploit-framework sqlmap whatweb nikto fierce dnsenum traceroute whois
 ```
