@@ -15,7 +15,7 @@ sudo apt-get install ./auditing-cybersecurity_X.X_X.deb
 ```
 Note: if you already have installed the program, since v1.2.2, it's possible to perform the update executing:
 ```
-auditing-cybersecurity --update
+sudo auditing-cybersecurity --update
 ```
 Optional (recommended) third-parties softwares:
 ```
