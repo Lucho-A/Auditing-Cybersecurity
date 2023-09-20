@@ -3,8 +3,11 @@
 Updated: 2023-XX-XX
 Criticality: high
 
+BUG_FIXED:
+- a lot.
+
 BUG_KNOWN:
-- a lot... too much for describing them without my lawyer present... hhhaha
+- also, a lot... too much for describing them without my lawyer present... hhhaha
 
 IMPROVEMENT:
 - '-r | --resources-location': option added (optional) for specifying the path to resources files. Default: '/usr/share/auditing-cybersecurity/resources/'.
