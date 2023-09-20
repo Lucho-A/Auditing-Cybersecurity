@@ -12,7 +12,7 @@ int ftp_check_user(char *username, char *password){
 	snprintf(host, BUFFER_SIZE_128B, "%s:%d", target.strTargetIp,portUnderHacking);
 	int valResp=FtpConnect(host, &ftpConn);
 	if(!valResp){
-		FtpClose(ftpConn);
+		if(ftpConn!=NULL) FtpClose(ftpConn);
 		return set_last_activity_error(FTP_CONNECTION_ERROR, FtpLastResponse(ftpConn));
 	}
 	valResp=FtpLogin(username,password,ftpConn);
