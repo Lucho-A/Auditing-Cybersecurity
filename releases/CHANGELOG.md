@@ -1,4 +1,4 @@
-auditing-cybersecurity-v1.2.7
+######auditing-cybersecurity-v1.2.7
 
 Updated: 2023-XX-XX
 Criticality: medium
@@ -12,7 +12,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.2.6
+######auditing-cybersecurity-v1.2.6
 
 Updated: 2023-07-17
 Criticality: medium
@@ -26,7 +26,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.2.5
+###auditing-cybersecurity-v1.2.5
 
 Updated: 2023-07-17
 Criticality: medium
@@ -42,7 +42,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.2.4
+###auditing-cybersecurity-v1.2.4
 
 Updated: 2023-07-16
 Criticality: medium
@@ -57,7 +57,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.2.3
+###auditing-cybersecurity-v1.2.3
 
 Updated: 2023-07-14
 Criticality: medium
@@ -73,14 +73,14 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.2.2
+###auditing-cybersecurity-v1.2.2
 
 UUpdated: 2023-07-12
 Criticality: medium
 
 FEATURE:
 
-- '--update': in order to simplify the updating process of the program, I added the option '--update'. The command download the latest version into '/usr/share/auditing-cybersecurity/' from Github, install it using 'apt-get', and remove it.
+- '--update': in order to simplify the updating process of the program, I added the option '--update'. The command download the latest version into '/usr/share/###auditing-cybersecurity/' from Github, install it using 'apt-get', and remove it.
 - 5.3 	-> added FTP banner grabbing.
 
 IMPROVEMENT:
@@ -97,7 +97,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.2.1
+###auditing-cybersecurity-v1.2.1
 
 Updated: 2023-07-07
 Criticality: medium
@@ -114,7 +114,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.2.0
+###auditing-cybersecurity-v1.2.0
 
 Updated: 2023-07-04
 Criticality: high
@@ -133,7 +133,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.9
+###auditing-cybersecurity-v1.1.9
 
 Updated: 2023-05-16
 Criticality: medium
@@ -154,7 +154,7 @@ OTHERS:
 - for sure, others I don't remember hhaha
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.8
+###auditing-cybersecurity-v1.1.8
 
 Updated: 2023-05-07
 Criticality: medium
@@ -183,7 +183,7 @@ OTHERS:
 (1) Btw, sorry for back and forth but a lot of unexpected situations arise depending of the service version, implementation, etc. (threading issues, code exceptions, implementations not RFC aligned, etc.).
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.7
+###auditing-cybersecurity-v1.1.7
 
 Updated: 2023-04-17
 Criticality: MEDIUM
@@ -212,7 +212,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.6
+###auditing-cybersecurity-v1.1.6
 
 Updated 2023-04-13:
 Update criticality: MEDIUM
@@ -234,7 +234,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.5
+###auditing-cybersecurity-v1.1.5
 
 Updated 2023-04-10:
 Update criticality: MEDIUM
@@ -252,7 +252,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.4
+###auditing-cybersecurity-v1.1.4
 
 Updated 2023-04-09:
 
@@ -275,7 +275,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.3
+###auditing-cybersecurity-v1.1.3
 
 Updated 2023-04-01:
 
@@ -292,19 +292,19 @@ BUG_FIXED:
 OTHERS:
 - for standards, the name of the resource files have been changed to lowercase. Pls, take this into consideration, and rename your files BEFORE updating. You can easily solve this by executing:
 ```
-cd /usr/share/auditing-cybersecurity/resources/; rename 'y/A-Z/a-z/' *
+cd /usr/share/###auditing-cybersecurity/resources/; rename 'y/A-Z/a-z/' *
 ```
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.2
+###auditing-cybersecurity-v1.1.2
 
 Updated 2023-01-31:
 - FEATURE:  [-d | --discover] argument option added for (ARP) discovering devices (IP & MAC) in the local network. At the moment, only class C networks are supported). Example usage: auditing-cybersecurity [-d | --discover] [--no-intro]
 - OTHERS:   minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.1
+###auditing-cybersecurity-v1.1.1
 
 Updated 2023-01-28:
 - IMPROVEMENT:	the installation doesn't overwrite the existent resource files (finally! hahahh)
@@ -315,7 +315,7 @@ Updated 2023-01-28:
 - OTHERS:       improved socket request timing.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.1.0
+###auditing-cybersecurity-v1.1.0
 
 Update: 2023-01-26 (1.1.0):
 - IMPROVEMENT:	2.6	->	redirect 301 is contemplated.
@@ -326,7 +326,7 @@ Update: 2023-01-26 (1.1.0):
 (1) At the moment, some procedures, like setting your interface in 'promiscuous' mode, and allowing 'forwarding' firewall rule must be done manually. On the other hand, the routine not only has an obvious impact in the 'confidentiality' dimension of the information, but in the 'availability' also. Moreover, the activity allows to enter the delay between sending packets, so you can perform a DoS ARP flooding attack, also. So, plsssss, in line with the objective of the program, the main idea is using this and the rest of the other tests for evaluating the existence, or not, of controls in place, as well, their effectiveness. Use it under your own and exclusive responsibility.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.0.9
+###auditing-cybersecurity-v1.0.9
 
 Updated 2023-01-21 (1.0.9):
 - IMPROVEMENT:    1.1  ->    text in the file (socket_banner_grabbing_strings.txt) can (and must) be written with standard ANSI C escape sequence. Enter, or execute procedure, do not add '\n' nor any other character. So, you should end the strings with '\n', '\r\n\r\n' (HTTP), etc. Hexa, Octal, and Unicode sequence are not supported. 
@@ -339,7 +339,7 @@ Updated 2023-01-21 (1.0.9):
 - OTHERS:         minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.0.8
+###auditing-cybersecurity-v1.0.8
 
 Updated 2023-01-19 (1.0.8):
 - OTHERS:        for privacy and avoid suspicious, now, the update checking is against the latest GitHub released tag instead of using an own web-service.
@@ -348,7 +348,7 @@ Updated 2023-01-19 (1.0.8):
 - OTHERS:        minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.0.7
+###auditing-cybersecurity-v1.0.7
 
 Updated 2023-01-18 (1.0.7):
 - BUG_FIXED:   i    -> controlled error when (first) message is  sent.
@@ -359,7 +359,7 @@ Updated 2023-01-18 (1.0.7):
 (1) You can set the behavior of this by editing ~/.inputrc (see: man readline)
 
 ------------------------------------------------------------------------------------------------------
-auditing-cybersecurity-v1.0.6	
+###auditing-cybersecurity-v1.0.6
 
 Updated 2023-01-16 (1.0.6):
 - IMPROVEMENT:	1.1  -> show only responses not empty.
