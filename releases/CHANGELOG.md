@@ -1,4 +1,4 @@
-######auditing-cybersecurity-v1.2.7
+###auditing-cybersecurity-v1.2.7
 
 Updated: 2023-XX-XX
 Criticality: medium
@@ -12,7 +12,7 @@ OTHERS:
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
-######auditing-cybersecurity-v1.2.6
+###auditing-cybersecurity-v1.2.6
 
 Updated: 2023-07-17
 Criticality: medium
