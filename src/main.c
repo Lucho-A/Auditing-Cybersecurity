@@ -72,7 +72,7 @@ static int closeMrAnderson(){
 int main(int argc, char *argv[]){
 	show_intro(PROGRAM_NAME, PROGRAM_VERSION);
 	Bool argOK=FALSE, noIntro=FALSE, discover=FALSE, updateProgram=FALSE;
-	char urlIp[16]="", msgError[BUFFER_SIZE_512B]="";
+	char urlIp[255]="", msgError[BUFFER_SIZE_512B]="";
 	for(int i=1;i<argc;i++){
 		if(i==1){
 			if(strcmp(argv[i],"-h")==0 || strcmp(argv[i],"--help")==0) continue;
