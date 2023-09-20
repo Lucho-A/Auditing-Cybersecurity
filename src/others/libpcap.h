@@ -4,7 +4,9 @@
 
 #define SNAP_LEN 65535
 #define SIZE_ETHERNET 14
-#define ETHER_ADDR_LEN 6
+//#define ETHER_ADDR_LEN 6
+
+#include <libnet.h>
 
 struct sniff_ethernet {
 	u_char  ether_dhost[ETHER_ADDR_LEN];

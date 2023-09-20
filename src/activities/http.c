@@ -143,7 +143,7 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	}else{
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
 	}
-	if(bytesReceived<=0){
+	if(bytesReceived<=0){ //TODO
 		close(localSocketCon);
 		SSL_free(sslConn);
 		return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
@@ -249,7 +249,7 @@ int http(int type){
 			bytesRecv=send_http_msg_to_server(target.targetIp, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
 					,msg,serverResp,BUFFER_SIZE_32B);
 			if(bytesRecv==RETURN_ERROR){
-				free_char_double_pointer(headers, totalFiles);
+				free_char_double_pointer(&headers, totalFiles);
 				return RETURN_ERROR;
 			}
 			printf("  Sending '%s': ", headers[i]);
@@ -264,7 +264,7 @@ int http(int type){
 			}
 			printf("\n");
 		}
-		free_char_double_pointer(headers, totalFiles);
+		free_char_double_pointer(&headers, totalFiles);
 		break;
 	case HTTP_GET_WEBPAGES:
 		FILE *f=NULL;
@@ -304,12 +304,12 @@ int http(int type){
 		free(getWPThread);
 		free(tInfo);
 		if(cancelCurrentProcess){
-			free_char_double_pointer(files, totalFiles);
-			free_char_double_pointer(stringTemplates, totalStrings);
+			//free_char_double_pointer(&files, totalFiles);
+			//free_char_double_pointer(&stringTemplates, totalStrings);
 			return RETURN_ERROR;
 		}
-		free_char_double_pointer(stringTemplates, totalStrings);
-		free_char_double_pointer(files, totalFiles);
+		//free_char_double_pointer(&stringTemplates, totalStrings);
+		//free_char_double_pointer(&files, totalFiles);
 		PRINT_RESET;
 		return RETURN_OK;
 	case HTTP_OTHERS:
@@ -343,7 +343,7 @@ int http(int type){
 			system_call(command);
 			printf("\n");
 		}while(TRUE);
-		free_char_double_pointer(commands, totalStrings);
+		free_char_double_pointer(&commands, totalStrings);
 		break;
 	default:
 		break;

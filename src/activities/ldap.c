@@ -1,5 +1,6 @@
 
 #include "../auditing-cybersecurity.h"
+#include "../activities/activities.h"
 
 int ldap(int type){
 	switch(type){

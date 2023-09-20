@@ -54,7 +54,7 @@ int others(int type){
 			printf("\n\n");
 			free(msg);
 		}while(TRUE);
-		free_char_double_pointer(stringTemplates, totalStrings);
+		free_char_double_pointer(&stringTemplates, totalStrings);
 		break;
 	case OTHERS_CHATGPT:
 		srand(time(0));

@@ -131,7 +131,7 @@ int main(int argc, char *argv[]){
 		if(latestVersion){
 			printf("%sup-to-date\n",C_HGREEN);
 		}else{
-			printf("%sout-of-date.%s You can execute 'auditing-cybersecurity --update' or download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/tree/master/releases\n",C_HRED,C_DEFAULT);
+			printf("%sout-of-date.%s You can execute 'auditing-cybersecurity --update' or download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest\n",C_HRED,C_DEFAULT);
 		}
 	}
 	time_t timestamp = time(NULL);

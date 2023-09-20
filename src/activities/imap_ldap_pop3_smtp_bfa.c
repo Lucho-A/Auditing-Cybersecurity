@@ -4,6 +4,7 @@
 #include <string.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
+#include "../activities/activities.h"
 
 struct memory {
 	char *response;
