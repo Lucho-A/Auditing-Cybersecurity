@@ -24,14 +24,14 @@ int open_file(char *pathToResource, char *filename, FILE **f){
 int open_file_str(char *pathToResource, char *filename, FILE **f, char ***s){
 	int entries=open_file(pathToResource, filename, f);
 	if(entries==RETURN_ERROR) return RETURN_ERROR;
-	*s = (char**) malloc(entries * sizeof(char*));
-	memset(*s,0,entries * sizeof(char*));
+	*s = (char**) malloc(entries * sizeof(char*) + 1);
+	memset(*s,0,entries * sizeof(char*) + 1);
 	size_t len=0;
 	char *line=NULL;
 	int i=-1;
 	while((getline(&line, &len, *f))!=-1){
-		(*s)[++i] = malloc(strlen(line));
-		snprintf((*s)[i],strlen(line),"%s",line);
+		(*s)[++i] = malloc(strlen(line)+1);
+		snprintf((*s)[i],strlen(line)+1,"%s",line);
 		((*s)[i])[strlen((*s)[i])-1]='\0';
 	}
 	rewind(*f);
