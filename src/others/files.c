@@ -24,8 +24,8 @@ int open_file(char *pathToResource, char *filename, FILE **f){
 int open_file_str(char *pathToResource, char *filename, FILE **f, char ***s){
 	int entries=open_file(pathToResource, filename, f);
 	if(entries==RETURN_ERROR) return RETURN_ERROR;
-	*s = (char**) malloc(entries * sizeof(char*) + 1);
-	memset(*s,0,entries * sizeof(char*) + 1);
+	*s = (char**) malloc(entries * sizeof(char*)+1);
+	memset(*s,0,entries * sizeof(char*)+1);
 	size_t len=0;
 	char *line=NULL;
 	int i=-1;
