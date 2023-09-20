@@ -32,13 +32,13 @@ cd /usr/share/auditing-cybersecurity/resources/
 ```
 ### Dependencies installation (Debian way):
 ```
-sudo apt-get install libcurl4 libssh2-1 libmysqlclient21 libc6 libodpic4 libpq5 libsmbclient libssl3 libodbc2 libreadline8 libpcap0.8 libnet1 libftp4
+sudo apt-get install libcurl4-gnutls-dev libssh2-1-dev libmysql++-dev libc6-dev libpq-dev libsmbclient-dev libssl3 libodbc2 libreadline-dev libpcap0.8-dev libnet1-dev libftp-dev unixodbc-dev libesmtp-dev
 ```
 ### Compilation:
 ```
 git clone https://github.com/lucho-a/Auditing-Cybersecurity.git
 cd Auditing-Cybersecurity/src
-gcc -L/usr/include/libnl3 -o "auditing-cybersecurity" main.c auditing-cybersecurity.h ports/* activities/* others/*  -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lodpic -lnl-3 -lftp -lesmtp
+gcc -o "auditing-cybersecurity" main.c auditing-cybersecurity.h  others/* ports/* activities/* libodpi/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
 ```
 ### Bonus Track
 I backed up a WSL2 Ubuntu (22.04) image that I created for testing purposes. You can download it if you want:
