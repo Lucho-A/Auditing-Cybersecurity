@@ -6,6 +6,8 @@
 #include <readline/history.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
+#include "../activities/activities.h"
+#include <errno.h>
 
 char **files=NULL;
 double totalFiles=0;
@@ -143,10 +145,10 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	}else{
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
 	}
-	if(bytesReceived<=0){ //TODO
+	if(bytesReceived<=0){
 		close(localSocketCon);
 		SSL_free(sslConn);
-		return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+		return set_last_activity_error(RECEIVING_PACKETS_ERROR, strerror(errno));
 	}
 	for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];
 	serverResp[contI]='\0';
