@@ -42,7 +42,7 @@ int system_call(char *cmdArg){
 		system(cmd);
 		PRINT_RESET;
 	}while(TRUE);
-	free_char_double_pointer(stringTemplates, totalStrings);
+	free_char_double_pointer(&stringTemplates, totalStrings);
 	clear_history();
 	return RETURN_OK;
 }

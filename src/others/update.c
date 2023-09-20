@@ -100,7 +100,7 @@ int update(){
 	PRINT_RESET;
 	printf("\nInstalling update...\n\n");
 	fflush(stdout);
-	char cmd[BUFFER_SIZE_512B]="";
+	char cmd[BUFFER_SIZE_1K]="";
 	snprintf(cmd, sizeof(cmd),"apt-get install %s",downloadFullPath);
 	system(cmd);
 	PRINT_RESET;

@@ -93,7 +93,7 @@ int others(int type){
 					"authorization: Bearer %s\r\n"
 					"content-length: %ld\r\n\r\n"
 					"%s \r\n\r\n",api[1],strlen(payload),payload);
-			free_char_double_pointer(api, entries);
+			free_char_double_pointer(&api, entries);
 			int bytesRecv=0;
 			if((bytesRecv=send_msg_to_server(ip,"api.openai.com", 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_8K,60000))<0) return RETURN_ERROR;
 			printf("%s\n  ",C_HWHITE);

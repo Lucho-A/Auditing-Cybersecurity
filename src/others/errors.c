@@ -10,7 +10,7 @@ int set_last_activity_error(int errorType, char const *errorAditionalDescription
 }
 
 int error_handling(Bool exitProgram){
-	char errorMsg[BUFFER_SIZE_512B]="", errorDescription[BUFFER_SIZE_512B]="";
+	char errorMsg[BUFFER_SIZE_1K]="", errorDescription[BUFFER_SIZE_256B]="";
 	switch(lastActivityError.errorType){
 	case RETURN_OK:
 		return RETURN_OK;

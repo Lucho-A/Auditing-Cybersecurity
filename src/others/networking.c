@@ -76,8 +76,8 @@ int init_networking(){
 			}
 		}
 	}
-	char addressPath[BUFFER_SIZE_128B]="";
-	snprintf(addressPath,BUFFER_SIZE_128B, "/sys/class/net/%s/address", networkInfo.interfaceName);
+	char addressPath[BUFFER_SIZE_512B]="";
+	snprintf(addressPath,strlen(addressPath), "/sys/class/net/%s/address", networkInfo.interfaceName);
 	FILE *f=fopen(addressPath,"r");
 	size_t len=20;
 	if(f!=NULL) while(getline(&networkInfo.interfaceMac, &len,f)!=-1);
