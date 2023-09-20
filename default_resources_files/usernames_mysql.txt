@@ -1,0 +1,9 @@
+root
+admin
+cloudera
+
+moves
+mcUser
+mysqlusertest
+dbuser
+asteriskuser

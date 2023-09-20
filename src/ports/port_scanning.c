@@ -39,7 +39,7 @@ int scan_init(char *urlIp){
 	printf("Hostname: %s%s%s\n\n",C_HWHITE,target.strHostname,C_DEFAULT);
 	FILE *ports=NULL;
 	if(target.cantPortsToScan!=ALL_PORTS){
-		if(open_file(PATH_TO_RESOURCES,"ports.txt", &ports)==RETURN_ERROR) return set_last_activity_error(OPENING_PORT_FILE_ERROR, "");
+		if(open_file(resourcesLocation,"ports.txt", &ports)==RETURN_ERROR) return set_last_activity_error(OPENING_PORT_FILE_ERROR, "");
 	}
 	target.portsToScan= (struct Port *) malloc(target.cantPortsToScan * sizeof(struct Port));
 	for(int i=0;i<target.cantPortsToScan;i++){

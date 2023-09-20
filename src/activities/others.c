@@ -19,7 +19,7 @@ int others(int type){
 		break;
 	case OTHERS_INTERACTIVE:
 		char **stringTemplates=NULL;
-		int totalStrings=open_file_str(PATH_TO_RESOURCES, "interactive_strings_templates.txt", &f, &stringTemplates);
+		int totalStrings=open_file_str(resourcesLocation, "interactive_strings_templates.txt", &f, &stringTemplates);
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 		fclose(f);
 		do{
@@ -59,7 +59,7 @@ int others(int type){
 	case OTHERS_CHATGPT:
 		srand(time(0));
 		char **api=NULL;
-		int entries=open_file_str(PATH_TO_RESOURCES, "chatgpt.txt", &f, &api);
+		int entries=open_file_str(resourcesLocation, "chatgpt.txt", &f, &api);
 		fclose(f);
 		if(entries==RETURN_ERROR || strcmp(api[1],"")==0 || api[1]==NULL) return show_message("API not found.\n", strlen("API not found."), 0, ERROR_MESSAGE, FALSE);
 		char httpMsg[BUFFER_SIZE_512B]="";

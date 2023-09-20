@@ -13,7 +13,7 @@ int system_call(char *cmdArg){
 	}
 	FILE *f=NULL;
 	char **stringTemplates=NULL;
-	int totalStrings=open_file_str(PATH_TO_RESOURCES, "system_strings_template.txt", &f, &stringTemplates);
+	int totalStrings=open_file_str(resourcesLocation, "system_strings_template.txt", &f, &stringTemplates);
 	if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR, "");
 	fclose(f);
 	do{

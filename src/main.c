@@ -6,7 +6,7 @@
  Copyright   : GNU General Public License v3.0
  Description : Main file
  ============================================================================
-*/
+ */
 
 #include <stdlib.h>
 #include <libssh2.h>
@@ -15,6 +15,7 @@
 #include <time.h>
 #include <signal.h>
 #include <openssl/ssl.h>
+#include <pcap.h>
 #include "auditing-cybersecurity.h"
 #include "activities/activities.h"
 #include "others/networking.h"
@@ -27,6 +28,7 @@ int portUnderHacking=0;
 Bool cancelCurrentProcess=0;
 Bool canceledBySignal=0;
 pcap_t *arpHandle=NULL;
+char *resourcesLocation=NULL;
 
 static void signal_handler(int signalType){
 	printf("\b\b  %s\n",C_DEFAULT);
@@ -53,7 +55,18 @@ static int initMrAnderson(){
 	//rl_initialize();
 	SSL_library_init();
 	libssh2_init(0);
+	if(resourcesLocation==NULL){
+		resourcesLocation=malloc(strlen(PATH_TO_RESOURCES)+1);
+		snprintf(resourcesLocation, sizeof(PATH_TO_RESOURCES)+1,"%s", PATH_TO_RESOURCES);
+	}
 	return init_networking();
+}
+
+static int closeMrAnderson(){
+	printf("%s\n",C_DEFAULT);
+	if(resourcesLocation!=NULL) free(resourcesLocation);
+	if(arpHandle!=NULL) pcap_close(arpHandle);
+	return RETURN_OK;
 }
 
 int main(int argc, char *argv[]){
@@ -107,12 +120,19 @@ int main(int argc, char *argv[]){
 			noIntro=TRUE;
 			continue;
 		}
+		if(strcmp(argv[i],"-r")==0 || strcmp(argv[i],"--resources-location")==0){
+			resourcesLocation=malloc(strlen(argv[i+1])+1);
+			snprintf(resourcesLocation,strlen(argv[i+1])+1,"%s",argv[i+1]);
+			i++;
+			continue;
+		}
 		snprintf(msgError,sizeof(msgError),"\nArgument %s not recognized\n",argv[i]);
 		argOK=FALSE;
 		break;
 	}
 	if(!argOK){
 		show_help(msgError);
+		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
 	if(!noIntro) show_intro_banner();
@@ -121,6 +141,7 @@ int main(int argc, char *argv[]){
 			printf("\n%sUpdating error. %s.\n",C_HRED,strerror(errno));
 			PRINT_RESET;
 		}
+		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
 	printf("\nChecking updates: ");
@@ -142,13 +163,13 @@ int main(int argc, char *argv[]){
 	if(initMrAnderson()==RETURN_ERROR) error_handling(TRUE);
 	if(discover){
 		if(others(OTHERS_ARP_DISCOVER_D)==RETURN_ERROR) error_handling(TRUE);
-		printf("%s",C_DEFAULT);
+		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
 	if(scan_init(urlIp)==RETURN_ERROR) error_handling(TRUE);
 	if(scan_ports()==RETURN_ERROR) error_handling(TRUE);
 	if(hack_port_request()==RETURN_ERROR) error_handling(TRUE);
-	printf("%s\n",C_DEFAULT);
+	closeMrAnderson();
 	exit(EXIT_SUCCESS);
 }
 

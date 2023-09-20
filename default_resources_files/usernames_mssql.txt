@@ -1,0 +1,11 @@
+sa
+admin
+
+root
+gts
+ADMIN
+stream
+secure
+test
+user
+mssqlUser

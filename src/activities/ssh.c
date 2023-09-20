@@ -117,7 +117,7 @@ int ssh(int type){
 		break;
 	case SSH_USER_ENUM:
 		char userFilePath[BUFFER_SIZE_512B]="";
-		snprintf(userFilePath, sizeof(userFilePath),"%s%s", PATH_TO_RESOURCES, "msf_users.txt");
+		snprintf(userFilePath, sizeof(userFilePath),"%s%s", resourcesLocation, "msf_users.txt");
 		snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use scanner/ssh/ssh_enumusers;set RHOSTS %s; "
 				"set RPORT %d; set USER_FILE %s;run; exit'",target.strTargetIp, portUnderHacking, userFilePath);
 		system_call(cmd);

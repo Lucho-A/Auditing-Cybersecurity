@@ -1,0 +1,2 @@
+whatweb -a 3 %s:%d
+nikto -h %s:%d

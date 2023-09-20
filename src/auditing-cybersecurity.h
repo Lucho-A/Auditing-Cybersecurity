@@ -211,6 +211,7 @@ extern struct NetworkInfo networkInfo;
 extern int portUnderHacking;
 extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
+extern char *resourcesLocation;
 
 int scan_init(char *urlIp);
 int scan_ports();

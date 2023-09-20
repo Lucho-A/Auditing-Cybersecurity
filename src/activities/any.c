@@ -32,7 +32,7 @@ int any(int type){
 			break;
 		}
 		char **queries=NULL;
-		double msgs=open_file_str(PATH_TO_RESOURCES, "socket_banner_grabbing_strings.txt", &f, &queries);
+		double msgs=open_file_str(resourcesLocation, "socket_banner_grabbing_strings.txt", &f, &queries);
 		if(msgs==RETURN_ERROR){
 			free_char_double_pointer(&queries,msgs);
 			return OPENING_FILE_ERROR;
@@ -159,8 +159,8 @@ int any(int type){
 				}while(strcmp(confirmation,"y")!=0 && strcmp(confirmation,"")!=0 && strcmp(confirmation,"n")!=0);
 				printf("\n");
 				char userFilePath[BUFFER_SIZE_512B]="", passFilePath[BUFFER_SIZE_512B]="";
-				snprintf(userFilePath, sizeof(userFilePath),"%s%s", PATH_TO_RESOURCES, "msf_users.txt");
-				snprintf(passFilePath, sizeof(userFilePath),"%s%s", PATH_TO_RESOURCES, "msf_passwords.txt");
+				snprintf(userFilePath, sizeof(userFilePath),"%s%s", resourcesLocation, "msf_users.txt");
+				snprintf(passFilePath, sizeof(userFilePath),"%s%s", resourcesLocation, "msf_passwords.txt");
 				if(strcmp(confirmation,"y")==0 || strcmp(confirmation,"")==0){
 					snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use %s;"
 							"set RHOSTS %s;"
@@ -214,7 +214,7 @@ int any(int type){
 			break;
 		case ANY_SQL_MAP:
 			char **sqlmapCommands=NULL;
-			int totalStrings=open_file_str(PATH_TO_RESOURCES, "sqlmap_commands.txt", &f, &sqlmapCommands);
+			int totalStrings=open_file_str(resourcesLocation, "sqlmap_commands.txt", &f, &sqlmapCommands);
 			if(totalStrings==RETURN_ERROR) return OPENING_FILE_ERROR;
 			fclose(f);
 			do{

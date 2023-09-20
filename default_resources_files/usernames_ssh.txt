@@ -1,0 +1,15 @@
+root
+admin
+ftpusertest
+sshusertest
+ftp
+localadmin
+vagrant
+user
+guest
+httpadmin
+sftp
+ftpuser
+test
+webserver
+su

@@ -41,7 +41,7 @@ int open_file_str(char *pathToResource, char *filename, FILE **f, char ***s){
 int read_usernames_and_password_files(struct BfaInfo *bfaInfo, char *usernamesFilename, char * passwordsFilename){
 	int i=0;
 	FILE *f=NULL;
-	if((bfaInfo->totalUsernames=open_file(PATH_TO_RESOURCES, usernamesFilename,&f))==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
+	if((bfaInfo->totalUsernames=open_file(resourcesLocation, usernamesFilename,&f))==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 	bfaInfo->usernames = (char **) malloc(bfaInfo->totalUsernames * sizeof(char*));
 	for (int i=0;i<bfaInfo->totalUsernames;i++) bfaInfo->usernames[i]=NULL;
 	size_t len=0;
@@ -53,7 +53,7 @@ int read_usernames_and_password_files(struct BfaInfo *bfaInfo, char *usernamesFi
 		bfaInfo->usernames[i][strlen(bfaInfo->usernames[i])-1]=0;
 	}
 	fclose(f);
-	if((bfaInfo->totalPasswords=open_file(PATH_TO_RESOURCES,passwordsFilename,&f))==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
+	if((bfaInfo->totalPasswords=open_file(resourcesLocation,passwordsFilename,&f))==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 	bfaInfo->passwords = (char **) malloc(bfaInfo->totalPasswords * sizeof(char*));
 	for (int i=0;i<bfaInfo->totalPasswords;i++) bfaInfo->passwords[i]=NULL;
 	i=-1;

@@ -1,0 +1,7 @@
+index.html
+robots.txt
+index.php
+favicon.ico
+.htpasswd
+default.html
+.well-known/security.txt

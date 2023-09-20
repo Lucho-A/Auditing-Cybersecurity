@@ -240,7 +240,7 @@ int http(int type){
 		break;
 	case HTTP_SERVER_RESP_SPOOFED_HEADERS:
 		char **headers=NULL;
-		if((totalFiles=open_file_str(PATH_TO_RESOURCES, "spoofed_headers_http.txt",&f, &headers))==RETURN_ERROR) return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
+		if((totalFiles=open_file_str(resourcesLocation, "spoofed_headers_http.txt",&f, &headers))==RETURN_ERROR) return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
 		fclose(f);
 		for(int i=0;i<totalFiles;i++){
 			snprintf(msg,sizeof(msg),"GET / HTTP/1.1\r\n"
@@ -270,7 +270,7 @@ int http(int type){
 		break;
 	case HTTP_GET_WEBPAGES:
 		FILE *f=NULL;
-		totalStrings=open_file_str(PATH_TO_RESOURCES, "getting_webpages.txt", &f, &stringTemplates);
+		totalStrings=open_file_str(resourcesLocation, "getting_webpages.txt", &f, &stringTemplates);
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR, "");
 		fclose(f);
 		totalThreads=request_quantity_threads(100);
@@ -294,7 +294,7 @@ int http(int type){
 		}while(TRUE);
 		printf("\n");
 		format_strings_from_files(stringTemplates[selectedOpt-1], stringTemplates[selectedOpt-1]);
-		if((totalFiles=open_file_str(PATH_TO_RESOURCES, "dirs_and_files_http.txt",&f, &files))==-1) return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
+		if((totalFiles=open_file_str(resourcesLocation, "dirs_and_files_http.txt",&f, &files))==-1) return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
 		fclose(f);
 		pthread_t *getWPThread = (pthread_t *)malloc(totalThreads * sizeof(pthread_t));
 		struct ThreadInfo *tInfo = (struct ThreadInfo *) malloc(totalThreads * sizeof(struct ThreadInfo));
@@ -316,7 +316,7 @@ int http(int type){
 		return RETURN_OK;
 	case HTTP_OTHERS:
 		char **commands=NULL;
-		totalStrings=open_file_str(PATH_TO_RESOURCES, "http_commands.txt", &f, &commands);
+		totalStrings=open_file_str(resourcesLocation, "http_commands.txt", &f, &commands);
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 		fclose(f);
 		do{
