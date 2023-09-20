@@ -18,7 +18,7 @@ Note: if you already have installed the program, since v1.2.2, it's possible to 
 ```
 sudo auditing-cybersecurity --update
 ```
-Optional (recommended) third-parties softwares:
+Optional (recommended) third-party software's:
 ```
 sudo apt-get install nmap metasploit-framework sqlmap whatweb nikto fierce dnsenum traceroute whois
 ```
@@ -29,6 +29,16 @@ auditing-cybersecurity --help
 Finally, I recommend you to edit the different brute force attack usernames & password files, HTTP grabbing files, etc. located into:
 ```
 cd /usr/share/auditing-cybersecurity/resources/
+```
+### Dependencies installation (Debian way):
+```
+sudo apt-get install libcurl4 libssh2-1 libmysqlclient21 libc6 libodpic4 libpq5 libsmbclient libssl3 libodbc2 libreadline8 libpcap0.8 libnet1 libftp4
+```
+### Compilation:
+```
+git clone https://github.com/lucho-a/Auditing-Cybersecurity.git
+cd Auditing-Cybersecurity/src
+gcc -L/usr/include/libnl3 -o "auditing-cybersecurity" main.c auditing-cybersecurity.h ports/* activities/* others/*  -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lodpic -lnl-3 -lftp -lesmtp
 ```
 ### Bonus Track
 I backed up a WSL2 Ubuntu (22.04) image that I created for testing purposes. You can download it if you want:
