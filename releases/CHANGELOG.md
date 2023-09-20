@@ -15,6 +15,7 @@ IMPROVEMENT:
 OTHERS:
 - g     -> speed response increased.
 - g     -> timeouting increased.
+- 12.1  -> because installing oracle dependencies can be tricky, I included the Oracle source file for compiling and integrating jointly with    program.
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
