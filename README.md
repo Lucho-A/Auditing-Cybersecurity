@@ -10,7 +10,7 @@ Finally, just mention that, since v1.2.4, I started to incorporate AI into the p
 For those folks who ask me if I will release the source code: yes, I will. Two reasons stop me right now: in first place, I'm not fully comfortable with the code. I've been re-organizing it, I have a lot of ideas, etc.. In second place (first?), I've been looking for a job since 2 years ago, I've had more than 40 interviews, and I didn't getting hire!, so, I’m not sure why I should give my work to the society for free if this shameless society is incapable to give a job to me! hhahah... anyway, as I said: take me patience, I will ;)
 -->
 ### Installation/Updating
-[Download](https://github.com/Lucho-A/Auditing-Cybersecurity/releases/latest) the file, and use apt-get for resolving dependencies:
+[Download & Changelog](https://github.com/Lucho-A/Auditing-Cybersecurity/releases/latest) the file, and use apt-get for resolving dependencies:
 ```
 sudo apt-get install ./auditing-cybersecurity_X.X_X.deb
 ```
