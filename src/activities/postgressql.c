@@ -1,14 +1,14 @@
 
-#include "../others/networking.h"
-#include "../activities/activities.h"
-
 #include </usr/include/postgresql/libpq-fe.h>
 #include "../auditing-cybersecurity.h"
+#include "../others/networking.h"
+#include "../activities/activities.h"
 
 int postgres_check_user(char *username, char *password){
 	char postgresConnInfo[BUFFER_SIZE_1K]="";
 	snprintf(postgresConnInfo,sizeof(postgresConnInfo), "hostaddr=%s port=%d dbname=postgres user=%s password=%s",target.strTargetIp, portUnderHacking, username,password);
 	PGconn *postgresConn = PQconnectdb(postgresConnInfo);
+	//if(strcmp("lab-windows", username)==0 && strcmp("lab-windows", password)==0) printf("\n%d\n", PQstatus(postgresConn));
 	if(PQstatus(postgresConn)==CONNECTION_OK) return TRUE;
 	if(postgresConn!=NULL) PQfinish(postgresConn);
 	return FALSE;

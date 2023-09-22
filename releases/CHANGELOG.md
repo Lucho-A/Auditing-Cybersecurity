@@ -1,4 +1,4 @@
-### auditing-cybersecurity-v1.2.7/Sooo-Under Dev.
+### auditing-cybersecurity-v1.2.7/Under Dev/Testing.
 
 Updated: 2023-XX-XX
 Criticality: high
@@ -11,6 +11,7 @@ BUG_KNOWN:
 
 IMPROVEMENT:
 - '-r | --resources-location': option added (optional) for specifying the path to resources files. Default: '/usr/share/auditing-cybersecurity/resources/'.
+- 7.2   -> timeouting set (5") if can't connect to server.
 
 OTHERS:
 - g     -> speed response increased.
