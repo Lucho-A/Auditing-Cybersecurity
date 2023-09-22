@@ -32,7 +32,7 @@ cd /usr/share/auditing-cybersecurity/resources/
 ```
 ### Dependencies installation (Debian way):
 ```
-sudo apt-get install libcurl4-gnutls-dev libssh2-1-dev libmysql++-dev libc6-dev libpq-dev libsmbclient-dev libssl3 libodbc2 libreadline-dev libpcap0.8-dev libnet1-dev libftp-dev unixodbc-dev libesmtp-dev
+sudo apt-get install libcurl4-gnutls-dev libssh2-1-dev libmysqlclient-dev libc6-dev libpq-dev libsmbclient-dev libssl3 libodbc2 libreadline-dev libpcap0.8-dev libnet1-dev libftp-dev unixodbc-dev libesmtp-dev
 ```
 ### Compilation:
 ```
