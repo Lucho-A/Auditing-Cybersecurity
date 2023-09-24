@@ -93,7 +93,7 @@ int others(int type){
 					"authorization: Bearer %s\r\n"
 					"content-length: %ld\r\n\r\n"
 					"%s \r\n\r\n",api[1],strlen(payload),payload);
-			free_char_double_pointer(&api, entries);
+			//free_char_double_pointer(&api, entries);
 			int bytesRecv=0;
 			if((bytesRecv=send_msg_to_server(ip,"api.openai.com", 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_8K,60000))<0) return RETURN_ERROR;
 			printf("%s\n  ",C_HWHITE);
@@ -102,19 +102,23 @@ int others(int type){
 				if(bytesRecv==0) printf("  %sOps, 0 bytes received... maybe, service momentarily unavailable. Try again...\n",C_HRED);
 				if(bytesRecv!=0) printf("  %sNo response... check config file (apikey and values) and/or try again...\n",C_HRED);
 				PRINT_RESET;
+				free(payload);
 				free(msg);
 				free(serverResp);
 				continue;
 			}
 			for(int i=strlen("\"content\": \"");resp[i]!='"' && !cancelCurrentProcess;i++){
-				usleep(rand() % 30000 + 20000);
+				usleep(rand() % 10000 + 20000);
 				if(resp[i]=='\\'){
 					switch(resp[i+1]){
 					case 'n':
-						printf("\n  ");
+						printf("\n");
 						break;
 					case '"':
 						printf("\"");
+						break;
+					case 't':
+						printf("\t");
 						break;
 					default:
 						break;
@@ -127,9 +131,11 @@ int others(int type){
 			}
 			PRINT_RESET;
 			PRINT_RESET;
+			free(msg);
 			free(payload);
 			free(serverResp);
 		}while(TRUE);
+		free_char_double_pointer(&api, entries);
 		break;
 	case OTHERS_SYSTEM_CALL:
 		system_call(NULL);
