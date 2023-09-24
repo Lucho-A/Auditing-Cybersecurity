@@ -1,4 +1,4 @@
-### auditing-cybersecurity-v1.2.7/Under Dev/Testing.
+### auditing-cybersecurity-v1.2.7:Under Dev/Testing.
 
 Updated: 2023-XX-XX
 Criticality: high
@@ -16,7 +16,8 @@ IMPROVEMENT:
 OTHERS:
 - g     -> speed response increased.
 - g     -> timeouting increased.
-- 12.1  -> because installing oracle dependencies can be tricky, I included the Oracle source file for compiling and integrating jointly with    program.
+- g     -> keep the last user & assistant message for improving the chat experience
+- 12.1  -> because installing oracle dependencies can be tricky, I included the Oracle source file for compiling and integrating jointly with the program.
 - minor changes & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
