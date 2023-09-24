@@ -259,7 +259,6 @@ int send_msg_to_server(struct in_addr ip, char *hostname, int port, int connType
 		numEvents=poll(pfds, 1, SOCKET_RECV_TIMEOUT_MS + extraTimeOut);
 		if(numEvents==0){
 			close(localSocketConn);
-			clean_ssl(sslConn);
 			break;
 		}
 		pollinHappened = pfds[0].revents & POLLIN;
