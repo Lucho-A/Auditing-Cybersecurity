@@ -112,6 +112,7 @@ int ssh(int type){
 		printf("%s\n",C_DEFAULT);
 		userauthlist = libssh2_userauth_list(sshSessionConn, "anyUser", strlen("anyUser"));
 		printf("\n  Authentication methods allowed: ");
+		if(userauthlist==NULL) userauthlist="Failure -no authentication methods found (!?)-";
 		show_message(userauthlist,strlen(userauthlist), 0, INFO_MESSAGE,FALSE);
 		libssh2_session_free(sshSessionConn);
 		break;
