@@ -276,14 +276,14 @@ int any(int type){
 				for(int i=0;i<strlen(msg);i++){
 					if(msg[i]==' ' || msg[i]=='\"') msg[i]='+';
 				}
-				snprintf(httpMsg,BUFFER_SIZE_1K,
+				snprintf(httpMsg,BUFFER_SIZE_512B,
 						"GET /api/cve?search=%s HTTP/1.1\r\n"
 						"Host: %s\r\n"
 						"Authorization: Basic THVjaDpMdWlzNzgh\r\n"
 						"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\r\n"
 						"Accept: */*\r\n\r\n",msg,host);
 				int bytesRecv=0;
-				if((bytesRecv=send_msg_to_server(ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,10000))<0) return RETURN_ERROR;
+				if((bytesRecv=send_msg_to_server(ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000))<0) return RETURN_ERROR;
 				char *token="\"id\": \"";
 				char *json=strstr(serverResp,token);
 				if(json==NULL){
