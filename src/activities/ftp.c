@@ -57,6 +57,5 @@ int ftp(int type){
 	default:
 		break;
 	}
-	//printf("\n");
 	return RETURN_OK;
 }
