@@ -19,10 +19,10 @@ char * get_readline(char *prompt, Bool addHistory){
 	char *lineRead=(char *)NULL;
 	if(lineRead){
 		free(lineRead);
-		lineRead = (char *)NULL;
+		lineRead=(char *)NULL;
 	}
 	lineRead=readline(prompt);
-	if (lineRead && *lineRead && addHistory) add_history (lineRead);
+	if(lineRead && *lineRead && addHistory) add_history (lineRead);
 	return (lineRead);
 }
 
@@ -45,19 +45,3 @@ int request_quantity_threads(int threadsDefault){
 		return threadsDefault;
 	}while(TRUE);
 }
-/*
-void hexa_to_ascii(char *hexaMsg, char *resultMsg){
-	//TODO
-	resultMsg = (char *) malloc((strlen(hexaMsg)/2+1) * sizeof(char));
-	for (int i=0;i<strlen(hexaMsg);i+=2){
-		char byte[3];
-		byte[0]=hexaMsg[i];
-		byte[1]=hexaMsg[i+1];
-		byte[2]='\0';
-		int n=strtol(byte,NULL,16);
-		printf("%c",n);
-		sprintf(&resultMsg[i/2], "%c", (char)n);
-	}
-	resultMsg[strlen(hexaMsg)/2]='\0';
-}
-*/
