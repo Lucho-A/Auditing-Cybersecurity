@@ -14,7 +14,8 @@
 
 int any(int type){
 	FILE *f=NULL;
-	char msg[BUFFER_SIZE_1K]="", *serverResp=NULL, cmd[BUFFER_SIZE_2K]="";
+	char msg[BUFFER_SIZE_1K]="", cmd[BUFFER_SIZE_2K]="";
+	unsigned char *serverResp=NULL;
 	switch(type){
 	case ANY_BANNER_GRABBING:
 		printf("  Probable OS (TTL Fingerprinting): %s%s%s\n\n", C_HWHITE, target.portsToScan[get_port_index(portUnderHacking)].operatingSystem, C_DEFAULT);
@@ -47,7 +48,7 @@ int any(int type){
 					msg,&serverResp,BUFFER_SIZE_128K,0,c);
 			if(bytesRecv<=0) continue;
 			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
-			show_message(serverResp,bytesRecv, 0, RESULT_MESSAGE, TRUE);
+			show_message((char *) serverResp,bytesRecv, 0, RESULT_MESSAGE, TRUE);
 			printf("\n");
 			close(sk);
 		}
@@ -134,7 +135,7 @@ int any(int type){
 					,msg,&serverResp,BUFFER_SIZE_128K,0, strlen(msg));
 			close(sk);
 			if(bytesRecv==RETURN_ERROR) show_message("Error creating socket. Maybe the port is blocked. Wait, and try again in a while.",0,0, ERROR_MESSAGE,1);
-			show_message(serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
+			show_message((char *) serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
 			if(serverResp!=NULL) free(serverResp);
 			break;
 		case ANY_SEARCH_MSF:
@@ -278,7 +279,7 @@ int any(int type){
 			ip.s_addr=inet_addr(nistIP);
 			do{
 				cancelCurrentProcess=FALSE;
-				char *serverResp=NULL;
+				unsigned char *serverResp=NULL;
 				char *msg=get_readline(";=exit)-> ", TRUE);
 				if(strcmp(msg,";")==0) break;
 				for(int i=0;i<strlen(msg);i++){
@@ -295,7 +296,7 @@ int any(int type){
 				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000,strlen(httpMsg)))<0) return RETURN_ERROR;
 				close(sk);
 				char *token="\"id\": \"";
-				char *json=strstr(serverResp,token);
+				char *json=strstr((char *)serverResp,token);
 				free(serverResp);
 				if(json==NULL){
 					show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
