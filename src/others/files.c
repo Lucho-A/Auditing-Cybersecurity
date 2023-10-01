@@ -34,6 +34,7 @@ int open_file_str(char *pathToResource, char *filename, FILE **f, char ***s){
 		snprintf((*s)[i],strlen(line)+1,"%s",line);
 		((*s)[i])[strlen((*s)[i])-1]='\0';
 	}
+	free(line);
 	rewind(*f);
 	return entries;
 }
@@ -67,11 +68,19 @@ int read_usernames_and_password_files(struct BfaInfo *bfaInfo, char *usernamesFi
 	return bfaInfo->totalUsernames*bfaInfo->totalPasswords;
 }
 
-void format_strings_from_files(char *from, char *dest){
+int format_strings_from_files(char *from, char *dest){
 	int contChars=0;
 	for(int i=0;i<strlen(from);i++, contChars++){
 		if(from[i]=='\\'){
 			switch(from[i+1]){
+			case 'x':
+				char byte[3];
+				byte[0]=from[i+2];
+				byte[1]=from[i+3];
+				byte[2]=0;
+				dest[contChars]=strtol(byte,NULL,16);
+				i+=2;
+				break;
 			case '0':
 				dest[contChars]='\0';
 				break;
@@ -118,4 +127,5 @@ void format_strings_from_files(char *from, char *dest){
 		}
 	}
 	dest[contChars]='\0';
+	return contChars;
 }
