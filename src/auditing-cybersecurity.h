@@ -85,6 +85,7 @@ enum errors{
 	SOCKET_CONNECTION_CLOSED_ERROR,
 	SOCKET_SETOPT_ERROR,
 	SENDING_PACKETS_ERROR,
+	REALLOC_ERROR,
 	RECEIVING_PACKETS_ERROR,
 	DEVICE_NOT_FOUND_ERROR,
 	DEVICE_MAC_NOT_FOUND_ERROR,
@@ -223,7 +224,7 @@ int open_file(char *pathToResource, char *filename, FILE **f);
 int open_file_str(char *pathToResource, char *filename, FILE **f, char ***s);
 int show_message(char *msg, int msgLenght, int errNum, int level, Bool setParagraph);
 char * get_readline(char *prompt, Bool addHistory);
-void format_strings_from_files(char *from, char *dest);
+int format_strings_from_files(char *from, char *dest);
 void show_intro(char *programName, char *version);
 void show_intro_banner();
 void show_options();

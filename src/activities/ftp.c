@@ -5,6 +5,7 @@
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 #include "../activities/activities.h"
+#include <unistd.h>
 
 int ftp_check_user(char *username, char *password){
 	netbuf *ftpConn=NULL;
@@ -33,9 +34,12 @@ int ftp(int type){
 	switch(type){
 	case FTP_BANNER_GRABBING:
 		char *serverResp=NULL;
-		int bytesRecv=send_msg_to_server(target.targetIp, NULL,portUnderHacking,target.portsToScan[get_port_index(portUnderHacking)].connectionType, "\n", &serverResp, BUFFER_SIZE_128B,0);
+		int conn=0;
+		int bytesRecv=send_msg_to_server(&conn,target.targetIp, NULL,portUnderHacking,target.portsToScan[get_port_index(portUnderHacking)].connectionType, "\n", &serverResp,
+				BUFFER_SIZE_128B,0, strlen("\n"));
 		show_message(serverResp, bytesRecv, 0, RESULT_MESSAGE, TRUE);
 		free(serverResp);
+		close(conn);
 		break;
 	case FTP_ANONYMOUS:
 		netbuf *ftpConn=NULL;

@@ -1,10 +1,10 @@
 
-
 #include <curl/curl.h>
 #include <string.h>
 #include <stdlib.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 
@@ -23,7 +23,9 @@ static int connect_to_github(char **serverResp){
 			"x-github-api-version: 2022-11-28\r\n\r\n");
 	struct in_addr ip;
 	ip.s_addr=inet_addr(inet_ntoa(*addrList[0]));
-	if(send_msg_to_server(ip,"api.github.com",443, SSL_CONN_TYPE, msg, serverResp, BUFFER_SIZE_8K,0)<0) return RETURN_ERROR;
+	int conn=0;
+	if(send_msg_to_server(&conn,ip,"api.github.com",443, SSL_CONN_TYPE, msg, serverResp, BUFFER_SIZE_8K,0, strlen(msg))<0) return RETURN_ERROR;
+	close(conn);
 	return RETURN_OK;
 }
 

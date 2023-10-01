@@ -23,11 +23,12 @@ static void smbc_auth_fn(const char *server, const char *share, char *wrkgrp, in
 
 static SMBCCTX* create_smbctx(void){
 	SMBCCTX	*ctx=NULL;
-	smbc_init_context(ctx);
-	if ((ctx=smbc_new_context()) == NULL) return NULL;
-	smbc_setDebug(ctx, 0);
+	if((ctx=smbc_new_context())==NULL){
+		smbc_free_context(ctx, 1);
+		return NULL;
+	}
 	smbc_setFunctionAuthData(ctx, smbc_auth_fn);
-	if (smbc_init_context(ctx) == NULL){
+	if(smbc_init_context(ctx) == NULL){
 		smbc_free_context(ctx, 1);
 		return NULL;
 	}
@@ -36,7 +37,7 @@ static SMBCCTX* create_smbctx(void){
 
 static int validate_smb_account(SMBCCTX *ctx, char *smbURL){
 	SMBCFILE *dir;
-	if((dir=smbc_getFunctionOpendir(ctx)(ctx, smbURL)) == NULL) return FALSE;
+	if((dir=smbc_getFunctionOpendir(ctx)(ctx, smbURL))==NULL) return FALSE;
 	/*
 	struct smbc_dirent *dirent;
 	while((dirent = smbc_getFunctionReaddir(ctx)(ctx, dir)) != NULL){
@@ -62,7 +63,10 @@ int smb_check_user(char *username, char *password){
 	gPassword=password;
 	char smbURL[BUFFER_SIZE_1K]="";
 	snprintf(smbURL, sizeof(smbURL), "smb://%s:%d", target.strTargetIp,portUnderHacking);
-	if ((ctx=create_smbctx())==NULL) return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
+	if ((ctx=create_smbctx())==NULL){
+		delete_smbctx(ctx);
+		return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
+	}
 	if(validate_smb_account(ctx, smbURL)){
 		delete_smbctx(ctx);
 		return TRUE;
@@ -71,6 +75,8 @@ int smb_check_user(char *username, char *password){
 	return FALSE;
 }
 
+//TODO
+/*
 static int smb_anonymous_login(){
 	SMBCCTX *ctx;
 	gUsername="";
@@ -94,10 +100,12 @@ static int smb_anonymous_login(){
 	delete_smbctx(ctx);
 	return FALSE;
 }
+*/
 
 static int smb_banner_grabbing(){
-	int smbConn=0, payloadLen=0, bytesReceived=0;
-	unsigned char serverResp[BUFFER_SIZE_1K]="";
+	int smbConn=0, bytesReceived=0;
+	long int payloadLen=0;
+	unsigned char *serverResp=NULL;
 	Bool supported=FALSE;
 	char smbv1Dialects[10][BUFFER_SIZE_32B]={
 			"PC NETWORK PROGRAM 1.0",
@@ -128,7 +136,13 @@ static int smb_banner_grabbing(){
 			0x00,0x02,'C','I','F','S', //6
 			0x00};
 	payloadLen=185;
-	bytesReceived=send_payloaded_msg_to_server(&smbConn, payloadSmbv1, serverResp, payloadLen);
+	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			payloadSmbv1, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
+	if(bytesReceived<=0){
+		close(smbConn);
+		free(serverResp);
+		return RETURN_ERROR;
+	}
 	int preferedDialectIndex=serverResp[37]+serverResp[38];
 	if(bytesReceived>0 && preferedDialectIndex!=510){
 		printf("%s  SMBv1:%s supported %s\n", C_HWHITE,C_HRED,C_DEFAULT);
@@ -150,21 +164,18 @@ static int smb_banner_grabbing(){
 				0x32,0x30,0x30,0x30,0x20,0x32,0x31,0x39,0x35,0x00,0x57,0x69,0x6e,0x64,0x6f,
 				0x77,0x73,0x20,0x32,0x30,0x30,0x30,0x20,0x35,0x2e,0x30,0x00};
 		payloadLen=147;
-		memset(serverResp,0,sizeof(serverResp));
-		bytesReceived=send_payloaded_msg_to_server(&smbConn, payload, serverResp, payloadLen);
+		free(serverResp);
+		bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+				payload, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
 		if(bytesReceived==RETURN_ERROR){
 			error_handling(FALSE);
 		}else{
 			int pos=9, lenght=0;
-			unsigned char buffer[8]="";
-			//if(serverResp[pos]!=0){
-				//printf("\n    - Negotiation Error: %s0x%02X 0x%02X 0x%02X 0x%02X",C_HRED,serverResp[pos],serverResp[pos+1],serverResp[pos+2],serverResp[pos+3]);
-				//PRINT_RESET;
-			//}
-			snprintf(buffer, sizeof(buffer),"%02X%02X", serverResp[36+8], serverResp[36+7]);
+			unsigned char buffer[4];
+			snprintf((char*) buffer,4,"%x%x",serverResp[36+8],serverResp[36+7]);
 			int sbStart=36+7+1;
-			int sbEnd=sbStart+strtoul(buffer,NULL,16);
-			if(strtoul(buffer,NULL,16)!=0){
+			int sbEnd=sbStart+strtoul((char*) buffer,NULL,16);
+			if(strtoul((char*) buffer,NULL,16)!=0){
 				pos=sbStart+57;
 				printf("\n    - Target Name: %s",C_HWHITE);
 				while(serverResp[++pos]!=0x02) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
@@ -191,13 +202,13 @@ static int smb_banner_grabbing(){
 			int os=sbEnd+3;
 			pos=os-1;
 			printf("\n    - Native OS: %s",C_HWHITE);
-			while(serverResp[++pos]!=0) printf("%c",serverResp[pos]);
+			while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
 			PRINT_RESET;
 			printf("\n    - Native LAN Manager: %s",C_HWHITE);
-			while(serverResp[++pos]!=0) printf("%c",serverResp[pos]);
+			while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
 			PRINT_RESET;
 			printf("\n    - Primary Domain: %s",C_HWHITE);
-			while(serverResp[++pos]!=0) printf("%c",serverResp[pos]);
+			while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
 			PRINT_RESET;
 		}
 	}else{
@@ -217,9 +228,10 @@ static int smb_banner_grabbing(){
 			0x00,0x02,'S','M','B',' ','2','.','1', //9
 			//0x00,0x02,'S','M','B',' ','2','.','?','?','?', //11
 			0x00};
-	payloadLen=70	;
-	memset(serverResp,0,sizeof(serverResp));
-	bytesReceived=send_payloaded_msg_to_server(&smbConn, payloadSmbv2, serverResp, payloadLen);
+	payloadLen=70;
+	free(serverResp);
+	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			payloadSmbv2, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
 	if(bytesReceived>0) {
 		// body start at 68
 		char preferredDialect[BUFFER_SIZE_256B]="";
@@ -246,6 +258,7 @@ static int smb_banner_grabbing(){
 			//printf("\n    - Server GUID: %s",C_HWHITE);
 			//for(int i=76;i<76+16;i++) (isprint(serverResp[i]))?(printf("%c",serverResp[i])):(printf("·"));
 			//PRINT_RESET;
+			/*
 			char payload[]={
 					0x00,0x00,0x00,0xa6,0xfe,0x53,0x4d,0x42,0x40,0x00,0x01,0x00,0x00,0x00,0x00,0x00,
 					0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0x00,0x00,0x00,
@@ -259,10 +272,14 @@ static int smb_banner_grabbing(){
 					0x01,0x00,0x20,0x00,0x00,0x00,0x0b,0x00,0x0b,0x00,0x21,0x00,0x00,0x00,0x2e,0x57,
 					0x4f,0x52,0x4b,0x53,0x54,0x41,0x54,0x49,0x4f,0x4e};
 			payloadLen=170;
-			memset(serverResp,0,sizeof(serverResp));
+			*/
+			free(serverResp);
+			//memset(serverResp,0,sizeof(serverResp));
 			//printf("\n%02X %02X %02X %02X\n",serverResp[cont],serverResp[cont-1],serverResp[cont-2],serverResp[cont-3]);
 			//printf("\n%ld\n",strtoul(strL,NULL,16));
-			bytesReceived=send_payloaded_msg_to_server(&smbConn, payload, serverResp, payloadLen);
+			//bytesReceived=send_payloaded_msg_to_server(&smbConn, payload, serverResp, payloadLen);
+			//bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					//payload, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
 			//if(bytesReceived==RETURN_ERROR) error_handling(FALSE);
 			//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, TRUE);
 		}
@@ -271,6 +288,7 @@ static int smb_banner_grabbing(){
 	}
 	close(smbConn);
 	smbConn=0;
+	//free(serverResp);
 	/*
 	//v3
 	supported=TRUE;
@@ -333,7 +351,7 @@ int smb(int type){
 		//(smb_anonymous_login())?(printf("  %sAnonymous login:%s success %s\n",C_HWHITE, C_HRED,C_DEFAULT)):(printf("  %sAnonymous login:%s failed %s\n",C_HWHITE,C_HGREEN,C_DEFAULT));
 		PRINT_RESET;
 		smb_banner_grabbing();
-		snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use scanner/smb/smb_version;set RHOSTS %s; set RPORT %d; run; exit'",target.strTargetIp,portUnderHacking);
+		//snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use scanner/smb/smb_version;set RHOSTS %s; set RPORT %d; run; exit'",target.strTargetIp,portUnderHacking);
 		//system_call(cmd);
 		break;
 	case SMB_ETERNAL_BLUE:

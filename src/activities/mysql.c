@@ -1,5 +1,7 @@
 
 #include <mysql/mysql.h>
+#include <string.h>
+#include <unistd.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 #include "../activities/activities.h"
@@ -31,7 +33,9 @@ int mysql(int type){
 		const char *version=mysql_get_server_info(&mysqlConn);
 		 */
 		char *serverResp=NULL;
-		int lenght=send_msg_to_server(target.targetIp, NULL, portUnderHacking,SOCKET_CONN_TYPE, "\n", &serverResp, BUFFER_SIZE_128B,0);
+		int sk=0;
+		int lenght=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,SOCKET_CONN_TYPE, "\n", &serverResp, BUFFER_SIZE_128B,0,strlen("\n"));
+		close(sk);
 		if(lenght!=0){
 			int i=0;
 			while(serverResp[i++]!=10 && i<lenght);

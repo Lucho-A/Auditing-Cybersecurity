@@ -290,6 +290,7 @@ int http(int type){
 				show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
 				continue;
 			}
+			free(queryType);
 			break;
 		}while(TRUE);
 		printf("\n");

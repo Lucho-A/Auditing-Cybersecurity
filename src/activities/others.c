@@ -43,14 +43,17 @@ int others(int type){
 				add_history(bufferHistory);
 				continue;
 			}
-			char *serverResp=NULL;
-			format_strings_from_files(msg,msg);
-			int bytesRecv=send_msg_to_server(target.targetIp, NULL,portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType, msg, &serverResp, BUFFER_SIZE_128K, 5000);
+			unsigned char *serverResp=NULL;
+			int c=format_strings_from_files(msg,msg);
+			int sk=0;
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL,portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType, msg, &serverResp,
+					BUFFER_SIZE_128K, 5000, c);
+			close(sk);
 			if(bytesRecv<0){
 				error_handling(FALSE);
 				continue;
 			}
-			if(bytesRecv>0 && strcmp(serverResp,"")!=0) show_message(serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
+			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0) show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
 			printf("\n\n");
 			free(msg);
 		}while(TRUE);
@@ -125,7 +128,10 @@ int others(int type){
 
 			free(payload);
 			int bytesRecv=0;
-			if((bytesRecv=send_msg_to_server(ip,"api.openai.com", 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_8K,60000))<0) return RETURN_ERROR;
+			int sk=0;
+			if((bytesRecv=send_msg_to_server(&sk,ip,"api.openai.com", 443, SSL_CONN_TYPE, httpMsg, &serverResp,
+					BUFFER_SIZE_8K,60000,strlen(httpMsg)))<0) return RETURN_ERROR;
+			close(sk);
 			free(httpMsg);
 			printf("%s\n  ",C_HWHITE);
 			char *resp=strstr(serverResp,"\"content\": \"");
