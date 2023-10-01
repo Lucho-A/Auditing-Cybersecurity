@@ -12,13 +12,16 @@ BUG_KNOWN:
 IMPROVEMENT:
 - '-r | --resources-location': option added (optional) for specifying the path to resources files. Default: '/usr/share/auditing-cybersecurity/resources/'.
 - 7.2   -> timeouting set (5") if can't connect to server.
+- 1.6   -> set DOMAIN var for exploits.
 
 OTHERS:
 - g     -> speed response increased.
 - g     -> timeouting increased.
 - g     -> keep the last user & assistant message for improving the chat experience
+- 1.11  -> decreased buffersize & increased timeouting to 30 secs
 - 12.1  -> because installing oracle dependencies can be tricky, I included the Oracle source file for compiling and integrating jointly with the program.
-- minor changes & code cleaned-up.
+- supporting hexadecimal string bug fixed
+- code alignment, minor changes & code cleaned-up
 
 ------------------------------------------------------------------------------------------------------
 ### auditing-cybersecurity-v1.2.6
