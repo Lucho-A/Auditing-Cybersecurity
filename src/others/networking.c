@@ -63,8 +63,9 @@ int init_networking(){
 			}
 		}
 		do{
-			char *c=readline("\nSelect device number: ");
+			char *c=get_readline("\nSelect device number: ",FALSE);
 			selectedOpt=strtol(c,NULL,10);
+			free(c);
 			if(selectedOpt<1 || selectedOpt>cantDevs) continue;
 			break;
 		}while(TRUE);
@@ -131,52 +132,42 @@ int create_socket_conn(int *socketConn){
 	return RETURN_OK;
 }
 
-int send_payloaded_msg_to_server(int *sk, char *payload, char *serverResp, int lenght){
-	if(*sk==0) if(create_socket_conn(sk)==RETURN_ERROR) return RETURN_ERROR;
-	int bytesSent=send(*sk,payload,lenght,0);
-	if(bytesSent<=0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
-	int bytesReceived=0;
-	char buffer[BUFFER_SIZE_8K]={0};
-	bytesReceived=recv(*sk, buffer, BUFFER_SIZE_8K,0);
-	if(bytesReceived<0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
-	for(int i=0;i<bytesReceived; i++) serverResp[i]=buffer[i];
-	return bytesReceived;
-}
-
-int send_msg_to_server(struct in_addr ip, char *hostname, int port, int connType, char *localMsg, char **serverResp, long int sizeResponse, long int extraTimeOut){
+int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int connType, char *msg, unsigned char **serverResp, long int maxSizeResponse,
+		long int extraTimeOut, long int msgSize){
+	*serverResp=malloc(maxSizeResponse);
+	memset(*serverResp,0,maxSizeResponse);
 	struct pollfd pfds[1];
 	int numEvents=0,pollinHappened=0,bytesSent=0,contSendingAttemps=0;
 	SSL *sslConn=NULL;
-	int localSocketConn=0;
-	*serverResp= malloc(sizeResponse * sizeof(**serverResp));
-	//memset(*serverResp,0,sizeResponse * sizeof(char*));
 	do{
 		if(connType==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
 		struct sockaddr_in serverAddress;
 		serverAddress.sin_family=AF_INET;
 		serverAddress.sin_port=htons(port);
 		serverAddress.sin_addr.s_addr=ip.s_addr;
-		if((localSocketConn=socket(AF_INET, SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
-		setsockopt(localSocketConn, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-		int socketFlags = fcntl(localSocketConn, F_GETFL, 0);
-		fcntl(localSocketConn, F_SETFL, socketFlags | O_NONBLOCK);
-		int valResp=connect(localSocketConn, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
+		if(*sk==0){
+			if((*sk=socket(AF_INET, SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
+			setsockopt(*sk, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
+		}
+		int socketFlags = fcntl(*sk, F_GETFL, 0);
+		fcntl(*sk, F_SETFL, socketFlags | O_NONBLOCK);
+		int valResp=connect(*sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
 		if(valResp<0 && errno!=EINPROGRESS) return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
 		struct timeval tv;
 		tv.tv_sec=0;
 		tv.tv_usec=0;
 		fd_set rFdset, wFdset;
 		FD_ZERO(&rFdset);
-		FD_SET(localSocketConn, &rFdset);
+		FD_SET(*sk, &rFdset);
 		wFdset=rFdset;
 		tv.tv_sec=SOCKET_CONNECT_TIMEOUT_S;
 		tv.tv_usec=0;
-		if(select(localSocketConn+1,&rFdset,&wFdset,NULL,&tv)<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
+		SSL_CTX *sslCtx=NULL;
+		if(select(*sk+1,&rFdset,&wFdset,NULL,&tv)<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
 		if(connType== SSL_CONN_TYPE){
-			fcntl(localSocketConn, F_SETFL, socketFlags);
-			SSL_CTX *sslCtx=NULL;
+			fcntl(*sk, F_SETFL, socketFlags);
 			if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){
-                SSL_CTX_free(sslCtx);
+				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 			}
 			if((sslConn=SSL_new(sslCtx))==NULL){
@@ -184,7 +175,7 @@ int send_msg_to_server(struct in_addr ip, char *hostname, int port, int connType
 				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 			}
-			if(!SSL_set_fd(sslConn, localSocketConn)){
+			if(!SSL_set_fd(sslConn,*sk)){
 				clean_ssl(sslConn);
 				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_FD_ERROR, "");
@@ -203,10 +194,9 @@ int send_msg_to_server(struct in_addr ip, char *hostname, int port, int connType
 			}
 			SSL_CTX_free(sslCtx);
 		}
-		fcntl(localSocketConn, F_SETFL, O_NONBLOCK);
+		fcntl(*sk, F_SETFL, O_NONBLOCK);
 		if(connType==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
-		if(strcmp(localMsg,"")==0 || localMsg==NULL) return RETURN_OK;
-		pfds[0].fd=localSocketConn;
+		pfds[0].fd=*sk;
 		pfds[0].events=POLLOUT;
 		numEvents=poll(pfds,1,SOCKET_SEND_TIMEOUT_MS);
 		if(numEvents==0){
@@ -223,23 +213,21 @@ int send_msg_to_server(struct in_addr ip, char *hostname, int port, int connType
 			switch(connType){
 			case SOCKET_CONN_TYPE:
 			case SSH_CONN_TYPE:
-				bytesSent=send(localSocketConn, localMsg, strlen(localMsg), 0);
+				bytesSent=send(*sk, msg, msgSize, 0);
 				break;
 			case SSL_CONN_TYPE:
-				bytesSent=SSL_write(sslConn, localMsg, strlen(localMsg));
+				bytesSent=SSL_write(sslConn, msg, msgSize);
 				break;
 			default:
 				break;
 			}
 			if(bytesSent<=0){
-				close(localSocketConn);
 				if(contSendingAttemps==0){
 					show_message("\n  Error sending message. Trying to re-connect and sending the message again...",0, 0, ERROR_MESSAGE, TRUE);
 					contSendingAttemps++;
 					continue;
 				}else{
 					show_message("Error sending message (IP locked?). Returning...",0,0, ERROR_MESSAGE, TRUE);
-					close(localSocketConn);
 					clean_ssl(sslConn);
 					return set_last_activity_error(SENDING_PACKETS_ERROR, "");
 				}
@@ -247,26 +235,24 @@ int send_msg_to_server(struct in_addr ip, char *hostname, int port, int connType
 				break;
 			}
 		}else{
-			close(localSocketConn);
 			clean_ssl(sslConn);
 			return POLLIN_ERROR;
 		}
 	}while(contSendingAttemps<2);
-	int bytesReceived=0,contI=0, totalBytesReceived=0;;
+	int bytesReceived=0,totalBytesReceived=0;;
 	pfds[0].events=POLLIN;
-	char buffer[BUFFER_SIZE_16K]="";
+	char buffer[BUFFER_SIZE_16K]="", *bufferHTTP=malloc(1);
+	memset(bufferHTTP,0,1);
+	int cont=0;
 	do{
 		numEvents=poll(pfds, 1, SOCKET_RECV_TIMEOUT_MS + extraTimeOut);
-		if(numEvents==0){
-			close(localSocketConn);
-			break;
-		}
+		if(numEvents==0) break;
 		pollinHappened = pfds[0].revents & POLLIN;
 		if (pollinHappened){
 			switch(connType){
 			case SOCKET_CONN_TYPE:
 			case SSH_CONN_TYPE:
-				bytesReceived=recv(localSocketConn, buffer, BUFFER_SIZE_16K,0);
+				bytesReceived=recv(*sk, buffer, BUFFER_SIZE_16K,0);
 				break;
 			case SSL_CONN_TYPE:
 				bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
@@ -277,31 +263,32 @@ int send_msg_to_server(struct in_addr ip, char *hostname, int port, int connType
 			// info received
 			if(bytesReceived>0){
 				totalBytesReceived+=bytesReceived;
-				if(contI>=sizeResponse){
-					close(localSocketConn);
-					break;
+				bufferHTTP=realloc(bufferHTTP, sizeof(bufferHTTP)+sizeof(buffer)+1);
+				if(bufferHTTP==NULL){
+					clean_ssl(sslConn);
+					return REALLOC_ERROR;
 				}
-				for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) (*serverResp)[contI]=buffer[i];
+				for(int i=0;i<bytesReceived;i++,cont++) bufferHTTP[cont]=buffer[i];
 				continue;
 			}
 			// server OK closed the connection
-			if(bytesReceived==0){
-				close(localSocketConn);
-				break;
-			}
+			if(bytesReceived==0) break;
 			// socket still open
 			if(bytesReceived<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
 			// error receiving
 			if(bytesReceived<0 && (errno!=EAGAIN)){
-				close(localSocketConn);
 				clean_ssl(sslConn);
 				// reseted by peer
+				free(bufferHTTP);
 				return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
 			}
 		}else{
+			free(bufferHTTP);
 			return set_last_activity_error(POLLIN_ERROR, "");
 		}
 	}while(TRUE);
+	for(int i=0;i<maxSizeResponse && i<totalBytesReceived;i++) (*serverResp)[i]=bufferHTTP[i];
+	free(bufferHTTP);
 	clean_ssl(sslConn);
 	return totalBytesReceived;
 }
@@ -314,6 +301,7 @@ void ip_to_hostname(char *ip, char *hostname){
 	char host[1024], service[20];
 	int valResp=getnameinfo((struct sockaddr*)&sa, sizeof(sa), host, sizeof host, service, sizeof service, 0);
 	(!valResp)?(snprintf(hostname,sizeof(host),"%s",host)):(snprintf(hostname,sizeof(host),"%s",""));
+	//free(sa.sin_family);
 }
 
 char* hostname_to_ip(char * hostname){
