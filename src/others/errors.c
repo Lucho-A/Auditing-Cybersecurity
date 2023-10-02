@@ -32,6 +32,10 @@ int error_handling(Bool exitProgram){
 	case SENDING_PACKETS_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error sending packets");
 		break;
+	case MALLOC_ERROR:
+	case REALLOC_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Malloc/Realloc error");
+		break;
 	case RECEIVING_PACKETS_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error receiving packets");
 		break;
