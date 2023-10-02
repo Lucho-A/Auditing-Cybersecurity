@@ -46,8 +46,8 @@ int others(int type){
 			unsigned char *serverResp=NULL;
 			int c=format_strings_from_files(msg,msg);
 			int sk=0;
-			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL,portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType, msg, &serverResp,
-					BUFFER_SIZE_128K, 5000, c);
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strHostname,portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					msg, &serverResp,BUFFER_SIZE_128K, 5000, c);
 			close(sk);
 			if(bytesRecv<0){
 				error_handling(FALSE);
@@ -55,6 +55,7 @@ int others(int type){
 			}
 			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0) show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
 			printf("\n\n");
+			free(serverResp);
 			free(msg);
 		}while(TRUE);
 		free_char_double_pointer(&stringTemplates, totalStrings);
@@ -72,7 +73,7 @@ int others(int type){
 		char *prevUserMsg="", *prevAssistantMsg="";
 		do{
 			cancelCurrentProcess=FALSE;
-			char *serverResp=NULL;
+			unsigned char *serverResp=NULL;
 			char *msg=get_readline(";=exit)-> ", TRUE);
 			if(strcmp(msg,";")==0){
 				free(msg);
@@ -90,6 +91,10 @@ int others(int type){
 				case '\t':
 					msgParsed[parsedIdx]='\\';
 					msgParsed[++parsedIdx]='t';
+					break;
+				case '"':
+					msgParsed[parsedIdx]='\\';
+					msgParsed[++parsedIdx]='\"';
 					break;
 				default:
 					msgParsed[parsedIdx]=msg[i];
@@ -125,7 +130,6 @@ int others(int type){
 					"authorization: Bearer %s\r\n"
 					"content-length: %ld\r\n\r\n"
 					"%s \r\n\r\n",api[1],strlen(payload),payload);
-
 			free(payload);
 			int bytesRecv=0;
 			int sk=0;
@@ -134,10 +138,10 @@ int others(int type){
 			close(sk);
 			free(httpMsg);
 			printf("%s\n  ",C_HWHITE);
-			char *resp=strstr(serverResp,"\"content\": \"");
+			char *resp=strstr((char *) serverResp,"\"content\": \"");
 			if(resp==NULL){
-				if((resp=strstr(serverResp,"\"error\": {"))!=NULL){
-					resp=strstr(serverResp,"\"message\": \"");
+				if((resp=strstr((char *) serverResp,"\"error\": {"))!=NULL){
+					resp=strstr((char *) serverResp,"\"message\": \"");
 					printf(" %s\n", C_HRED);
 					for(int i=strlen("\"message\": \"");resp[i]!='"';i++) printf("%c", resp[i]);
 					PRINT_RESET;
