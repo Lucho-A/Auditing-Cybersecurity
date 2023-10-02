@@ -297,8 +297,8 @@ int any(int type){
 				close(sk);
 				char *token="\"id\": \"";
 				char *json=strstr((char *)serverResp,token);
-				free(serverResp);
 				if(json==NULL){
+					free(serverResp);
 					show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
 					PRINT_RESET;
 					continue;
@@ -342,6 +342,7 @@ int any(int type){
 					}
 					cveId++;
 				}
+				free(serverResp);
 				PRINT_RESET;
 			}while(TRUE);
 			break;
