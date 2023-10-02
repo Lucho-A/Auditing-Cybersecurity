@@ -181,12 +181,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 				return set_last_activity_error(SSL_FD_ERROR, "");
 			}
 			SSL_set_connect_state(sslConn);
-			//TODO
-			if(hostname==NULL){
-				SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
-			}else{
-				SSL_set_tlsext_host_name(sslConn, hostname);
-			}
+			(hostname==NULL)?(SSL_set_tlsext_host_name(sslConn, target.strHostname)):(SSL_set_tlsext_host_name(sslConn, hostname));
 			if(!SSL_connect(sslConn)){
 				clean_ssl(sslConn);
 				SSL_CTX_free(sslCtx);
@@ -239,15 +234,19 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 			return POLLIN_ERROR;
 		}
 	}while(contSendingAttemps<2);
-	int bytesReceived=0,totalBytesReceived=0;;
+	int bytesReceived=0,totalBytesReceived=0;
 	pfds[0].events=POLLIN;
-	char buffer[BUFFER_SIZE_16K]="", *bufferHTTP=malloc(1);
+	char buffer[BUFFER_SIZE_16K]={0}, *bufferHTTP=NULL;
+	if((bufferHTTP=malloc(1))==NULL){
+		clean_ssl(sslConn);
+		return set_last_activity_error(MALLOC_ERROR, "");
+	}
 	memset(bufferHTTP,0,1);
 	int cont=0;
 	do{
 		numEvents=poll(pfds, 1, SOCKET_RECV_TIMEOUT_MS + extraTimeOut);
 		if(numEvents==0) break;
-		pollinHappened = pfds[0].revents & POLLIN;
+		pollinHappened=pfds[0].revents & POLLIN;
 		if (pollinHappened){
 			switch(connType){
 			case SOCKET_CONN_TYPE:
@@ -263,10 +262,10 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 			// info received
 			if(bytesReceived>0){
 				totalBytesReceived+=bytesReceived;
-				bufferHTTP=realloc(bufferHTTP, sizeof(bufferHTTP)+sizeof(buffer)+1);
+				bufferHTTP=realloc(bufferHTTP, strlen(bufferHTTP)+strlen(buffer)+1);
 				if(bufferHTTP==NULL){
 					clean_ssl(sslConn);
-					return REALLOC_ERROR;
+					return set_last_activity_error(REALLOC_ERROR, "");
 				}
 				for(int i=0;i<bytesReceived;i++,cont++) bufferHTTP[cont]=buffer[i];
 				continue;
