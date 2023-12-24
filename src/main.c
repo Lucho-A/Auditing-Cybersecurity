@@ -159,7 +159,7 @@ int main(int argc, char *argv[]){
 	struct tm tm = *localtime(&timestamp);
 	char strTimeStamp[50]="";
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
-	printf("%s\nStarting: %s\n\n",C_DEFAULT,strTimeStamp);
+	printf("%s\nStarting: %s\n",C_DEFAULT,strTimeStamp);
 	if(discover){
 		if(others(OTHERS_ARP_DISCOVER_D)==RETURN_ERROR) error_handling(TRUE);
 		closeMrAnderson();

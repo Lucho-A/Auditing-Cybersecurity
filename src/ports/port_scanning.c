@@ -207,25 +207,33 @@ int scan_ports(){
 	endScanProcess=TRUE;
 	pthread_join(readingPacketsThread, NULL);
 	contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
+	Bool anyPortShown=FALSE;
 	for(int i=0;i<target.cantPortsToScan;i++){
 		if(target.portsToScan[i].portStatus==PORT_OPENED){
 			printf("%s",C_HRED);
 			printf("Port %d \topened \t\t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+			anyPortShown=TRUE;
 		}
 		if(target.portsToScan[i].portStatus==PORT_FILTERED){
 			printf("%s",C_HYELLOW);
-			if(contFilteredPorts<MAX_VIEW_PORTS) printf("Port %d \tfiltered \t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+			if(contFilteredPorts<MAX_VIEW_PORTS){
+				printf("Port %d \tfiltered \t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+				anyPortShown=TRUE;
+			}
 		}
 		if(target.portsToScan[i].portStatus==PORT_CLOSED){
 			printf("%s",C_HGREEN);
-			if(contClosedPorts<MAX_VIEW_PORTS) printf("Port %d \tclosed \t\t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+			if(contClosedPorts<MAX_VIEW_PORTS){
+				printf("Port %d \tclosed \t\t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+				anyPortShown=TRUE;
+			}
 		}
 	}
 	clock_gettime(CLOCK_REALTIME, &tEnd);
 	double elapsedTime=(tEnd.tv_sec-tInit.tv_sec)+(tEnd.tv_nsec-tInit.tv_nsec)/1000000000.0;
 	printf("%s",C_DEFAULT);
-	printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n");
-	printf("\nScanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
+	if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n\n");
+	printf("Scanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
 	printf("%s",C_HGREEN);
 	printf("\tClosed: %d\n", contClosedPorts);
 	printf("%s",C_HYELLOW);
