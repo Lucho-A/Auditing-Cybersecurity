@@ -27,6 +27,7 @@ int others(int type){
 			if(strcmp(msg,";")==0) break;
 			if(strcmp(msg,"!")==0){
 				for(int i=0;i<totalStrings;i++) printf("\n  %d) %s", i+1, stringTemplates[i]);
+				free(msg);
 				printf("\n\n");
 				continue;
 			}
@@ -36,18 +37,22 @@ int others(int type){
 				long int selectedOpt=strtol(buf,NULL,10);
 				if(selectedOpt<1 || selectedOpt>totalStrings){
 					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
+					free(msg);
 					continue;
 				}
 				char bufferHistory[BUFFER_SIZE_1K]="";
 				snprintf(bufferHistory,sizeof(bufferHistory), stringTemplates[selectedOpt-1], target.strTargetURL, portUnderHacking);
 				add_history(bufferHistory);
+				free(msg);
 				continue;
 			}
 			unsigned char *serverResp=NULL;
 			int c=format_strings_from_files(msg,msg);
 			int sk=0;
-			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strHostname,portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strHostname,portUnderHacking,
+					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
 					msg, &serverResp,BUFFER_SIZE_128K, 5000, c);
+			free(msg);
 			close(sk);
 			if(bytesRecv<0){
 				error_handling(FALSE);
@@ -56,7 +61,6 @@ int others(int type){
 			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0) show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
 			printf("\n\n");
 			free(serverResp);
-			free(msg);
 		}while(TRUE);
 		free_char_double_pointer(&stringTemplates, totalStrings);
 		break;

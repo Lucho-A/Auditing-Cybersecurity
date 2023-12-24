@@ -102,17 +102,27 @@ static void process_packets(unsigned char* buffer, int size){
 }
 
 static int reading_packets(){
+	struct timeval timeout;
+	timeout.tv_sec=1;
+	timeout.tv_usec=0;
 	int sockRaw, dataSize;
 	socklen_t saddrSize;
 	struct sockaddr saddr;
 	unsigned char *buffer = (unsigned char *) malloc(65536);
 	sockRaw=socket(AF_INET,SOCK_RAW,IPPROTO_TCP);
 	setsockopt(sockRaw, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-	if(sockRaw<0) return set_last_activity_error(SOCKET_CREATION_ERROR,"");
+	setsockopt(sockRaw, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
+	if(sockRaw<0){
+		free(buffer);
+		return set_last_activity_error(SOCKET_CREATION_ERROR,"");
+	}
 	saddrSize=sizeof saddr;
 	while(endScanProcess==FALSE){
 		dataSize=recvfrom(sockRaw,buffer,65536,0,&saddr,&saddrSize);
-		if(dataSize<0) return set_last_activity_error(RECEIVING_PACKETS_ERROR,"");
+		if(dataSize<0){
+			free(buffer);
+			return set_last_activity_error(RECEIVING_PACKETS_ERROR,"");
+		}
 		if(dataSize>0) process_packets(buffer, dataSize);
 	}
 	free(buffer);
@@ -120,9 +130,9 @@ static int reading_packets(){
 	return RETURN_OK;
 }
 
-static void * start_reading_packets( void *ptr ){
+static void * start_reading_packets(void *args){
 	reading_packets();
-	return (void*)&RETURN_THREAD_OK;
+	pthread_exit(NULL);
 }
 
 int scan_ports(){
@@ -167,9 +177,8 @@ int scan_ports(){
 	int one=1;
 	const int *val=&one;
 	if(setsockopt(socketConn,IPPROTO_IP,IP_HDRINCL,val,sizeof(one))<0) return set_last_activity_error(SOCKET_SETOPT_ERROR, "");
-	char *threadMsg="Reading packets thread";
 	pthread_t readingPacketsThread;
-	if(pthread_create(&readingPacketsThread,NULL,start_reading_packets,(void*) threadMsg)<0) return set_last_activity_error(THREAD_CREATION_ERROR, "");
+	if(pthread_create(&readingPacketsThread,NULL,&start_reading_packets,NULL)<0) return set_last_activity_error(THREAD_CREATION_ERROR, "");
 	dest.sin_family=AF_INET;
 	dest.sin_port=0;
 	dest.sin_addr.s_addr=target.targetIp.s_addr;
@@ -196,6 +205,7 @@ int scan_ports(){
 		contFilteredPorts=0;
 	}
 	endScanProcess=TRUE;
+	pthread_join(readingPacketsThread, NULL);
 	contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
 	for(int i=0;i<target.cantPortsToScan;i++){
 		if(target.portsToScan[i].portStatus==PORT_OPENED){

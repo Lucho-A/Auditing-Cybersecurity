@@ -69,6 +69,15 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 				curl_easy_setopt(mCurl, CURLOPT_USERNAME, bfaInfo.usernames[i]);
 				curl_easy_setopt(mCurl, CURLOPT_PASSWORD, bfaInfo.passwords[j]);
 				curl_easy_setopt(mCurl, CURLOPT_LOGIN_OPTIONS, "AUTH=*");
+				switch(type){
+				case IMAP_BFA:
+					 /* Set the EXAMINE command specifying the mailbox folder */
+					//TODO
+					//curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "EXAMINE OUTBOX");
+					 break;
+				default:
+					break;
+				}
 				res = curl_easy_perform(mCurl);
 				if(res == CURLE_OK){
 					printf("%s",C_HRED);

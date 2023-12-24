@@ -131,7 +131,7 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 		SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
 		if(!SSL_connect(sslConn)) return set_last_activity_error(SSL_CONNECT_ERROR, "");
 	}
-	if(connType==SOCKET_CONN_TYPE){
+	if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
 		bytesSent=send(localSocketCon,msg,strlen(msg),0);
 	}else{
 		bytesSent=SSL_write(sslConn,msg,strlen(msg));
@@ -140,7 +140,7 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	int bytesReceived=0,contI=0;
 	char buffer[BUFFER_SIZE_8K]={'\0'};
 	snprintf(serverResp,BUFFER_SIZE_128B,"%s","");
-	if(connType==SOCKET_CONN_TYPE){
+	if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
 		bytesReceived=recv(localSocketCon, buffer, BUFFER_SIZE_8K,0);
 	}else{
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
@@ -322,7 +322,10 @@ int http(int type){
 		fclose(f);
 		do{
 			char *command=get_readline("![#]=templates,;=exit)-> ", FALSE);
-			if(strcmp(command,";")==0) break;
+			if(strcmp(command,";")==0){
+				free(command);
+				break;
+			}
 			if(strcmp(command,"!")==0){
 				for(int i=0;i<totalStrings;i++) printf("\n  %d) %s", i+1, commands[i]);
 				printf("\n\n");
@@ -344,6 +347,7 @@ int http(int type){
 			add_history(command);
 			printf("\n");
 			system_call(command);
+			free(command);
 			printf("\n");
 		}while(TRUE);
 		free_char_double_pointer(&commands, totalStrings);

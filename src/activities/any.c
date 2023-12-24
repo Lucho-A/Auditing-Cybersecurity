@@ -43,16 +43,19 @@ int any(int type){
 		for(int i=0;i<msgs && cancelCurrentProcess==FALSE;i++){
 			int sk=0;
 			ssize_t c=format_strings_from_files(queries[i], msg);
-			//free(serverResp);
-			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,
+					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
 					msg,&serverResp,BUFFER_SIZE_128K,0,c);
-			if(bytesRecv<=0) continue;
+			if(bytesRecv<=0){
+				free(serverResp);
+				continue;
+			}
 			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
 			show_message((char *) serverResp,bytesRecv, 0, RESULT_MESSAGE, TRUE);
 			printf("\n");
 			close(sk);
+			free(serverResp);
 		}
-		free(serverResp);
 		free_char_double_pointer(&queries,msgs);
 		break;
 		case ANY_DOS_SYN_FLOOD_ATTACK:

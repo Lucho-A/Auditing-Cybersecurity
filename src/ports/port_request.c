@@ -145,7 +145,10 @@ static int hack_port() {
 		if(strcmp(c,"h")==0) valResp=others(OTHERS_SHOW_ACTIVIIES);
 		if(strcmp(c,"w")==0) valResp=others(OTHERS_WHOIS);
 		if(strcmp(c,"g")==0) valResp=others(OTHERS_CHATGPT);
-		if(strcmp(c,"c")==0) return RETURN_OK;
+		if(strcmp(c,"c")==0){
+			free(c);
+			return RETURN_OK;
+		}
 		if(strcmp(c,"q")==0){
 			free(c);
 			cancelCurrentProcess=TRUE;
@@ -162,13 +165,16 @@ int hack_port_request(){
 		int selectedPort=0;
 		do{
 			printf("%s",C_DEFAULT);
-			char *c=readline("Insert port to hack (0 = exit, default): ");
-			if(strcmp(c,"0")==0 || strcmp(c,"")==0) return RETURN_OK;
+			char *c=get_readline("Insert port to hack (0 = exit, default): ",FALSE);
+			if(strcmp(c,"0")==0 || strcmp(c,"")==0){
+				free(c);
+				return RETURN_OK;
+			}
 			for(int i=0;i<target.cantPortsToScan;i++){
 				if(target.portsToScan[i].portNumber==strtol(c,NULL,10) && target.portsToScan[i].portStatus==PORT_OPENED) selectedPort=strtol(c,NULL,10);
 			}
-			if(selectedPort==0) show_message("\nInsert an opened port\n\n", 0, 0, ERROR_MESSAGE,FALSE);
 			free(c);
+			if(selectedPort==0) show_message("\nInsert an opened port\n\n", 0, 0, ERROR_MESSAGE,FALSE);
 		}while(selectedPort==0);
 		portUnderHacking=selectedPort;
 		if(target.portsToScan[get_port_index(portUnderHacking)].connectionType==UNKNOWN_CONN_TYPE){

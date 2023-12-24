@@ -43,13 +43,23 @@ static void get_local_ip(char * buffer){
 int init_networking(){
 	char errbuf[PCAP_ERRBUF_SIZE]="";
 	pcap_if_t *devs=NULL, *dev=NULL;
+	pcap_init(PCAP_CHAR_ENC_UTF_8,errbuf);
 	pcap_findalldevs(&devs, errbuf);
-	if(devs->name==NULL) return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
+	if(devs->name==NULL){
+		pcap_freealldevs(devs);
+		pcap_freealldevs(dev);
+		return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
+	}
 	int cantDevs=0, selectedOpt=0;
 	for(dev=devs;dev!=NULL;dev=dev->next){
-		if((dev->flags & PCAP_IF_UP) && (dev->flags & PCAP_IF_RUNNING) && !(dev->flags & PCAP_IF_LOOPBACK) && strcmp(dev->name, "any")!=0) cantDevs++;
+		if((dev->flags & PCAP_IF_UP) && (dev->flags & PCAP_IF_RUNNING) && !(dev->flags & PCAP_IF_LOOPBACK)
+				&& strcmp(dev->name, "any")!=0) cantDevs++;
 	}
-	if(cantDevs==0) return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
+	if(cantDevs==0){
+		pcap_freealldevs(devs);
+		pcap_freealldevs(dev);
+		return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
+	}
 	if(cantDevs==1){
 		snprintf(networkInfo.interfaceName,255,"%s",devs->name);
 		printf("Only one device found. Using: %s%s%s\n",C_HWHITE, networkInfo.interfaceName, C_DEFAULT);
@@ -57,7 +67,8 @@ int init_networking(){
 		printf("Devices found:\n\n");
 		int cont=1;
 		for(dev=devs;dev!=NULL;dev=dev->next){
-			if((dev->flags & PCAP_IF_UP) && (dev->flags & PCAP_IF_RUNNING) && !(dev->flags & PCAP_IF_LOOPBACK) && strcmp(dev->name, "any")!=0){
+			if((dev->flags & PCAP_IF_UP) && (dev->flags & PCAP_IF_RUNNING) && !(dev->flags & PCAP_IF_LOOPBACK)
+					&& strcmp(dev->name, "any")!=0){
 				printf("\t%d) %s%s%s\n",cont, C_HWHITE, dev->name, C_DEFAULT);
 				cont++;
 			}
@@ -77,6 +88,8 @@ int init_networking(){
 			}
 		}
 	}
+	pcap_freealldevs(devs);
+	pcap_freealldevs(dev);
 	char addressPath[BUFFER_SIZE_512B]="";
 	snprintf(addressPath,BUFFER_SIZE_512B, "/sys/class/net/%s/address", networkInfo.interfaceName);
 	FILE *f=fopen(addressPath,"r");
@@ -132,7 +145,8 @@ int create_socket_conn(int *socketConn){
 	return RETURN_OK;
 }
 
-int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int connType, char *msg, unsigned char **serverResp, long int maxSizeResponse,
+int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int connType, char *msg,
+		unsigned char **serverResp, long int maxSizeResponse,
 		long int extraTimeOut, long int msgSize){
 	*serverResp=malloc(maxSizeResponse);
 	memset(*serverResp,0,maxSizeResponse);
@@ -236,14 +250,15 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 	}while(contSendingAttemps<2);
 	int bytesReceived=0,totalBytesReceived=0;
 	pfds[0].events=POLLIN;
-	char buffer[BUFFER_SIZE_16K]={0}, *bufferHTTP=NULL;
+	char buffer[BUFFER_SIZE_16K]="", *bufferHTTP=NULL;
 	if((bufferHTTP=malloc(1))==NULL){
 		clean_ssl(sslConn);
 		return set_last_activity_error(MALLOC_ERROR, "");
 	}
-	memset(bufferHTTP,0,1);
+	bufferHTTP[0]='\0';
 	int cont=0;
 	do{
+		memset(buffer,0,BUFFER_SIZE_16K);
 		numEvents=poll(pfds, 1, SOCKET_RECV_TIMEOUT_MS + extraTimeOut);
 		if(numEvents==0) break;
 		pollinHappened=pfds[0].revents & POLLIN;
@@ -262,7 +277,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 			// info received
 			if(bytesReceived>0){
 				totalBytesReceived+=bytesReceived;
-				bufferHTTP=realloc(bufferHTTP, strlen(bufferHTTP)+strlen(buffer)+1);
+				bufferHTTP=realloc(bufferHTTP, totalBytesReceived+1);
 				if(bufferHTTP==NULL){
 					clean_ssl(sslConn);
 					return set_last_activity_error(REALLOC_ERROR, "");

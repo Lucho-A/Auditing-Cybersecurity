@@ -65,7 +65,6 @@ static int initMrAnderson(){
 static int closeMrAnderson(){
 	printf("%s\n",C_DEFAULT);
 	if(resourcesLocation!=NULL) free(resourcesLocation);
-	if(arpHandle!=NULL) pcap_close(arpHandle);
 	return RETURN_OK;
 }
 
@@ -144,6 +143,7 @@ int main(int argc, char *argv[]){
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
+	if(initMrAnderson()==RETURN_ERROR) error_handling(TRUE);
 	printf("\nChecking updates: ");
 	int latestVersion=check_updates();
 	if(latestVersion==RETURN_ERROR){
@@ -160,7 +160,6 @@ int main(int argc, char *argv[]){
 	char strTimeStamp[50]="";
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
 	printf("%s\nStarting: %s\n\n",C_DEFAULT,strTimeStamp);
-	if(initMrAnderson()==RETURN_ERROR) error_handling(TRUE);
 	if(discover){
 		if(others(OTHERS_ARP_DISCOVER_D)==RETURN_ERROR) error_handling(TRUE);
 		closeMrAnderson();

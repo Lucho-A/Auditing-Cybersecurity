@@ -48,12 +48,11 @@ static int validate_smb_account(SMBCCTX *ctx, char *smbURL){
 	}
     printf("\n");
 	smbc_getFunctionClose(ctx)(ctx, dir);
-	 */
+	*/
 	return TRUE;
 }
 
 static void delete_smbctx(SMBCCTX* ctx){
-	smbc_getFunctionPurgeCachedServers(ctx)(ctx);
 	smbc_free_context(ctx, 1);
 }
 
@@ -148,7 +147,8 @@ static int smb_banner_grabbing(){
 		printf("%s  SMBv1:%s supported %s\n", C_HWHITE,C_HRED,C_DEFAULT);
 		printf("\n    - Preferred dialect: %s%s%s\n",C_HWHITE, smbv1Dialects[preferedDialectIndex], C_DEFAULT);
 		printf("\n    - Security Mode: %s0x%02X%s (0x01: User Level access, 0x02: supports challenge/response authentication,"
-				" 0x04: supports SMB security signatures, 0x08: server requires security signatures)\n",C_HWHITE, serverResp[39], C_DEFAULT);
+				" 0x04: supports SMB security signatures, 0x08: server requires security signatures)\n",C_HWHITE, serverResp[39],
+				C_DEFAULT);
 		//printf("\n    - Server GUID: %s",C_HWHITE);
 		//for(int i=73;i<73+16;i++) (isprint(serverResp[i]))?(printf("%c",serverResp[i])):(printf("·"));
 		//PRINT_RESET;
@@ -273,7 +273,7 @@ static int smb_banner_grabbing(){
 					0x4f,0x52,0x4b,0x53,0x54,0x41,0x54,0x49,0x4f,0x4e};
 			payloadLen=170;
 			*/
-			free(serverResp);
+			//free(serverResp);
 			//memset(serverResp,0,sizeof(serverResp));
 			//printf("\n%02X %02X %02X %02X\n",serverResp[cont],serverResp[cont-1],serverResp[cont-2],serverResp[cont-3]);
 			//printf("\n%ld\n",strtoul(strL,NULL,16));
@@ -288,7 +288,7 @@ static int smb_banner_grabbing(){
 	}
 	close(smbConn);
 	smbConn=0;
-	//free(serverResp);
+	free(serverResp);
 	/*
 	//v3
 	supported=TRUE;
