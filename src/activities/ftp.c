@@ -33,11 +33,12 @@ int ftp(int type){
 	char host[BUFFER_SIZE_128B]="";
 	switch(type){
 	case FTP_BANNER_GRABBING:
-		char *serverResp=NULL;
+		unsigned char *serverResp=NULL;
 		int conn=0;
-		int bytesRecv=send_msg_to_server(&conn,target.targetIp, NULL,portUnderHacking,target.portsToScan[get_port_index(portUnderHacking)].connectionType, "\n", &serverResp,
+		int bytesRecv=send_msg_to_server(&conn,target.targetIp, NULL,
+				portUnderHacking,target.portsToScan[get_port_index(portUnderHacking)].connectionType, "\n", &serverResp,
 				BUFFER_SIZE_128B,0, strlen("\n"));
-		show_message(serverResp, bytesRecv, 0, RESULT_MESSAGE, TRUE);
+		show_message((char *)serverResp, bytesRecv, 0, RESULT_MESSAGE, TRUE);
 		free(serverResp);
 		close(conn);
 		break;
