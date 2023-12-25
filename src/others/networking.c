@@ -57,7 +57,6 @@ int init_networking(){
 	}
 	if(cantDevs==0){
 		pcap_freealldevs(devs);
-		pcap_freealldevs(dev);
 		return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
 	}
 	printf("\n");
@@ -90,7 +89,6 @@ int init_networking(){
 		}
 	}
 	pcap_freealldevs(devs);
-	pcap_freealldevs(dev);
 	char addressPath[BUFFER_SIZE_512B]="";
 	snprintf(addressPath,BUFFER_SIZE_512B, "/sys/class/net/%s/address", networkInfo.interfaceName);
 	FILE *f=fopen(addressPath,"r");

@@ -143,22 +143,23 @@ int any(int type){
 			break;
 		case ANY_SEARCH_MSF:
 			do{
-				char *strSearch="";
-				strSearch= get_readline("  Insert string to search(;=exit): ", TRUE);
+				char *strSearch= get_readline("  Insert string to search(;=exit): ", TRUE);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
+					free(strSearch);
 					break;
 				}
 				snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'search %s; exit'",strSearch);
 				system_call(cmd);
+				free(strSearch);
 			}while(TRUE);
 			break;
 		case ANY_RUN_MSF:
 			do{
-				char *strSearch="";
-				strSearch= get_readline("  Insert module to use (;=exit): ",TRUE);
+				char *strSearch=get_readline("  Insert module to use (;=exit): ",TRUE);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
+					free(strSearch);
 					break;
 				}
 				char *confirmation="";
@@ -194,34 +195,37 @@ int any(int type){
 							"exploit;exit'",strSearch,target.strTargetIp, networkInfo.interfaceIp, networkInfo.interfaceIp,
 							userFilePath,passFilePath,target.strTargetIp);
 				}
+				free(strSearch);
 				system_call(cmd);
 				PRINT_RESET;
 			}while(TRUE);
 			break;
 		case ANY_SEARCH_NMAP:
 			do{
-				char *strSearch="";
-				strSearch=get_readline("  Insert string to search(;=exit): ", TRUE);
+				char *strSearch=get_readline("  Insert string to search(;=exit): ", TRUE);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
+					free(strSearch);
 					break;
 				}
 				printf("\n");
 				snprintf(cmd,sizeof(cmd),"locate *.nse | grep %s",strSearch);
 				system_call(cmd);
+				free(strSearch);
 				PRINT_RESET;
 			}while(TRUE);
 			break;
 		case ANY_RUN_NMAP:
 			do{
-				char *strSearch="";
-				strSearch=get_readline("  Insert script to use (;=exit): ", TRUE);
+				char *strSearch=get_readline("  Insert script to use (;=exit): ", TRUE);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
+					free(strSearch);
 					break;
 				}
 				snprintf(cmd,sizeof(cmd),"nmap -p%d --script=%s %s",portUnderHacking, strSearch,target.strTargetIp);
 				system_call(cmd);
+				free(strSearch);
 				PRINT_RESET;
 			}while(TRUE);
 			break;
@@ -232,10 +236,14 @@ int any(int type){
 			fclose(f);
 			do{
 				char *sqlCmd=get_readline("![#]=templates,;=exit)-> ", FALSE);
-				if(strcmp(sqlCmd,";")==0) break;
+				if(strcmp(sqlCmd,";")==0) {
+					free(sqlCmd);
+					break;
+				}
 				if(strcmp(sqlCmd,"!")==0){
 					for(int i=0;i<totalStrings;i++) printf("\n  %d) %s", i+1, sqlmapCommands[i]);
 					printf("\n\n");
+					free(sqlCmd);
 					continue;
 				}
 				if(sqlCmd[0]=='!' && strlen(sqlCmd)>1){
@@ -244,6 +252,7 @@ int any(int type){
 					long int selectedOpt=strtol(buf,NULL,10);
 					if(selectedOpt<1 || selectedOpt>totalStrings){
 						show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
+						free(sqlCmd);
 						continue;
 					}
 					format_strings_from_files(sqlmapCommands[selectedOpt-1], sqlmapCommands[selectedOpt-1]);
@@ -265,6 +274,7 @@ int any(int type){
 				add_history(sqlCmd);
 				printf("\n");
 				system(sqlCmd);
+				free(sqlCmd);
 			}while(TRUE);
 			free_char_double_pointer(&sqlmapCommands, totalStrings);
 			break;
@@ -284,7 +294,10 @@ int any(int type){
 				cancelCurrentProcess=FALSE;
 				unsigned char *serverResp=NULL;
 				char *msg=get_readline(";=exit)-> ", TRUE);
-				if(strcmp(msg,";")==0) break;
+				if(strcmp(msg,";")==0){
+					free(msg);
+					break;
+				}
 				for(int i=0;i<strlen(msg);i++){
 					if(msg[i]==' ' || msg[i]=='\"') msg[i]='+';
 				}
@@ -298,7 +311,6 @@ int any(int type){
 				int bytesRecv=0, sk=0;
 				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000,
 						strlen(httpMsg)))<0){
-					free(msg);
 					return RETURN_ERROR;
 				}
 				close(sk);
@@ -306,7 +318,6 @@ int any(int type){
 				char *json=strstr((char *)serverResp,token);
 				if(json==NULL){
 					free(serverResp);
-					free(msg);
 					show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
 					PRINT_RESET;
 					continue;
@@ -344,7 +355,6 @@ int any(int type){
 					}
 					printf("\"\n  ");
 					json=strstr(json,token);
-					free(msg);
 					if(cont>=bytesRecv || cveId==20){
 						show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, TRUE);
 						break;

@@ -32,7 +32,7 @@ int mysql(int type){
 		if(!mysql_real_connect(&mysqlConn, target.strTargetIp, "usuario??", "", NULL, portUnderHacking, NULL, 0)) return set_last_activity_error(MYSQL_CONNECTION_ERROR,mysql_error(&mysqlConn));
 		const char *version=mysql_get_server_info(&mysqlConn);
 		 */
-		char *serverResp=NULL;
+		unsigned char *serverResp=NULL;
 		int sk=0;
 		int lenght=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,SOCKET_CONN_TYPE, "\n", &serverResp, BUFFER_SIZE_128B,0,strlen("\n"));
 		close(sk);
@@ -42,6 +42,7 @@ int mysql(int type){
 			printf("  Version found: %s",C_HWHITE);
 			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
 		}
+		free(serverResp);
 		break;
 	case MYSQL_BFA:
 		return bfa_init(10,"usernames_mysql.txt","passwords_mysql.txt",MYSQL_BFA);
