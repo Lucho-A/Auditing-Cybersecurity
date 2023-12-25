@@ -40,7 +40,7 @@ static void signal_handler(int signalType){
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
 	case SIGPIPE:
-		//show_message("SIGPIPE babyyy...", 0, ERROR_MESSAGE, TRUE);
+		show_message("SIGPIPE babyyy...", 0, 0, ERROR_MESSAGE, TRUE);
 		break;
 	default:
 		break;
