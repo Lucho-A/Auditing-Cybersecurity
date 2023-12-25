@@ -22,7 +22,7 @@ sudo auditing-cybersecurity --update
 ```
 Optional (recommended) third-party software's:
 ```
-sudo apt-get install nmap metasploit-framework sqlmap whatweb nikto fierce dnsenum traceroute whois
+sudo apt-get install nmap metasploit-framework sqlmap fierce dnsenum traceroute whois
 ```
 Then:
 ```
