@@ -60,6 +60,7 @@ int init_networking(){
 		pcap_freealldevs(dev);
 		return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
 	}
+	printf("\n");
 	if(cantDevs==1){
 		snprintf(networkInfo.interfaceName,255,"%s",devs->name);
 		printf("Only one device found. Using: %s%s%s\n",C_HWHITE, networkInfo.interfaceName, C_DEFAULT);

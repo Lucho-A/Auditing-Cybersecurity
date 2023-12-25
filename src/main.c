@@ -2,7 +2,7 @@
  ============================================================================
  Name        : main.c
  Author      : L.
- Version     : 1.1.2
+ Version     : 1.2.7
  Copyright   : GNU General Public License v3.0
  Description : Main file
  ============================================================================
@@ -52,7 +52,6 @@ static int initMrAnderson(){
 	signal(SIGINT, signal_handler);
 	signal(SIGTSTP, signal_handler);
 	signal(SIGPIPE, signal_handler);
-	//rl_initialize();
 	SSL_library_init();
 	libssh2_init(0);
 	if(resourcesLocation==NULL){
@@ -70,79 +69,97 @@ static int closeMrAnderson(){
 
 int main(int argc, char *argv[]){
 	show_intro(PROGRAM_NAME, PROGRAM_VERSION);
-	Bool argOK=FALSE, noIntro=FALSE, discover=FALSE, updateProgram=FALSE;
+	Bool noIntro=FALSE, discover=FALSE;
 	char urlIp[255]="", msgError[BUFFER_SIZE_512B]="";
+	target.cantPortsToScan=0;
 	for(int i=1;i<argc;i++){
-		if(i==1){
-			if(strcmp(argv[i],"-h")==0 || strcmp(argv[i],"--help")==0) continue;
-			if(strcmp(argv[i],"-u")==0 || strcmp(argv[i],"--update")==0){
-				if(getuid()!=0) return show_message("You must be root for updating.\n", 0, 0, ERROR_MESSAGE, TRUE);
-				updateProgram=noIntro=argOK=TRUE;
-				continue;
+		if(strcmp(argv[i],"-v")==0 || strcmp(argv[i],"--version")==0){
+			PRINT_RESET;
+			exit(EXIT_SUCCESS);
+		}
+		if(strcmp(argv[i],"-h")==0 || strcmp(argv[i],"--help")==0){
+			show_help("");
+			closeMrAnderson();
+			exit(EXIT_FAILURE);
+		}
+		if(strcmp(argv[i],"-u")==0 || strcmp(argv[i],"--update")==0){
+			if(getuid()!=0) return show_message("You must be root for updating.\n", 0, 0, ERROR_MESSAGE, TRUE);
+			if(update()==RETURN_ERROR){
+				printf("\n%sUpdating error. %s.\n",C_HRED,strerror(errno));
+				PRINT_RESET;
 			}
-			if(strcmp(argv[i],"-d")==0 || strcmp(argv[i],"--discover")==0){
-				discover=argOK=TRUE;
-				continue;
-			}
-			if(argc==2){
-				snprintf(msgError,sizeof(msgError),"\nYou must enter, at least, the url|ip and the number of ports to be scanned\n");
-				break;
-			}
-			snprintf(urlIp,sizeof(urlIp),"%s",argv[i]);
+			closeMrAnderson();
+			exit(EXIT_SUCCESS);
+		}
+		if(strcmp(argv[i],"-d")==0 || strcmp(argv[i],"--discover")==0){
+			discover=TRUE;
 			continue;
 		}
-		if(i==2 && !argOK){
-			if(strtol(argv[i],NULL,10)>0 && strtol(argv[i],NULL,10)<MAX_PORTS_TO_SCAN){
-				target.cantPortsToScan=strtol(argv[i],NULL,10);
-				argOK=TRUE;
+		if(strcmp(argv[i],"-t")==0 || strcmp(argv[i],"--target")==0){
+			if(i==argc-1){
+				show_help("\nTarget not specified\n");
+				exit(EXIT_SUCCESS);
+			}
+			snprintf(urlIp,sizeof(urlIp),"%s",argv[i+1]);
+			i++;
+			continue;
+		}
+		if(strcmp(argv[i],"-P")==0 || strcmp(argv[i],"--ports")==0){
+			if(i==argc-1){
+				show_help("\nQuantity of ports not specified\n");
+				exit(EXIT_SUCCESS);
+			}
+			if(strtol(argv[i+1],NULL,10)>0 && strtol(argv[i+1],NULL,10)<MAX_PORTS_TO_SCAN){
+				target.cantPortsToScan=strtol(argv[i+1],NULL,10);
+				i++;
 				continue;
 			}
-			if(strcmp(argv[i],"-a")==0 || strcmp(argv[i],"--all")==0){
-				target.cantPortsToScan=ALL_PORTS;
-				argOK=TRUE;
+			show_help("\nYou must enter a valid number of ports to be scanned (1-5000)\n");
+			exit(EXIT_SUCCESS);
+		}
+		if(strcmp(argv[i],"-a")==0 || strcmp(argv[i],"--all")==0){
+			target.cantPortsToScan=ALL_PORTS;
+			continue;
+		}
+		if(strcmp(argv[i],"-p")==0 || strcmp(argv[i],"--port")==0){
+			if(i==argc-1){
+				show_help("\nPort not specified\n");
+				exit(EXIT_SUCCESS);
+			}
+			if(strtol(argv[i+1],NULL,10)>0 && strtol(argv[i+1],NULL,10)<ALL_PORTS){
+				target.cantPortsToScan=1;
+				singlePortToScan=strtol(argv[i+1],NULL,10);
+				i++;
 				continue;
 			}
-			if(strcmp(argv[i],"-p")==0 || strcmp(argv[i],"--port")==0){
-				if(strtol(argv[i+1],NULL,10)>0 && strtol(argv[i],NULL,10)<ALL_PORTS){
-					target.cantPortsToScan=1;
-					singlePortToScan=strtol(argv[i+1],NULL,10);
-					i++;
-					argOK=TRUE;
-					continue;
-				}
-			}
-			snprintf(msgError,sizeof(msgError),"\nYou must enter a valid number of ports to be scanned (1-5000 | -a)\n");
-			argOK=FALSE;
-			break;
+			show_help("\nPort number not valid (0-65535)\n");
+			exit(EXIT_SUCCESS);
 		}
 		if(strcmp(argv[i],"-n")==0 || strcmp(argv[i],"--no-intro")==0){
 			noIntro=TRUE;
 			continue;
 		}
 		if(strcmp(argv[i],"-r")==0 || strcmp(argv[i],"--resources-location")==0){
+			if(i==argc-1){
+				show_help("\nResource location not specified\n");
+				exit(EXIT_SUCCESS);
+			}
 			resourcesLocation=malloc(strlen(argv[i+1])+1);
 			snprintf(resourcesLocation,strlen(argv[i+1])+1,"%s",argv[i+1]);
 			i++;
 			continue;
 		}
 		snprintf(msgError,sizeof(msgError),"\nArgument %s not recognized\n",argv[i]);
-		argOK=FALSE;
-		break;
-	}
-	if(!argOK){
 		show_help(msgError);
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
-	if(!noIntro) show_intro_banner();
-	if(updateProgram){
-		if(update()==RETURN_ERROR){
-			printf("\n%sUpdating error. %s.\n",C_HRED,strerror(errno));
-			PRINT_RESET;
-		}
+	if((strcmp(urlIp,"")==0 || target.cantPortsToScan==0) && !discover){
+		show_help("\nYou must enter, at least, the url|ip and the number of ports to be scanned\n");
 		closeMrAnderson();
-		exit(EXIT_SUCCESS);
+		exit(EXIT_FAILURE);
 	}
+	if(!noIntro) show_intro_banner();
 	if(initMrAnderson()==RETURN_ERROR) error_handling(TRUE);
 	printf("\nChecking updates: ");
 	int latestVersion=check_updates();

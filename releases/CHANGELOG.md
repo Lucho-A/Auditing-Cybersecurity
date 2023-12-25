@@ -1,5 +1,7 @@
 ### auditing-cybersecurity-v1.2.7:Under Dev/Testing.
 
+SHA2-256(auditing-cybersecurity_1.2_7.deb)=
+
 Updated: 2023-XX-XX
 Criticality: high
 
@@ -17,11 +19,12 @@ IMPROVEMENT:
 OTHERS:
 - g     -> speed response increased.
 - g     -> timeouting increased.
-- g     -> keep the last user & assistant message for improving the chat experience
-- 1.11  -> decreased buffersize & increased timeouting to 30 secs
+- g     -> keep the last user & assistant message for improving the chat experience.
+- 1.11  -> decreased buffersize & increased timeouting to 30 secs.
 - 12.1  -> because installing oracle dependencies can be tricky, I included the Oracle source file for compiling and integrating jointly with the program.
 - supporting hexadecimal string bug fixed
-- code alignment, minor changes & code cleaned-up
+- command arguments changed.
+- code alignment, minor changes, code optimized & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------
 ### auditing-cybersecurity-v1.2.6

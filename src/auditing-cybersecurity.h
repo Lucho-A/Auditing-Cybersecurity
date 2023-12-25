@@ -16,9 +16,6 @@
 
 // #define LIBSSH_STATIC 1
 
-//#pragma GCC diagnostic ignored "-Wformat-truncation"
-//#pragma GCC diagnostic ignored "-Wpointer-sign"
-
 #define PROGRAM_NAME 				"Auditing-Cybersecurity"
 #define PROGRAM_MAJOR_VERSION		"1"
 #define PROGRAM_MINOR_VERSION		"2"
