@@ -16,6 +16,13 @@ long int selectedOpt=0;
 int totalThreads=0;
 int contProcesedFiles=0;
 
+static void clean_ssl(SSL *ssl){
+	if(ssl!=NULL) SSL_shutdown(ssl);
+	if(ssl!=NULL) SSL_certs_clear(ssl);
+	if(ssl!=NULL) SSL_clear(ssl);
+	if(ssl!=NULL) SSL_free(ssl);
+}
+
 static int compare_dates(struct tm tm1,struct tm tm2){
 	char strTm1[BUFFER_SIZE_32B]="", strTm2[BUFFER_SIZE_32B]="";
 	snprintf(strTm1,BUFFER_SIZE_32B,"%d%02d%02d",tm1.tm_year,tm1.tm_mon,tm1.tm_mday);
@@ -38,13 +45,28 @@ static int get_cert_info(){
 	int valResp=0;
 	if((valResp=connect(socketConn, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0)) return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
 	SSL_CTX *sslCtx=NULL;
-	if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL) return set_last_activity_error(SSL_CONTEXT_ERROR, "");
+	if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){
+		SSL_CTX_free(sslCtx);
+		return set_last_activity_error(SSL_CONTEXT_ERROR, "");
+	}
 	SSL *sslConn = SSL_new(sslCtx);
-	if(sslConn==NULL) return set_last_activity_error(SSL_CONNECTION_ERROR, "");
-	if(!SSL_set_fd(sslConn, socketConn)) return set_last_activity_error(SSL_FD_ERROR, "");
+	if(sslConn==NULL){
+		clean_ssl(sslConn);
+		SSL_CTX_free(sslCtx);
+		return set_last_activity_error(SSL_CONNECTION_ERROR, "");
+	}
+	if(!SSL_set_fd(sslConn, socketConn)){
+		clean_ssl(sslConn);
+		SSL_CTX_free(sslCtx);
+		return set_last_activity_error(SSL_FD_ERROR, "");
+	}
 	SSL_set_connect_state(sslConn);
 	SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
-	if(!SSL_connect(sslConn)) return set_last_activity_error(SSL_CONNECT_ERROR, "");
+	if(!SSL_connect(sslConn)){
+		clean_ssl(sslConn);
+		SSL_CTX_free(sslCtx);
+		return set_last_activity_error(SSL_CONNECT_ERROR, "");
+	}
 	X509 *cert = SSL_get_peer_certificate(sslConn);
 	OpenSSL_add_all_algorithms();
 	char *subj = X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0);
@@ -101,7 +123,8 @@ static int get_cert_info(){
 	printf("\n\n%s  Certificate: %s\n\n  ",C_HWHITE,C_DEFAULT);
 	PEM_write_X509(stdout, cert);
 	BN_free(bnValue);
-	SSL_free(sslConn);
+	clean_ssl(sslConn);
+	SSL_CTX_free(sslCtx);
 	return RETURN_OK;
 }
 
@@ -120,23 +143,43 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	setsockopt(localSocketCon, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
 	if(connect(localSocketCon, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0) return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
 	SSL *sslConn=NULL;
+	SSL_CTX *sslCtx=NULL;
 	if(connType==SSL_CONN_TYPE){
-		SSL_CTX *sslCtx=NULL;
 		sslCtx = SSL_CTX_new(SSLv23_method());
-		if(sslCtx==NULL) return set_last_activity_error(SSL_CONTEXT_ERROR, "");
+		if(sslCtx==NULL){
+			clean_ssl(sslConn);
+			SSL_CTX_free(sslCtx);
+			return set_last_activity_error(SSL_CONTEXT_ERROR, "");
+		}
 		sslConn = SSL_new(sslCtx);
-		if(sslConn==NULL) return set_last_activity_error(SSL_CONNECTION_ERROR, "");
-		if(!SSL_set_fd(sslConn, localSocketCon)) return set_last_activity_error(SSL_FD_ERROR, "");
+		if(sslConn==NULL){
+			clean_ssl(sslConn);
+			SSL_CTX_free(sslCtx);
+			return set_last_activity_error(SSL_CONNECTION_ERROR, "");
+		}
+		if(!SSL_set_fd(sslConn, localSocketCon)){
+			clean_ssl(sslConn);
+			SSL_CTX_free(sslCtx);
+			return set_last_activity_error(SSL_FD_ERROR, "");
+		}
 		SSL_set_connect_state(sslConn);
 		SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
-		if(!SSL_connect(sslConn)) return set_last_activity_error(SSL_CONNECT_ERROR, "");
+		if(!SSL_connect(sslConn)){
+			clean_ssl(sslConn);
+			SSL_CTX_free(sslCtx);
+			return set_last_activity_error(SSL_CONNECT_ERROR, "");
+		}
 	}
 	if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
 		bytesSent=send(localSocketCon,msg,strlen(msg),0);
 	}else{
 		bytesSent=SSL_write(sslConn,msg,strlen(msg));
 	}
-	if(bytesSent<=0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+	if(bytesSent<=0){
+		clean_ssl(sslConn);
+		SSL_CTX_free(sslCtx);
+		return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+	}
 	int bytesReceived=0,contI=0;
 	char buffer[BUFFER_SIZE_8K]={'\0'};
 	snprintf(serverResp,BUFFER_SIZE_128B,"%s","");
@@ -147,13 +190,15 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	}
 	if(bytesReceived<=0){
 		close(localSocketCon);
-		SSL_free(sslConn);
+		clean_ssl(sslConn);
+		SSL_CTX_free(sslCtx);
 		return set_last_activity_error(RECEIVING_PACKETS_ERROR, strerror(errno));
 	}
 	for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];
 	serverResp[contI]='\0';
 	close(localSocketCon);
-	SSL_free(sslConn);
+	clean_ssl(sslConn);
+	SSL_CTX_free(sslCtx);
 	return bytesReceived;
 }
 
@@ -167,7 +212,8 @@ static void *evaluate_response(void *arg){
 		fflush(stdout);
 		usleep(rand()%1000 + 500);
 		snprintf(msg,sizeof(msg), stringTemplates[selectedOpt-1],files[i],target.strTargetURL);
-		resp=send_http_msg_to_server(target.targetIp,portUnderHacking,target.portsToScan[get_port_index(portUnderHacking)].connectionType,msg,serverResp,BUFFER_SIZE_32B);
+		resp=send_http_msg_to_server(target.targetIp,portUnderHacking,
+				target.portsToScan[get_port_index(portUnderHacking)].connectionType,msg,serverResp,BUFFER_SIZE_32B);
 		if(resp<0 && !cancelCurrentProcess){
 			cancelCurrentProcess=TRUE;
 			PRINT_RESET;
@@ -180,15 +226,15 @@ static void *evaluate_response(void *arg){
 				|| strstr(serverResp," 302 ")!=NULL
 				|| strstr(serverResp," 304 ")!=NULL)){
 			if(strstr(serverResp," 301 " )!=NULL || strstr(serverResp," 302 " )!=NULL){
-				resp=send_http_msg_to_server(target.targetIp,443, SSL_CONN_TYPE, msg, serverResp, BUFFER_SIZE_32B);
-				if(resp>0 && (strstr(serverResp," 200 ")!=NULL
-						|| strstr(serverResp," 204 " )!=NULL
-						|| strstr(serverResp," 302 " )!=NULL
-						|| strstr(serverResp," 301 " )!=NULL)){
+				//resp=send_http_msg_to_server(target.targetIp,443, SSL_CONN_TYPE, msg, serverResp, BUFFER_SIZE_32B);
+				//if(resp>0 && (strstr(serverResp," 200 ")!=NULL
+				//		|| strstr(serverResp," 204 " )!=NULL
+				//		|| strstr(serverResp," 302 " )!=NULL
+				//		|| strstr(serverResp," 301 " )!=NULL)){
 					printf(REMOVE_LINE);
 					printf("  File found: %s/%s%s (%sredirected%s)",C_HRED, files[i],C_DEFAULT, C_HWHITE,C_DEFAULT);
 					printf("\n\n"REMOVE_LINE);
-				}
+				//}
 				continue;
 			}
 			printf(REMOVE_LINE);
@@ -271,48 +317,54 @@ int http(int type){
 	case HTTP_GET_WEBPAGES:
 		FILE *f=NULL;
 		totalStrings=open_file_str(resourcesLocation, "getting_webpages.txt", &f, &stringTemplates);
-		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR, "");
+		if(totalStrings==RETURN_ERROR){
+			free_char_double_pointer(&stringTemplates, totalStrings);
+			return set_last_activity_error(OPENING_FILE_ERROR, "");
+		}
 		fclose(f);
 		totalThreads=request_quantity_threads(100);
 		printf("\n");
 		do{
-			char *queryType=NULL;
 			for(int i=0;i<totalStrings;i++) printf("  %d) %s\n", i+1, stringTemplates[i]);
 			printf("\n");
-			queryType=get_readline("  Select the query type (;=exit | default=1): ", TRUE);
+			char * queryType=get_readline("  Select the query type (;=exit | default=1): ", TRUE);
 			if(strcmp(queryType,";")==0){
+				free_char_double_pointer(&stringTemplates, totalStrings);
+				free(queryType);
 				printf("%s\n",C_DEFAULT);
 				return RETURN_OK;
 			}
 			selectedOpt=strtol(queryType,NULL,10);
 			if(strcmp(queryType,"")==0) selectedOpt=1;
+			free(queryType);
 			if(selectedOpt<1 || selectedOpt>totalStrings){
 				show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
 				continue;
 			}
-			free(queryType);
 			break;
 		}while(TRUE);
 		printf("\n");
 		format_strings_from_files(stringTemplates[selectedOpt-1], stringTemplates[selectedOpt-1]);
-		if((totalFiles=open_file_str(resourcesLocation, "dirs_and_files_http.txt",&f, &files))==-1) return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
+		if((totalFiles=open_file_str(resourcesLocation, "dirs_and_files_http.txt",&f, &files))==-1){
+			free_char_double_pointer(&files, totalFiles);
+			free_char_double_pointer(&stringTemplates, totalStrings);
+			return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
+		}
 		fclose(f);
 		pthread_t *getWPThread = (pthread_t *)malloc(totalThreads * sizeof(pthread_t));
 		struct ThreadInfo *tInfo = (struct ThreadInfo *) malloc(totalThreads * sizeof(struct ThreadInfo));
 		for(int i=0;i<totalThreads;i++){
 			tInfo[i].threadID=i;
-			pthread_create(&getWPThread[i], NULL, evaluate_response, &tInfo[i]);
+			pthread_create(&getWPThread[i], NULL, &evaluate_response, &tInfo[i]);
 		}
 		for(int i=0;i<totalThreads;i++) pthread_join(getWPThread[i], NULL);
 		free(getWPThread);
 		free(tInfo);
+		free_char_double_pointer(&files, totalFiles);
+		free_char_double_pointer(&stringTemplates, totalStrings);
 		if(cancelCurrentProcess){
-			//free_char_double_pointer(&files, totalFiles);
-			//free_char_double_pointer(&stringTemplates, totalStrings);
 			return RETURN_ERROR;
 		}
-		//free_char_double_pointer(&stringTemplates, totalStrings);
-		//free_char_double_pointer(&files, totalFiles);
 		PRINT_RESET;
 		return RETURN_OK;
 	case HTTP_OTHERS:

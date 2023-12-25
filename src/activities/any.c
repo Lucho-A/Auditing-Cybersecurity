@@ -296,12 +296,17 @@ int any(int type){
 						"Accept: */*\r\n\r\n",msg,host);
 				free(msg);
 				int bytesRecv=0, sk=0;
-				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000,strlen(httpMsg)))<0) return RETURN_ERROR;
+				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000,
+						strlen(httpMsg)))<0){
+					free(msg);
+					return RETURN_ERROR;
+				}
 				close(sk);
 				char *token="\"id\": \"";
 				char *json=strstr((char *)serverResp,token);
 				if(json==NULL){
 					free(serverResp);
+					free(msg);
 					show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
 					PRINT_RESET;
 					continue;
@@ -339,6 +344,7 @@ int any(int type){
 					}
 					printf("\"\n  ");
 					json=strstr(json,token);
+					free(msg);
 					if(cont>=bytesRecv || cveId==20){
 						show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, TRUE);
 						break;

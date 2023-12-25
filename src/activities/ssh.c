@@ -43,7 +43,7 @@ int ssh_check_user(char *username, char *password){
 
 int ssh(int type){
 	if(target.portsToScan[get_port_index(portUnderHacking)].connectionType!=SSH_CONN_TYPE){
-		return show_message("SSH not supported for this port (or couldn't create a connection because the IP was locked)",0, 0, ERROR_MESSAGE, FALSE);
+		return show_message("SSH not supported for this port (or couldn't create a connection because the IP was locked)\n",0, 0, ERROR_MESSAGE, FALSE);
 	}
 	char cmd[BUFFER_SIZE_1K]="";
 	switch(type){

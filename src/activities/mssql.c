@@ -6,18 +6,19 @@
 #include "activities.h"
 
 int mssql_check_user(char *username, char *password){
-	SQLHENV   henv = SQL_NULL_HENV;
+	SQLHENV henv=SQL_NULL_HENV;
 	SQLHDBC hdbc=SQL_NULL_HDBC;
-	SQLHSTMT hstmt = SQL_NULL_HSTMT;
+	SQLHSTMT hstmt=SQL_NULL_HSTMT;
 	if(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv)<0) return show_message("Error during SQLAllocHandle()",0, 0, ERROR_MESSAGE, TRUE);
 	if(SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0)<0) return show_message("Error during SQLSetEnvAttr()",0, 0, ERROR_MESSAGE, TRUE);
 	if(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc)<0) return show_message("Error during SQLAllocHandle()",0, 0, ERROR_MESSAGE, TRUE);
 	SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 	unsigned char odbcDriver[BUFFER_SIZE_1K]="";
-	SQLRETURN retcode;
-	SQLCHAR outstr[1024];
-	SQLSMALLINT outstrlen;
-	snprintf((char *) odbcDriver, sizeof(odbcDriver), "Driver={ODBC Driver 18 for SQL Server};Server=%s,%d;Encrypt=no;UID=%s;PWD=%s",target.strTargetIp, portUnderHacking,username,password);
+	SQLRETURN retcode=0;
+	SQLCHAR outstr[1024]="";
+	SQLSMALLINT outstrlen=0;
+	snprintf((char *) odbcDriver, sizeof(odbcDriver), "Driver={ODBC Driver 18 for SQL Server};Server=%s,%d;Encrypt=no;UID=%s;PWD=%s",
+			target.strTargetIp, portUnderHacking,username,password);
 	retcode = SQLDriverConnect(hdbc, NULL, odbcDriver,SQL_NTS, outstr, sizeof(outstr), &outstrlen, SQL_DRIVER_NOPROMPT);
 	retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
 	if (hstmt != SQL_NULL_HSTMT) SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
