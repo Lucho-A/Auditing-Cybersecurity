@@ -1569,7 +1569,8 @@ int dpiConn_create(const dpiContext *context, const char *userName,
 {
     dpiCommonCreateParams localCommonParams;
     dpiConnCreateParams localCreateParams;
-    dpiConn *tempConn;
+    //TODO ==NULL??
+    dpiConn *tempConn=NULL;
     dpiError error;
     int status;
 
