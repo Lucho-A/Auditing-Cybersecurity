@@ -82,14 +82,14 @@ void * start_sending_arp_sniffing_packets(void *ptr){
 */
 static void process_packet_monitor(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 	static int count = 1;
-	const struct sniff_ip *ip;
-	const struct sniff_tcp *tcp;
+	const struct sniffIp *ip;
+	const struct sniffTcp *tcp;
 	const char *payload;
 	int sizeIp, sizeTcp, sizePayload;
 	count++;
-	ip=(struct sniff_ip*)(packet+SIZE_ETHERNET);
+	ip=(struct sniffIp*)(packet+SIZE_ETHERNET);
 	sizeIp=IP_HL(ip)*4;
-	tcp=(struct sniff_tcp*)(packet + SIZE_ETHERNET + sizeIp);
+	tcp=(struct sniffTcp*)(packet + SIZE_ETHERNET + sizeIp);
 	sizeTcp=TH_OFF(tcp)*4;
 	switch(ip->ip_p) {
 	case IPPROTO_TCP:

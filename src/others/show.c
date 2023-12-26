@@ -148,7 +148,7 @@ void show_options(){
 	printf("\t1.2)  DoS Syn Flood Attack");
 	printf("\t\t\t\t\t\t1.11)  CVE searching\n");
 	printf("\t1.3)  nMap Vulners scan");
-	printf("\t\t\t1.4)  Code Red buffer overflow (any -GET- service)\n");
+	printf("\t\t\t1.4)  Code Red buffer overflow\n");
 	printf("\t1.5)  Search for Msf module");
 	printf("\t\t1.6)  Run Msf module\n");
 	printf("\t1.7)  Search for nMap script");
