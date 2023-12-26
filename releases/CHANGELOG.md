@@ -1,8 +1,8 @@
-### auditing-cybersecurity-v1.2.7
+### auditing-cybersecurity-v1.2.7:Under-Dev./Testing
 
 SHA2-256(auditing-cybersecurity_1.2_7.deb)=
 
-Updated: 2023-12-25
+Updated: 2023-12-XX
 Criticality: high
 
 BUG_FIXED:
