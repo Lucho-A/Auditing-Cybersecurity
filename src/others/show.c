@@ -198,7 +198,7 @@ void show_options(){
 	printf("\t\t\t10.1)  BFA");
 	printf("\t\t\t\t11.1)  BFA\n");
 	printf("\t8.2)  Relay test\n");
-	printf("%s%s\t8.3)  BFA%s\n",C_HBLACK,C_STRIKE,C_DEFAULT);
+	printf("\t8.3)  BFA\n");
 	printf("\t8.4)  Banner grabbing\n\n");
 
 	printf("\t12) %sOracle%s service:", C_HWHITE,C_DEFAULT);

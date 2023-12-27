@@ -53,8 +53,7 @@ int smtp(int type){
 		system_call(cmd);
 		break;
 	case SMTP_BFA:
-		//TODO
-		//bfa_imap_ldap_pop3_smtp_ftp(SMTP_BFA);
+		return bfa_imap_ldap_pop3_smtp_ftp(SMTP_BFA);
 		break;
 	default:
 		break;

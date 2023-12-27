@@ -181,6 +181,7 @@ int arp(int type){
 		}while(TRUE);
 		printf("\n  MAC found: %02X:%02X:%02X:%02X:%02X:%02X\n", macBroadcastToCheat[0],macBroadcastToCheat[1], macBroadcastToCheat[2],
 				macBroadcastToCheat[3],macBroadcastToCheat[4], macBroadcastToCheat[5]);
+		delay=SNIFFING_THREAD_DELAY_US;
 		char *userDelay=get_readline("\n  Insert thread sending packet delay in us -default value: 10000000 (10\")-: ", FALSE);
 		if(strcmp(userDelay, "")!=0){
 			char *endPtr=NULL;

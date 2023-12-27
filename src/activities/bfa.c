@@ -86,7 +86,7 @@ int bfa_init(int threadsDefault, char *usernamesFile, char *passwordFile, int se
 		tInfo[i].totalThreads=tThreads;
 		tInfo[i].service=service;
 		usleep(10000);
-		pthread_create(&bfaThreads[i], NULL, bfa_check_users, &tInfo[i]);
+		pthread_create(&bfaThreads[i], NULL, &bfa_check_users, &tInfo[i]);
 	}
 	for(int i=0;i<tThreads;i++) pthread_join(bfaThreads[i], NULL);
 	PRINT_RESET;

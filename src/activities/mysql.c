@@ -36,20 +36,36 @@ int mysql(int type){
 		int sk=0;
 		int lenght=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,SOCKET_CONN_TYPE, "\n", &serverResp, BUFFER_SIZE_128B,0,strlen("\n"));
 		close(sk);
-		if(lenght!=0){
-			int i=0;
-			while(serverResp[i++]!=10 && i<lenght);
+		if(lenght==0){
+			show_message("No server response\n", 0, 0, ERROR_MESSAGE, FALSE);
+			free(serverResp);
+			return RETURN_OK;
+		}
+		int i=0;
+		switch(serverResp[0]){
+		case 'I':
+		case 'J':
+			i=5;
 			printf("  Version found: %s",C_HWHITE);
 			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
+			break;
+		case 'E':
+			i=7;
+			printf("%s  ",C_HRED);
+			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
+			break;
+		default:
+			show_message("TODO: response not handled\n", 0, 0, ERROR_MESSAGE, TRUE);
+			for(int i=0;i<lenght;i++) printf("%02X ",serverResp[i]);
+			break;
 		}
+		PRINT_RESET;
 		free(serverResp);
 		break;
-	case MYSQL_BFA:
-		return bfa_init(10,"usernames_mysql.txt","passwords_mysql.txt",MYSQL_BFA);
-	default:
-		break;
+		case MYSQL_BFA:
+			return bfa_init(10,"usernames_mysql.txt","passwords_mysql.txt",MYSQL_BFA);
+		default:
+			break;
 	}
-	PRINT_RESET;
-	PRINT_RESET;
 	return RETURN_OK;
 }

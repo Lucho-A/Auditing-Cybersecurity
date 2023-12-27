@@ -6,6 +6,7 @@
 #include "../others/networking.h"
 #include "../activities/activities.h"
 
+
 struct memory {
 	char *response;
 	size_t size;
@@ -26,6 +27,8 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 int bfa_imap_ldap_pop3_smtp_ftp(int type){
 	curl_global_init(CURL_GLOBAL_ALL);
 	char url[255]="", protocol[10]="", usernamesFile[255]="", passwordsFile[255]="";
+	char *domain=get_readline("  Insert domain -without @-: ", FALSE);
+	printf("\n");
 	switch(type){
 	case IMAP_BFA:
 		snprintf(protocol,sizeof(protocol),"%s","imap");
@@ -60,13 +63,15 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 		for(int i=0;i<bfaInfo.totalUsernames && timeouts<BRUTE_FORCE_TIMEOUT && cancelCurrentProcess==FALSE;i++){
 			for(int j=0;j<bfaInfo.totalPasswords && timeouts<BRUTE_FORCE_TIMEOUT && cancelCurrentProcess==FALSE;j++,cont++){
 				struct memory chunk={0};
-				printf("\r  Percentaje completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),bfaInfo.usernames[i], bfaInfo.passwords[j]);
+				printf("\r  Percentage completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),bfaInfo.usernames[i], bfaInfo.passwords[j]);
 				fflush(stdout);
 				curl_easy_setopt(mCurl, CURLOPT_URL, url);
 				curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, callback);
 				curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, (void *)&chunk);
 				curl_easy_setopt(mCurl, CURLOPT_TIMEOUT, CURL_TIMEOUT);
-				curl_easy_setopt(mCurl, CURLOPT_USERNAME, bfaInfo.usernames[i]);
+				char username[BUFFER_SIZE_128B]="";
+				snprintf(username,BUFFER_SIZE_128B,"%s@%s",bfaInfo.usernames[i],domain);
+				curl_easy_setopt(mCurl, CURLOPT_USERNAME, username);
 				curl_easy_setopt(mCurl, CURLOPT_PASSWORD, bfaInfo.passwords[j]);
 				curl_easy_setopt(mCurl, CURLOPT_LOGIN_OPTIONS, "AUTH=*");
 				switch(type){
@@ -81,7 +86,7 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 				res = curl_easy_perform(mCurl);
 				if(res == CURLE_OK){
 					printf("%s",C_HRED);
-					printf("\n\n  Authentication success: %s/%s\n\n",bfaInfo.usernames[i],bfaInfo.passwords[j]);
+					printf("\n\n  Authentication success: %s/%s",username,bfaInfo.passwords[j]);
 					printf("%s", chunk.response);
 					printf("%s\n", C_DEFAULT);
 				}else{
@@ -104,10 +109,19 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 			}
 		}
 	}else{
+		free(domain);
+		free_char_double_pointer(&bfaInfo.usernames, bfaInfo.totalUsernames);
+		free_char_double_pointer(&bfaInfo.passwords, bfaInfo.totalPasswords);
+		curl_easy_cleanup(mCurl);
+		curl_global_cleanup();
 		return show_message("Error curl initialization",0,0, ERROR_MESSAGE, TRUE);
 	}
 	if(timeouts==BRUTE_FORCE_TIMEOUT) printf("\n\n  %d timeouts. Aborting\n\n", BRUTE_FORCE_TIMEOUT);
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
+	free(domain);
+	free_char_double_pointer(&bfaInfo.usernames, bfaInfo.totalUsernames);
+	free_char_double_pointer(&bfaInfo.passwords, bfaInfo.totalPasswords);
+	PRINT_RESET;
 	return RETURN_OK;
 }

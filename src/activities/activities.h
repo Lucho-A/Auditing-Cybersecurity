@@ -34,6 +34,7 @@ int mysql_check_user(char *userName, char *password);
 int oracle_check_user(char *userName, char *password);
 int postgres_check_user(char *userName, char *password);
 int smb_check_user(char *userName, char *password);
+int pop3_check_user(char *userName, char *password);
 
 int bfa_imap_ldap_pop3_smtp_ftp(int service);
 

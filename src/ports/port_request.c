@@ -121,7 +121,7 @@ static int hack_port() {
 
 		if(strcmp(c,"8.1")==0) valResp=smtp(SMTP_ENUMERATION);
 		if(strcmp(c,"8.2")==0) valResp=smtp(SMTP_RELAY);
-		//if(strcmp(c,"8.3")==0) valResp=smtp(SMTP_BFA); //TODO
+		if(strcmp(c,"8.3")==0) valResp=smtp(SMTP_BFA);
 		if(strcmp(c,"8.4")==0) valResp=smtp(SMTP_BANNER_GRABBING);
 
 		if(strcmp(c,"9.1")==0) valResp=imap(IMAP_BFA);
