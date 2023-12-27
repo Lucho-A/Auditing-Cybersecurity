@@ -16,6 +16,7 @@
 #include <signal.h>
 #include <openssl/ssl.h>
 #include <pcap.h>
+#include <readline/readline.h>
 #include "auditing-cybersecurity.h"
 #include "activities/activities.h"
 #include "others/networking.h"
@@ -25,17 +26,17 @@ struct ServerTarget target;
 struct NetworkInfo networkInfo;
 int singlePortToScan=0;
 int portUnderHacking=0;
-Bool cancelCurrentProcess=0;
-Bool canceledBySignal=0;
+Bool cancelCurrentProcess=FALSE;
+Bool canceledBySignal=FALSE;
 pcap_t *arpHandle=NULL;
 char *resourcesLocation=NULL;
 
 static void signal_handler(int signalType){
-	printf("\b\b  %s\n",C_DEFAULT);
+	printf("%s\n\n",C_DEFAULT);
 	switch(signalType){
 	case SIGINT:
 	case SIGTSTP:
-		printf("  Cancelling...\n");
+		printf("  Canceling...\n");
 		cancelCurrentProcess=TRUE;
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
@@ -48,23 +49,37 @@ static void signal_handler(int signalType){
 	canceledBySignal=TRUE;
 }
 
+static int closeMrAnderson(){
+	printf("%s\n",C_DEFAULT);
+	if(resourcesLocation!=NULL) free(resourcesLocation);
+	return RETURN_OK;
+}
+
+static int readline_input(FILE *stream){
+	int c=fgetc(stream);
+	switch(c){
+	case -1:
+	case 4:
+		return 13;
+		break;
+	default:
+		break;
+	}
+	return c;
+}
+
 static int initMrAnderson(){
 	signal(SIGINT, signal_handler);
 	signal(SIGTSTP, signal_handler);
 	signal(SIGPIPE, signal_handler);
 	SSL_library_init();
 	libssh2_init(0);
+	rl_getc_function=readline_input;
 	if(resourcesLocation==NULL){
 		resourcesLocation=malloc(strlen(PATH_TO_RESOURCES)+1);
 		snprintf(resourcesLocation, sizeof(PATH_TO_RESOURCES)+1,"%s", PATH_TO_RESOURCES);
 	}
 	return init_networking();
-}
-
-static int closeMrAnderson(){
-	printf("%s\n",C_DEFAULT);
-	if(resourcesLocation!=NULL) free(resourcesLocation);
-	return RETURN_OK;
 }
 
 int main(int argc, char *argv[]){
@@ -160,7 +175,10 @@ int main(int argc, char *argv[]){
 		exit(EXIT_FAILURE);
 	}
 	if(!noIntro) show_intro_banner();
-	if(initMrAnderson()==RETURN_ERROR) error_handling(TRUE);
+	if(initMrAnderson()==RETURN_ERROR){
+		closeMrAnderson();
+		error_handling(TRUE);
+	}
 	printf("\nChecking updates: ");
 	int latestVersion=check_updates();
 	if(latestVersion==RETURN_ERROR){

@@ -43,7 +43,8 @@ static int get_cert_info(){
 	if(socketConn<0) return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
 	setsockopt(socketConn, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
 	int valResp=0;
-	if((valResp=connect(socketConn, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0)) return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
+	if((valResp=connect(socketConn, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0))
+		return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
 	SSL_CTX *sslCtx=NULL;
 	if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){
 		SSL_CTX_free(sslCtx);
@@ -122,7 +123,11 @@ static int get_cert_info(){
 	printf("\n\n%s  Key Length: %s%d",C_HWHITE,C_DEFAULT,EVP_PKEY_bits(pkey));
 	printf("\n\n%s  Certificate: %s\n\n  ",C_HWHITE,C_DEFAULT);
 	PEM_write_X509(stdout, cert);
+	X509_free(cert);
 	BN_free(bnValue);
+	free(subj);
+	free(issuer);
+	free(asciiHex);
 	clean_ssl(sslConn);
 	SSL_CTX_free(sslCtx);
 	return RETURN_OK;

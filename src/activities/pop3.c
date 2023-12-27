@@ -10,6 +10,5 @@ int pop3(int type){
 	default:
 		break;
 	}
-	printf("\n\n");
 	return RETURN_OK;
 }

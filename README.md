@@ -75,23 +75,3 @@ Have fun!
 ![imagen](https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/7adfdfb6-63c2-44bc-8bd0-75806f81dba1)
 
 </p>
-
-
-
-<!--
-
-<image src=https://user-images.githubusercontent.com/40904281/203682762-fd4e5a9a-1198-4787-9aee-a1b146a91cb6.png>
-<image src=https://user-images.githubusercontent.com/40904281/203682947-e159e999-e5ab-4842-b6b6-58c6e8324373.png>
-<image src=https://user-images.githubusercontent.com/40904281/203682987-3244b6a2-5f34-4c6e-b314-23e108430a79.png>
-
-
-Examples (a bit out-of-dated):
-
-<p align="center">
-<video src="https://user-images.githubusercontent.com/40904281/177245945-6bf3ead6-f04d-44d4-8b78-b8dad5701785.mp4" autoplay loop muted> </video>
-</p>
-
-<p align="center">
-<video src="https://user-images.githubusercontent.com/40904281/177363811-5113a632-c9cb-4620-9fdb-95c08645c802.mp4" autoplay loop muted> </video>
-</p>
--->

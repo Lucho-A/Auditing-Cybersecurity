@@ -2,21 +2,21 @@
 
 SHA2-256(auditing-cybersecurity_1.2_7.deb)=
 
-Updated: 2023-12-XX
+Updated: 20XX-XX-XX
 Criticality: high
 
 BUG_FIXED:
 - a lot.
 
 BUG_KNOWN:
-- also, a lot... too much for describing them without my lawyer present... hhhaha
+- also, a lot... too much for describing them without my lawyer present... hhhaha (nah, not too much, I hope)
 
 IMPROVEMENT:
 - '-r | --resources-location': option added (optional) for specifying the path to resources files. Default: '/usr/share/auditing-cybersecurity/resources/'.
 - 7.2   -> showing results improved.
 - 7.2   -> timeouting set (5") if can't connect to server.
 - 1.6   -> set DOMAIN var for exploits.
-- 1.10  -> sending spoofed packet delay changed to 10000000us (10 secs.). Determine the best value (aka. not flooding & not losing packets) for this can be pretty tricky. It depends on the network, the device, the protocol involved, etc. Anyway, I just recommend start with a high value, and decrease it, if necessary, and/or evaluate the timing of the device (host) with a tool like wireshark, and then, set a value according to it.
+- 1.10  -> sending spoofed packet delay changed to 10000000us (10 secs.). Determine the best value (aka. not flooding & not losing packets) for this can be pretty tricky. It depends on the network, the device, the protocol involved, etc. Anyway, I just recommend start with a high value and decrease it, if necessary, and/or evaluate the timing of the device (host) with a tool like wireshark, and then, set a value according to it.
 - 1.10  -> the activity ask for logging into a file the information sniffed (separated by tabulations).
 - 1.10  -> shown traffic to any port of the host, and only if the bytes received > 1.
 - 8.3   -> enabled.

@@ -84,7 +84,7 @@ static void process_packet_monitor(u_char *args, const struct pcap_pkthdr *heade
 	static int count = 1;
 	const struct sniffIp *ip;
 	const struct sniffTcp *tcp;
-	const char *payload;
+	const unsigned char *payload;
 	int sizeIp, sizeTcp, sizePayload;
 	count++;
 	ip=(struct sniffIp*)(packet+SIZE_ETHERNET);

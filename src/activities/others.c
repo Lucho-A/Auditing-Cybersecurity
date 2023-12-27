@@ -74,7 +74,9 @@ int others(int type){
 		if(chatGptIp==NULL) return RETURN_ERROR;
 		struct in_addr ip;
 		ip.s_addr=inet_addr(chatGptIp);
-		char *prevUserMsg="", *prevAssistantMsg="";
+		char *prevUserMsg=malloc(1), *prevAssistantMsg=malloc(1);
+		prevUserMsg[0]=0;
+		prevAssistantMsg[0]=0;
 		do{
 			cancelCurrentProcess=FALSE;
 			unsigned char *serverResp=NULL;
@@ -121,6 +123,7 @@ int others(int type){
 					"\"max_tokens\": %ld,"
 					"\"temperature\": %.2f"
 					"}\r\n\r\n",prevUserMsg,prevAssistantMsg,msgParsed,strtol(api[3],NULL,10),strtod(api[5],NULL));
+			if(prevUserMsg!=NULL) free(prevUserMsg);
 			prevUserMsg=malloc(strlen(msgParsed)+1);
 			snprintf(prevUserMsg,strlen(msgParsed)+1,"%s",msgParsed);
 			free(msgParsed);
@@ -155,6 +158,7 @@ int others(int type){
 				free(serverResp);
 				continue;
 			}
+			if(prevAssistantMsg!=NULL) free(prevAssistantMsg);
 			prevAssistantMsg=malloc(strlen(resp)+1);
 			memset(prevAssistantMsg,0,strlen(resp)+1);
 			for(int i=strlen("\"content\": \"");!(resp[i-1]!='\\' && resp[i]=='"');i++) prevAssistantMsg[i-strlen("\"content\": \"")]=resp[i];
@@ -187,8 +191,8 @@ int others(int type){
 			PRINT_RESET;
 			free(serverResp);
 		}while(TRUE);
-		free(prevUserMsg);
-		free(prevAssistantMsg);
+		if(prevUserMsg!=NULL) free(prevUserMsg);
+		if(prevAssistantMsg!=NULL) free(prevAssistantMsg);
 		free_char_double_pointer(&api, entries);
 		break;
 	case OTHERS_SYSTEM_CALL:

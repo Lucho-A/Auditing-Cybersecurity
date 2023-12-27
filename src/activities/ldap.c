@@ -10,6 +10,5 @@ int ldap(int type){
 	default:
 		break;
 	}
-	printf("\n\n");
 	return RETURN_OK;
 }

@@ -116,7 +116,7 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 		curl_global_cleanup();
 		return show_message("Error curl initialization",0,0, ERROR_MESSAGE, TRUE);
 	}
-	if(timeouts==BRUTE_FORCE_TIMEOUT) printf("\n\n  %d timeouts. Aborting\n\n", BRUTE_FORCE_TIMEOUT);
+	if(timeouts==BRUTE_FORCE_TIMEOUT) printf("\n\n  %d timeouts. Aborting", BRUTE_FORCE_TIMEOUT);
 	curl_easy_cleanup(mCurl);
 	curl_global_cleanup();
 	free(domain);

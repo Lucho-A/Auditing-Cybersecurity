@@ -15,9 +15,15 @@ int mysql_check_user(char *username, char *password){
 	//int opt=1;
 	//mysql_options(&mysqlConn, MYSQL_OPT_SSL_MODE, &opt);
 	if(!mysql_real_connect(&mysqlConn, target.strTargetIp, username,password, "", portUnderHacking, NULL, 0)){
-		if(mysql_errno(&mysqlConn)!=1045) return set_last_activity_error(MYSQL_CONNECTION_ERROR, mysql_error(&mysqlConn));
+		if(mysql_errno(&mysqlConn)!=1045){
+			set_last_activity_error(MYSQL_CONNECTION_ERROR, mysql_error(&mysqlConn));
+			mysql_close(&mysqlConn);
+			return RETURN_ERROR;
+		}
+		mysql_close(&mysqlConn);
 		return FALSE;
 	}
+	mysql_close(&mysqlConn);
 	return TRUE;
 }
 

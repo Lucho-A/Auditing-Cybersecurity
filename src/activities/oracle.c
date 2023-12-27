@@ -26,9 +26,13 @@ int oracle_check_user(char *username, char *password){
 	//printf("\n%d\n",versionInfo->releaseNum);
 	dpiConn *oracleConn=NULL;
 	if(dpiConn_create(gContext, username, strlen(username),password, strlen(password), dbURL, strlen(dbURL),
-			NULL, NULL, &oracleConn) == DPI_SUCCESS) return TRUE;
+			NULL, NULL, &oracleConn) == DPI_SUCCESS){
+		dpiConn_release(oracleConn);
+		dpiConn_close(oracleConn, DPI_MODE_CONN_CLOSE_DEFAULT, NULL, 0);
+		return TRUE;
+	}
 	dpiConn_release(oracleConn);
-	//dpiConn__free(oracleConn, NULL);
+	dpiConn_close(oracleConn, DPI_MODE_CONN_CLOSE_DEFAULT, NULL, 0);
 	if(gContext) dpiContext_getError(gContext, &gErrorInfo);
 	if(gErrorInfo.code==28000){
 		printf("\n\n%sExisting account (but blocked): %s",C_HRED,username);
