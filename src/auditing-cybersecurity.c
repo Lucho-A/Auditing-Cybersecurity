@@ -177,7 +177,7 @@ int main(int argc, char *argv[]){
 	if(!noIntro) show_intro_banner();
 	if(initMrAnderson()==RETURN_ERROR){
 		closeMrAnderson();
-		error_handling(TRUE);
+		error_handling(0,TRUE);
 	}
 	printf("\nChecking updates: ");
 	int latestVersion=check_updates();
@@ -196,13 +196,13 @@ int main(int argc, char *argv[]){
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
 	printf("%s\nStarting: %s\n",C_DEFAULT,strTimeStamp);
 	if(discover){
-		if(others(OTHERS_ARP_DISCOVER_D)==RETURN_ERROR) error_handling(TRUE);
+		if(others(OTHERS_ARP_DISCOVER_D)==RETURN_ERROR) error_handling(0,TRUE);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
-	if(scan_init(urlIp)==RETURN_ERROR) error_handling(TRUE);
-	if(scan_ports()==RETURN_ERROR) error_handling(TRUE);
-	if(hack_port_request()==RETURN_ERROR) error_handling(TRUE);
+	if(scan_init(urlIp)==RETURN_ERROR) error_handling(0,TRUE);
+	if(scan_ports()==RETURN_ERROR) error_handling(0,TRUE);
+	if(hack_port_request()==RETURN_ERROR) error_handling(0,TRUE);
 	closeMrAnderson();
 	exit(EXIT_SUCCESS);
 }

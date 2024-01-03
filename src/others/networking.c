@@ -31,12 +31,13 @@ static void get_local_ip(char * buffer){
 	serv.sin_family=AF_INET;
 	serv.sin_addr.s_addr=inet_addr(kGoogleDnsIp);
 	serv.sin_port=htons(dns_port);
-	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0) error_handling(TRUE);
+	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0)
+		error_handling(SOCKET_CONNECTION_ERROR,TRUE);
 	struct sockaddr_in name;
 	socklen_t namelen=sizeof(name);
-	if(getsockname(socketConn,(struct sockaddr*) &name, &namelen)<0) error_handling(TRUE);
+	if(getsockname(socketConn,(struct sockaddr*) &name, &namelen)<0) error_handling(GETSOCKNAME_ERROR,TRUE);
 	const char *p=inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
-	if(p==NULL) error_handling(TRUE);
+	if(p==NULL) error_handling(INET_NTOP_ERROR,TRUE);
 	close(socketConn);
 }
 
@@ -128,32 +129,48 @@ void show_opened_ports(){
 	printf("%s",C_DEFAULT);
 }
 
-int create_socket_conn(int *socketConn){
+int create_socket_conn(int *sk){
 	struct timeval timeout;
 	timeout.tv_sec=SOCKET_CONNECT_TIMEOUT_S;
 	timeout.tv_usec=0;
-	if((*socketConn=socket(AF_INET,SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
-	setsockopt(*socketConn, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-	setsockopt(*socketConn, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
-	setsockopt(*socketConn, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
+	if((*sk=socket(AF_INET,SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
+	setsockopt(*sk, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
+	setsockopt(*sk, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
+	setsockopt(*sk, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family=AF_INET;
 	serverAddress.sin_port=htons(portUnderHacking);
 	serverAddress.sin_addr.s_addr=target.targetIp.s_addr;
-	if(connect(*socketConn,(struct sockaddr *)&serverAddress,sizeof(serverAddress))<0) return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
+	int flags = fcntl(*sk, F_GETFL, 0);
+	fcntl(*sk, F_SETFL, flags | O_NONBLOCK);
+	int resp=0;
+	resp=connect(*sk,(struct sockaddr *)&serverAddress,sizeof(serverAddress));
+	if(resp==0){
+		fcntl(*sk, F_SETFL, flags);
+		return RETURN_OK;
+	}
+	if(errno!=EINPROGRESS){
+		fcntl(*sk,F_SETFL,flags);
+		return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
+	}
+	fd_set writefds;
+	FD_ZERO(&writefds);
+	FD_SET(*sk,&writefds);
+	resp=select(*sk+1,NULL,&writefds,NULL,&timeout);
+	fcntl(*sk,F_SETFL,flags);
+	if (resp<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
 	return RETURN_OK;
 }
 
-int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int connType, char *msg,
-		unsigned char **serverResp, long int maxSizeResponse,
-		long int extraTimeOut, long int msgSize){
+int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type, char *msg,
+		long int msgSize, unsigned char **serverResp, long int maxSizeResponse, long int extraTimeOut){
 	*serverResp=malloc(maxSizeResponse);
 	memset(*serverResp,0,maxSizeResponse);
 	struct pollfd pfds[1];
 	int numEvents=0,pollinHappened=0,bytesSent=0,contSendingAttemps=0;
 	SSL *sslConn=NULL;
 	do{
-		if(connType==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
+		if(type==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
 		struct sockaddr_in serverAddress;
 		serverAddress.sin_family=AF_INET;
 		serverAddress.sin_port=htons(port);
@@ -167,8 +184,6 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 		int valResp=connect(*sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
 		if(valResp<0 && errno!=EINPROGRESS) return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
 		struct timeval tv;
-		tv.tv_sec=0;
-		tv.tv_usec=0;
 		fd_set rFdset, wFdset;
 		FD_ZERO(&rFdset);
 		FD_SET(*sk, &rFdset);
@@ -177,7 +192,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 		tv.tv_usec=0;
 		SSL_CTX *sslCtx=NULL;
 		if(select(*sk+1,&rFdset,&wFdset,NULL,&tv)<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
-		if(connType== SSL_CONN_TYPE){
+		if(type==SSL_CONN_TYPE){
 			fcntl(*sk, F_SETFL, socketFlags);
 			if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){
 				SSL_CTX_free(sslCtx);
@@ -194,7 +209,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 				return set_last_activity_error(SSL_FD_ERROR, "");
 			}
 			SSL_set_connect_state(sslConn);
-			(hostname==NULL)?(SSL_set_tlsext_host_name(sslConn, target.strHostname)):(SSL_set_tlsext_host_name(sslConn, hostname));
+			SSL_set_tlsext_host_name(sslConn, url);
 			if(!SSL_connect(sslConn)){
 				clean_ssl(sslConn);
 				SSL_CTX_free(sslCtx);
@@ -203,7 +218,6 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 			SSL_CTX_free(sslCtx);
 		}
 		fcntl(*sk, F_SETFL, O_NONBLOCK);
-		if(connType==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
 		pfds[0].fd=*sk;
 		pfds[0].events=POLLOUT;
 		numEvents=poll(pfds,1,SOCKET_SEND_TIMEOUT_MS);
@@ -218,7 +232,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 		}
 		pollinHappened=pfds[0].revents & POLLOUT;
 		if(pollinHappened){
-			switch(connType){
+			switch(type){
 			case SOCKET_CONN_TYPE:
 			case SSH_CONN_TYPE:
 				bytesSent=send(*sk, msg, msgSize, 0);
@@ -262,7 +276,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *hostname, int port, int
 		if(numEvents==0) break;
 		pollinHappened=pfds[0].revents & POLLIN;
 		if (pollinHappened){
-			switch(connType){
+			switch(type){
 			case SOCKET_CONN_TYPE:
 			case SSH_CONN_TYPE:
 				bytesReceived=recv(*sk, buffer, BUFFER_SIZE_16K,0);

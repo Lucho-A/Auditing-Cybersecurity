@@ -45,7 +45,7 @@ int any(int type){
 			ssize_t c=format_strings_from_files(queries[i], msg);
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,
 					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
-					msg,&serverResp,BUFFER_SIZE_128K,0,c);
+					msg,c,&serverResp,BUFFER_SIZE_128K,0);
 			if(bytesRecv<=0){
 				free(serverResp);
 				continue;
@@ -138,7 +138,7 @@ int any(int type){
 					"%u0000%u00=a HTTP/1.0",'\r','\n','\r','\n');
 			int sk=0;
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp,NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
-					,msg,&serverResp,BUFFER_SIZE_128K,0, strlen(msg));
+					,msg, strlen(msg),&serverResp,BUFFER_SIZE_128K,0);
 			close(sk);
 			if(bytesRecv==RETURN_ERROR) show_message("Error creating socket. Maybe the port is blocked. Wait, and try again in a while.",0,0, ERROR_MESSAGE,1);
 			show_message((char *) serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
@@ -312,8 +312,8 @@ int any(int type){
 						"Accept: */*\r\n\r\n",msg,host);
 				free(msg);
 				int bytesRecv=0, sk=0;
-				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg, &serverResp, BUFFER_SIZE_16K,30000,
-						strlen(httpMsg)))<0){
+				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg,strlen(httpMsg),
+						&serverResp,BUFFER_SIZE_16K,30000))<0){
 					return RETURN_ERROR;
 				}
 				close(sk);

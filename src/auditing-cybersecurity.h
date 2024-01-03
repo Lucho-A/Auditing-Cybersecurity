@@ -30,7 +30,7 @@
 #define BRUTE_FORCE_DELAY_US 		100000
 #define BRUTE_FORCE_TIMEOUT 		3
 #define CURL_TIMEOUT				5L
-#define SOCKET_CONNECT_TIMEOUT_S	2
+#define SOCKET_CONNECT_TIMEOUT_S	5
 #define SOCKET_RECV_TIMEOUT_MS		2000
 #define SOCKET_SEND_TIMEOUT_MS		2000
 #define SSH_TIMEOUT_MS				5000
@@ -212,24 +212,24 @@ extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
 extern char *resourcesLocation;
 
-int scan_init(char *urlIp);
+int scan_init(char *);
 int scan_ports();
 int hack_port_request();
 
-int error_handling(Bool exitProgram);
-int set_last_activity_error(int errorType, char const *errorAditionalDescription);
-int open_file(char *pathToResource, char *filename, FILE **f);
-int open_file_str(char *pathToResource, char *filename, FILE **f, char ***s);
-int show_message(char *msg, int msgLenght, int errNum, int level, Bool setParagraph);
-char * get_readline(char *prompt, Bool addHistory);
-int format_strings_from_files(char *from, char *dest);
-void show_intro(char *programName, char *version);
+int error_handling(int, Bool);
+int set_last_activity_error(int, char const *);
+int open_file(char *, char *, FILE **);
+int open_file_str(char *, char *, FILE **, char ***);
+int show_message(char *, int , int , int , Bool);
+char * get_readline(char *, Bool );
+int format_strings_from_files(char *, char *);
+void show_intro(char *, char *);
 void show_intro_banner();
 void show_options();
-void show_help(char *msgError);
-int system_call(char *cmdArg);
-int request_quantity_threads(int threadsDefault);
-int read_usernames_and_password_files(struct BfaInfo *bfaInfo, char *usernamesFilename, char * passwordsFilename);
-void free_char_double_pointer(char ***p, size_t size);
+void show_help(char *);
+int system_call(char *);
+int request_quantity_threads(int);
+int read_usernames_and_password_files(struct BfaInfo *, char *, char *);
+void free_char_double_pointer(char ***, size_t);
 
 #endif /* AUDITING_CYBERSECURITY_H_ */

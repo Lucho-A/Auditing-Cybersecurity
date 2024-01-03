@@ -135,8 +135,9 @@ static int smb_banner_grabbing(){
 			0x00,0x02,'C','I','F','S', //6
 			0x00};
 	payloadLen=185;
-	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
-			payloadSmbv1, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
+	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, NULL, portUnderHacking,
+			target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			payloadSmbv1, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 	if(bytesReceived<=0){
 		close(smbConn);
 		free(serverResp);
@@ -165,10 +166,11 @@ static int smb_banner_grabbing(){
 				0x77,0x73,0x20,0x32,0x30,0x30,0x30,0x20,0x35,0x2e,0x30,0x00};
 		payloadLen=147;
 		free(serverResp);
-		bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
-				payload, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
+		bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
+				target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+				payload, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 		if(bytesReceived==RETURN_ERROR){
-			error_handling(FALSE);
+			error_handling(0,FALSE);
 		}else{
 			int pos=9, lenght=0;
 			unsigned char buffer[4];
@@ -230,8 +232,9 @@ static int smb_banner_grabbing(){
 			0x00};
 	payloadLen=70;
 	free(serverResp);
-	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
-			payloadSmbv2, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
+	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
+			target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			payloadSmbv2, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 	if(bytesReceived>0) {
 		// body start at 68
 		char preferredDialect[BUFFER_SIZE_256B]="";
@@ -351,8 +354,6 @@ int smb(int type){
 		//(smb_anonymous_login())?(printf("  %sAnonymous login:%s success %s\n",C_HWHITE, C_HRED,C_DEFAULT)):(printf("  %sAnonymous login:%s failed %s\n",C_HWHITE,C_HGREEN,C_DEFAULT));
 		PRINT_RESET;
 		smb_banner_grabbing();
-		//snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use scanner/smb/smb_version;set RHOSTS %s; set RPORT %d; run; exit'",target.strTargetIp,portUnderHacking);
-		//system_call(cmd);
 		break;
 	case SMB_ETERNAL_BLUE:
 		snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use windows/smb/ms17_010_eternalblue;set RHOSTS %s; set RPORT %d; run; exit'", target.strTargetIp,portUnderHacking);

@@ -1,8 +1,9 @@
-### auditing-cybersecurity-v1.2.7:Under-Dev./Testing
+### auditing-cybersecurity-v1.2.7:"Mar de las Pampas" hhahah (such amazing place... counting the days for returning)
 
-SHA2-256(auditing-cybersecurity_1.2_7.deb)=
+SHA2-256(auditing-cybersecurity_1.2_7.deb)=22e647522d8db007d11df72e3f2551a05b4a59924b16292751c90e61255f102f
+SHA2-256(auditing-cybersecurity_1.2_7-amd64.tar.gz)=ca484435f5d54dd006fbe8233e15d905911bf3f75b18625b51d5ee83b3de37cd
 
-Updated: 20XX-XX-XX
+Updated: 2024-01-03
 Criticality: high
 
 BUG_FIXED:
@@ -29,7 +30,7 @@ OTHERS:
 - 1.11  -> decreased buffersize & increased timeouting to 30 secs.
 - 12.1  -> because installing oracle dependencies can be tricky, I included the Oracle source file for compiling and integrating jointly with the program.
 - supporting hexadecimal string bug fixed
-- command arguments changed.
+- command arguments changed (see '-h').
 - code alignment, minor changes, code optimized & code cleaned-up.
 
 ------------------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../auditing-cybersecurity.h"
 
 int set_last_activity_error(int errorType, char const *errorAditionalDescription){
@@ -9,32 +10,33 @@ int set_last_activity_error(int errorType, char const *errorAditionalDescription
 	return RETURN_ERROR;
 }
 
-int error_handling(Bool exitProgram){
+int error_handling(int errorType, Bool exitProgram){
 	char errorMsg[BUFFER_SIZE_1K]="", errorDescription[BUFFER_SIZE_256B]="";
+	if(errorType>0) lastActivityError.errorType=errorType;
 	switch(lastActivityError.errorType){
 	case RETURN_OK:
 		return RETURN_OK;
 	case SOCKET_CREATION_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error creating socket");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s","Error creating socket", strerror(errno));
 		break;
 	case SOCKET_CONNECTION_TIMEOUT_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Connection error (timeouting)");
 		break;
 	case SOCKET_CONNECTION_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Connection Error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Connection Error", strerror(errno));
 		break;
 	case SOCKET_CONNECTION_CLOSED_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Connection Closed");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Connection Closed", strerror(errno));
 		break;
 	case SOCKET_SETOPT_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error setting socket options");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error setting socket options",strerror(errno));
 		break;
 	case SENDING_PACKETS_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error sending packets");
 		break;
 	case MALLOC_ERROR:
 	case REALLOC_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Malloc/Realloc error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Malloc/Realloc error", strerror(errno));
 		break;
 	case RECEIVING_PACKETS_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error receiving packets");
@@ -61,13 +63,13 @@ int error_handling(Bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Unknown connection");
 		break;
 	case POLLIN_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Pollin error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Pollin error", strerror(errno));
 		break;
 	case GETSOCKNAME_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Getting sockname error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Getting sockname error", strerror(errno));
 		break;
 	case INET_NTOP_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "INET_ntop error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "INET_ntop error", strerror(errno));
 		break;
 	case HOSTNAME_TO_IP_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Unable to resolve hostname");
@@ -76,10 +78,10 @@ int error_handling(Bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error opening port file");
 		break;
 	case OPENING_FILE_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error opening file");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error opening file", strerror(errno));
 		break;
 	case THREAD_CREATION_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error creating thread");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error creating thread", strerror(errno));
 		break;
 	case SSH_INIT_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error init SSH session");
@@ -103,13 +105,7 @@ int error_handling(Bool exitProgram){
 		break;
 	}
 	snprintf(errorMsg, sizeof(errorMsg), "%s. %s", errorDescription, lastActivityError.errorAditionalDescription);
-	show_message(errorMsg,0, errno, ERROR_MESSAGE, TRUE);
-	/*
-	snprintf(errorMsg,sizeof(errorMsg),"Errors occurred during last activity execution. Possible reasons:\n"
-			"    - High number of threads (service becoming not available)\n"
-			"    - Server reseting connections (IP block/blocking for failed attempts)");
-	show_message(errorMsg, 0, ERROR_MESSAGE, TRUE);
-	 */
+	show_message(errorMsg,0, 0, ERROR_MESSAGE, TRUE);
 	if(exitProgram){
 		PRINT_RESET;
 		PRINT_RESET;

@@ -1,6 +1,8 @@
 
 #include <libssh2.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 #include "../auditing-cybersecurity.h"
 #include "activities.h"
 #include "../others/networking.h"

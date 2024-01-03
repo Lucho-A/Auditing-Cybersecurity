@@ -65,10 +65,10 @@ int init_networking();
 void ip_to_hostname(char *, char *);
 char* hostname_to_ip(char *);
 unsigned short csum(unsigned short *,int);
-int send_msg_to_server(int *, struct in_addr , char *, int , int , char *, unsigned char **, long int, long int, long int);
+int create_socket_conn(int *);
+int send_msg_to_server(int *, struct in_addr, char *, int, int, char *, long int, unsigned char **, long int,long int);
 int get_port_index(int);
 void show_opened_ports();
-int create_socket_conn(int *socketConn);
 int update();
 int check_updates();
 

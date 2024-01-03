@@ -10,13 +10,11 @@
 
 static int check_conn_type(){
 	int sk=0;
-	if((sk=socket(AF_INET,SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR,"");
-	setsockopt(sk, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port=htons(portUnderHacking);
 	serverAddress.sin_addr.s_addr= target.targetIp.s_addr;
-	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0) return set_last_activity_error(SOCKET_CONNECTION_ERROR,"");
+	if(create_socket_conn(&sk)!=RETURN_OK) return RETURN_ERROR;
 	// check SSH
 	LIBSSH2_SESSION *sshSession=NULL;
 	if((sshSession = libssh2_session_init())==NULL) return set_last_activity_error(SSH_HANDSHAKE_ERROR,"");
@@ -154,7 +152,7 @@ static int hack_port() {
 			cancelCurrentProcess=TRUE;
 			exit(EXIT_SUCCESS);
 		}
-		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(FALSE);
+		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,FALSE);
 		free(c);
 		PRINT_RESET;
 	}
@@ -171,14 +169,20 @@ int hack_port_request(){
 				return RETURN_OK;
 			}
 			for(int i=0;i<target.cantPortsToScan;i++){
-				if(target.portsToScan[i].portNumber==strtol(c,NULL,10) && target.portsToScan[i].portStatus==PORT_OPENED) selectedPort=strtol(c,NULL,10);
+				if(target.portsToScan[i].portNumber==strtol(c,NULL,10) && target.portsToScan[i].portStatus==PORT_OPENED)
+					selectedPort=strtol(c,NULL,10);
 			}
 			free(c);
 			if(selectedPort==0) show_message("\nInsert an opened port\n\n", 0, 0, ERROR_MESSAGE,FALSE);
 		}while(selectedPort==0);
 		portUnderHacking=selectedPort;
 		if(target.portsToScan[get_port_index(portUnderHacking)].connectionType==UNKNOWN_CONN_TYPE){
-			target.portsToScan[get_port_index(portUnderHacking)].connectionType=check_conn_type();
+			int resp=0;
+			if((resp=check_conn_type())==RETURN_ERROR){
+				error_handling(0,FALSE);
+				continue;
+			}
+			target.portsToScan[get_port_index(portUnderHacking)].connectionType=resp;
 		}
 		hack_port();
 	}while(TRUE);

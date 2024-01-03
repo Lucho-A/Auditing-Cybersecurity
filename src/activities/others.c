@@ -51,11 +51,11 @@ int others(int type){
 			int sk=0;
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strHostname,portUnderHacking,
 					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
-					msg, &serverResp,BUFFER_SIZE_128K, 5000, c);
+					msg, c, &serverResp,BUFFER_SIZE_128K, 5000);
 			free(msg);
 			close(sk);
 			if(bytesRecv<0){
-				error_handling(FALSE);
+				error_handling(0,FALSE);
 				continue;
 			}
 			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0) show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
@@ -140,8 +140,8 @@ int others(int type){
 			free(payload);
 			int bytesRecv=0;
 			int sk=0;
-			if((bytesRecv=send_msg_to_server(&sk,ip,"api.openai.com", 443, SSL_CONN_TYPE, httpMsg, &serverResp,
-					BUFFER_SIZE_8K,60000,strlen(httpMsg)))<0) return RETURN_ERROR;
+			if((bytesRecv=send_msg_to_server(&sk,ip,"api.openai.com", 443, SSL_CONN_TYPE, httpMsg,
+					strlen(httpMsg), &serverResp,BUFFER_SIZE_8K,60000))<0) return RETURN_ERROR;
 			close(sk);
 			free(httpMsg);
 			printf("%s\n  ",C_HWHITE);
