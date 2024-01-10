@@ -277,7 +277,10 @@ int http(int type){
 		}
 		return get_cert_info();
 	case HTTP_METHODS_ALLOWED_GRABBING:
-		snprintf(msg,sizeof(msg),"OPTIONS / HTTP/1.1\r\n\r\n");
+		snprintf(msg,sizeof(msg),"OPTIONS * HTTP/1.1\r\n"
+				"Host: %s\r\n"
+				"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
+				"Accept: */*\r\n\r\n",target.strTargetURL);
 		bytesRecv=send_http_msg_to_server(target.targetIp, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
 				,msg, serverResp, BUFFER_SIZE_1K);
 		if(bytesRecv>0 && (strstr(serverResp," 200 ")!=NULL || strstr(serverResp," 204 ")!=NULL)){

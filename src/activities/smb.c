@@ -48,7 +48,7 @@ static int validate_smb_account(SMBCCTX *ctx, char *smbURL){
 	}
     printf("\n");
 	smbc_getFunctionClose(ctx)(ctx, dir);
-	*/
+	 */
 	return TRUE;
 }
 
@@ -99,7 +99,7 @@ static int smb_anonymous_login(){
 	delete_smbctx(ctx);
 	return FALSE;
 }
-*/
+ */
 
 static int smb_banner_grabbing(){
 	int smbConn=0, bytesReceived=0;
@@ -138,80 +138,80 @@ static int smb_banner_grabbing(){
 	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, NULL, portUnderHacking,
 			target.portsToScan[get_port_index(portUnderHacking)].connectionType,
 			payloadSmbv1, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
-	if(bytesReceived<=0){
-		close(smbConn);
-		free(serverResp);
-		return RETURN_ERROR;
-	}
-	int preferedDialectIndex=serverResp[37]+serverResp[38];
-	if(bytesReceived>0 && preferedDialectIndex!=510){
-		printf("%s  SMBv1:%s supported %s\n", C_HWHITE,C_HRED,C_DEFAULT);
-		printf("\n    - Preferred dialect: %s%s%s\n",C_HWHITE, smbv1Dialects[preferedDialectIndex], C_DEFAULT);
-		printf("\n    - Security Mode: %s0x%02X%s (0x01: User Level access, 0x02: supports challenge/response authentication,"
-				" 0x04: supports SMB security signatures, 0x08: server requires security signatures)\n",C_HWHITE, serverResp[39],
-				C_DEFAULT);
-		//printf("\n    - Server GUID: %s",C_HWHITE);
-		//for(int i=73;i<73+16;i++) (isprint(serverResp[i]))?(printf("%c",serverResp[i])):(printf("·"));
-		//PRINT_RESET;
-		char payload[]={
-				0x00,0x00,0x00,0x8f,0xff,0x53,0x4d,0x42,0x73,0x00,0x00,0x00,0x00,0x18,0x01,
-				0x28,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-				0x24,0x31,0x00,0x00,0xc0,0xa9,0x0c,0xff,0x00,0x00,0x00,0xdf,0xff,0x02,0x00,
-				0x01,0x00,0x8a,0x16,0x00,0x00,0x31,0x00,0x00,0x00,0x00,0x00,0xd4,0x00,0x00,
-				0x80,0x54,0x00,0x4e,0x54,0x4c,0x4d,0x53,0x53,0x50,0x00,0x01,0x00,0x00,0x00,
-				0x05,0x02,0x88,0xa2,0x01,0x00,0x01,0x00,0x20,0x00,0x00,0x00,0x10,0x00,0x10,
-				0x00,0x21,0x00,0x00,0x00,0x2e,0x52,0x67,0x4f,0x6d,0x42,0x43,0x36,0x57,0x64,
-				0x4f,0x32,0x57,0x6f,0x44,0x72,0x49,0x57,0x69,0x6e,0x64,0x6f,0x77,0x73,0x20,
-				0x32,0x30,0x30,0x30,0x20,0x32,0x31,0x39,0x35,0x00,0x57,0x69,0x6e,0x64,0x6f,
-				0x77,0x73,0x20,0x32,0x30,0x30,0x30,0x20,0x35,0x2e,0x30,0x00};
-		payloadLen=147;
-		free(serverResp);
-		bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
-				target.portsToScan[get_port_index(portUnderHacking)].connectionType,
-				payload, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
-		if(bytesReceived==RETURN_ERROR){
-			error_handling(0,FALSE);
-		}else{
-			int pos=9, lenght=0;
-			unsigned char buffer[4];
-			snprintf((char*) buffer,4,"%x%x",serverResp[36+8],serverResp[36+7]);
-			int sbStart=36+7+1;
-			int sbEnd=sbStart+strtoul((char*) buffer,NULL,16);
-			if(strtoul((char*) buffer,NULL,16)!=0){
-				pos=sbStart+57;
-				printf("\n    - Target Name: %s",C_HWHITE);
-				while(serverResp[++pos]!=0x02) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+	//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, TRUE);
+	if(bytesReceived>0 && serverResp[5]=='S' && serverResp[6]=='M' && serverResp[7]=='B'){
+		int preferedDialectIndex=serverResp[37]+serverResp[38];
+		if(bytesReceived>0 && preferedDialectIndex!=510){
+			printf("%s  SMBv1:%s supported %s\n", C_HWHITE,C_HRED,C_DEFAULT);
+			printf("\n    - Preferred dialect: %s%s%s\n",C_HWHITE, smbv1Dialects[preferedDialectIndex], C_DEFAULT);
+			printf("\n    - Security Mode: %s0x%02X%s (0x01: User Level access, 0x02: supports challenge/response authentication,"
+					" 0x04: supports SMB security signatures, 0x08: server requires security signatures)\n",C_HWHITE, serverResp[39],
+					C_DEFAULT);
+			//printf("\n    - Server GUID: %s",C_HWHITE);
+			//for(int i=73;i<73+16;i++) (isprint(serverResp[i]))?(printf("%c",serverResp[i])):(printf("·"));
+			//PRINT_RESET;
+			char payload[]={
+					0x00,0x00,0x00,0x8f,0xff,0x53,0x4d,0x42,0x73,0x00,0x00,0x00,0x00,0x18,0x01,
+					0x28,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+					0x24,0x31,0x00,0x00,0xc0,0xa9,0x0c,0xff,0x00,0x00,0x00,0xdf,0xff,0x02,0x00,
+					0x01,0x00,0x8a,0x16,0x00,0x00,0x31,0x00,0x00,0x00,0x00,0x00,0xd4,0x00,0x00,
+					0x80,0x54,0x00,0x4e,0x54,0x4c,0x4d,0x53,0x53,0x50,0x00,0x01,0x00,0x00,0x00,
+					0x05,0x02,0x88,0xa2,0x01,0x00,0x01,0x00,0x20,0x00,0x00,0x00,0x10,0x00,0x10,
+					0x00,0x21,0x00,0x00,0x00,0x2e,0x52,0x67,0x4f,0x6d,0x42,0x43,0x36,0x57,0x64,
+					0x4f,0x32,0x57,0x6f,0x44,0x72,0x49,0x57,0x69,0x6e,0x64,0x6f,0x77,0x73,0x20,
+					0x32,0x30,0x30,0x30,0x20,0x32,0x31,0x39,0x35,0x00,0x57,0x69,0x6e,0x64,0x6f,
+					0x77,0x73,0x20,0x32,0x30,0x30,0x30,0x20,0x35,0x2e,0x30,0x00};
+			payloadLen=147;
+			free(serverResp);
+			bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
+					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					payload, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
+			if(bytesReceived==RETURN_ERROR){
+				error_handling(0,FALSE);
+			}else{
+				int pos=9, lenght=0;
+				unsigned char buffer[4];
+				snprintf((char*) buffer,4,"%x%x",serverResp[36+8],serverResp[36+7]);
+				int sbStart=36+7+1;
+				int sbEnd=sbStart+strtoul((char*) buffer,NULL,16);
+				if(strtoul((char*) buffer,NULL,16)!=0){
+					pos=sbStart+57;
+					printf("\n    - Target Name: %s",C_HWHITE);
+					while(serverResp[++pos]!=0x02) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+					PRINT_RESET;
+					printf("\n    - NetBIOS Domain Name/Computer Name: %s",C_HWHITE);
+					pos+=4;
+					lenght=serverResp[pos-2];
+					for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+					printf("/");
+					pos+=4;
+					lenght=serverResp[pos-2];
+					for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+					PRINT_RESET;
+					printf("\n    - DNS Domain Name/Computer Name: %s",C_HWHITE);
+					pos+=4;
+					lenght=serverResp[pos-2];
+					for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+					printf("/");
+					pos+=4;
+					lenght=serverResp[pos-2];
+					for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+					PRINT_RESET;
+				}
+				int os=sbEnd+3;
+				pos=os-1;
+				printf("\n    - Native OS: %s",C_HWHITE);
+				while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
 				PRINT_RESET;
-				printf("\n    - NetBIOS Domain Name/Computer Name: %s",C_HWHITE);
-				pos+=4;
-				lenght=serverResp[pos-2];
-				for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
-				printf("/");
-				pos+=4;
-				lenght=serverResp[pos-2];
-				for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+				printf("\n    - Native LAN Manager: %s",C_HWHITE);
+				while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
 				PRINT_RESET;
-				printf("\n    - DNS Domain Name/Computer Name: %s",C_HWHITE);
-				pos+=4;
-				lenght=serverResp[pos-2];
-				for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
-				printf("/");
-				pos+=4;
-				lenght=serverResp[pos-2];
-				for(int i=0;i<lenght;i++,pos++) if(serverResp[pos]!=0) printf("%c",serverResp[pos]);
+				printf("\n    - Primary Domain: %s",C_HWHITE);
+				while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
 				PRINT_RESET;
 			}
-			int os=sbEnd+3;
-			pos=os-1;
-			printf("\n    - Native OS: %s",C_HWHITE);
-			while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
-			PRINT_RESET;
-			printf("\n    - Native LAN Manager: %s",C_HWHITE);
-			while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
-			PRINT_RESET;
-			printf("\n    - Primary Domain: %s",C_HWHITE);
-			while(serverResp[++pos]!=0x00) printf("%c",serverResp[pos]);
-			PRINT_RESET;
+		}else{
+			printf("%s  SMBv1: %snot supported%s\n", C_HWHITE,C_HGREEN,C_DEFAULT);
 		}
 	}else{
 		printf("%s  SMBv1: %snot supported%s\n", C_HWHITE,C_HGREEN,C_DEFAULT);
@@ -275,14 +275,14 @@ static int smb_banner_grabbing(){
 					0x01,0x00,0x20,0x00,0x00,0x00,0x0b,0x00,0x0b,0x00,0x21,0x00,0x00,0x00,0x2e,0x57,
 					0x4f,0x52,0x4b,0x53,0x54,0x41,0x54,0x49,0x4f,0x4e};
 			payloadLen=170;
-			*/
+			 */
 			//free(serverResp);
 			//memset(serverResp,0,sizeof(serverResp));
 			//printf("\n%02X %02X %02X %02X\n",serverResp[cont],serverResp[cont-1],serverResp[cont-2],serverResp[cont-3]);
 			//printf("\n%ld\n",strtoul(strL,NULL,16));
 			//bytesReceived=send_payloaded_msg_to_server(&smbConn, payload, serverResp, payloadLen);
 			//bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
-					//payload, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
+			//payload, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
 			//if(bytesReceived==RETURN_ERROR) error_handling(FALSE);
 			//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, TRUE);
 		}
@@ -343,7 +343,7 @@ static int smb_banner_grabbing(){
 		printf("\n%s  SMBv3: %snot supported%s\n", C_HWHITE,C_HRED,C_DEFAULT);
 	}
 	close(smbConn);
-	*/
+	 */
 	return RETURN_OK;
 }
 

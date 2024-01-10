@@ -183,13 +183,18 @@ int main(int argc, char *argv[]){
 	int latestVersion=check_updates();
 	if(latestVersion==RETURN_ERROR){
 		printf("%s%s.\n",C_HRED,strerror(errno));
+		PRINT_RESET;
+		printf("Internet connection: %sno",C_HRED);
 	}else{
 		if(latestVersion){
 			printf("%sup-to-date\n",C_HGREEN);
 		}else{
-			printf("%sout-of-date.%s You can execute 'auditing-cybersecurity --update' or download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest\n",C_HRED,C_DEFAULT);
+			printf("%sout-of-date. You can execute 'auditing-cybersecurity --update' or download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest\n",C_HRED);
 		}
+		PRINT_RESET;
+		printf("Internet connection: %sOK",C_HGREEN);
 	}
+	PRINT_RESET;
 	time_t timestamp = time(NULL);
 	struct tm tm = *localtime(&timestamp);
 	char strTimeStamp[50]="";
