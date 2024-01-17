@@ -104,7 +104,7 @@ static void process_packets(unsigned char* buffer, int size){
 static int reading_packets(){
 	struct timeval timeout;
 	timeout.tv_sec=1;
-	timeout.tv_usec=0;
+	timeout.tv_usec=sendPacketPerPortDelayUs;
 	int sockRaw, dataSize;
 	socklen_t saddrSize;
 	struct sockaddr saddr;
@@ -198,6 +198,7 @@ int scan_ports(){
 				tcph->check=csum((unsigned short*) &psh,sizeof(struct PseudoHeader));
 				if(sendto(socketConn,datagram,sizeof(struct iphdr)+sizeof(struct tcphdr),0,(struct sockaddr *) &dest,sizeof (dest))<0) return set_last_activity_error(SENDING_PACKETS_ERROR,"");
 			}
+			usleep(sendPacketPerPortDelayUs);
 		}
 		usleep(SEND_PACKET_DELAY_US);
 		(contFilteredPortsChange==contFilteredPorts)?(endSendPackets++):(endSendPackets=0);

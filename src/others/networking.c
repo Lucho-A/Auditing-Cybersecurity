@@ -184,14 +184,13 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 		int valResp=connect(*sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
 		if(valResp<0 && errno!=EINPROGRESS) return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
 		struct timeval tv;
-		fd_set rFdset, wFdset;
-		FD_ZERO(&rFdset);
-		FD_SET(*sk, &rFdset);
-		wFdset=rFdset;
+		fd_set writefds;
+		FD_ZERO(&writefds);
+		FD_SET(*sk,&writefds);
 		tv.tv_sec=SOCKET_CONNECT_TIMEOUT_S;
 		tv.tv_usec=0;
 		SSL_CTX *sslCtx=NULL;
-		if(select(*sk+1,&rFdset,&wFdset,NULL,&tv)<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
+		if(select(*sk+1,NULL,&writefds,NULL,&tv)<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
 		if(type==SSL_CONN_TYPE){
 			fcntl(*sk, F_SETFL, socketFlags);
 			if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){

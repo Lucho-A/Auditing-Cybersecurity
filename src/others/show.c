@@ -34,10 +34,12 @@ void show_help(char *msgError){
 	printf("-P | --ports [int]: number of ports to scan (1-5000).\n");
 	printf("-p | --port [int]: scan just one port.\n");
 	printf("-a | --all: scan all (65535) ports.\n");
+	printf("-s | --scan-delay [long int]: delay in us between sending packets. Default 0.\n");
 	printf("-n | --no-intro: no 'Waking Up' intro.\n\n");
 	printf("Examples: \n\n");
 	printf("$ auditing-cybersecurity --discover --no-intro\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 500\n");
+	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 100 --scan-delay 100000\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 30 -n -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io --all --no-intro\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -p 2221 -n\n");

@@ -30,6 +30,7 @@ Bool cancelCurrentProcess=FALSE;
 Bool canceledBySignal=FALSE;
 pcap_t *arpHandle=NULL;
 char *resourcesLocation=NULL;
+long int sendPacketPerPortDelayUs=SEND_PACKET_PER_PORT_DELAY_US;
 
 static void signal_handler(int signalType){
 	printf("%s\n\n",C_DEFAULT);
@@ -164,6 +165,19 @@ int main(int argc, char *argv[]){
 			i++;
 			continue;
 		}
+		if(strcmp(argv[i],"-s")==0 || strcmp(argv[i],"--scan-delay")==0){
+			if(i==argc-1){
+				show_help("\nScan delay value not specified\n");
+				exit(EXIT_SUCCESS);
+			}
+			if(strtol(argv[i+1],NULL,10)>0 && strtol(argv[i+1],NULL,10)>0){
+				sendPacketPerPortDelayUs=strtol(argv[i+1],NULL,10);
+				i++;
+				continue;
+			}
+			show_help("\nScan delay value not valid (0-INF)\n");
+			exit(EXIT_SUCCESS);
+		}
 		snprintf(msgError,sizeof(msgError),"\nArgument %s not recognized\n",argv[i]);
 		show_help(msgError);
 		closeMrAnderson();
@@ -182,7 +196,7 @@ int main(int argc, char *argv[]){
 	printf("\nChecking updates: ");
 	int latestVersion=check_updates();
 	if(latestVersion==RETURN_ERROR){
-		printf("%s%s.\n",C_HRED,strerror(errno));
+		printf("%s%s\n",C_HRED,"connection error");
 		PRINT_RESET;
 		printf("Internet connection: %sno",C_HRED);
 	}else{

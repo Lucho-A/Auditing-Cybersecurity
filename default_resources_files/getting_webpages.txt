@@ -1,1 +1,4 @@
-GET /%s HTTP/1.1\r\nHost: %s\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\nAccept: */*\r\nConnection: close\r\n\r\n
+GET /%s HTTP/1.0\r\nHost: %s\r\n\r\n
+GET /%s HTTP/1.1\r\nHost: %s\r\n\r\n
+GET /%s HTTP/1.1\r\nHost: %s\r\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n\r\n
+GET /%s HTTP/1.1\r\nHost: %s\r\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\naccept: */*\r\nConnection: close\r\n\r\n

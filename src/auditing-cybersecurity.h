@@ -16,59 +16,60 @@
 
 // #define LIBSSH_STATIC 1
 
-#define PROGRAM_NAME 				"Auditing-Cybersecurity"
-#define PROGRAM_MAJOR_VERSION		"1"
-#define PROGRAM_MINOR_VERSION		"2"
-#define PROGRAM_MICRO_VERSION		"8"
-#define PROGRAM_VERSION				PROGRAM_MAJOR_VERSION"."PROGRAM_MINOR_VERSION"."PROGRAM_MICRO_VERSION
-#define ALL_PORTS					65536
-#define MAX_PORTS_TO_SCAN	 		5001
-#define MAX_VIEW_PORTS				15
-#define PACKET_FORWARDING_LIMIT 	3
-#define SEND_PACKET_DELAY_US 		400000
-#define PATH_TO_RESOURCES 			"/usr/share/auditing-cybersecurity/resources/"
-#define BRUTE_FORCE_DELAY_US 		100000
-#define BRUTE_FORCE_TIMEOUT 		3
-#define CURL_TIMEOUT				5L
-#define SOCKET_CONNECT_TIMEOUT_S	2
-#define SOCKET_RECV_TIMEOUT_MS		2000
-#define SOCKET_SEND_TIMEOUT_MS		2000
-#define SSH_TIMEOUT_MS				5000
-#define SSL_TIMEOUT_S				2
-#define SNIFFING_THREAD_DELAY_US	10000000
-#define ARP_DISCOVER_TIMEOUT_S		2
-#define ARP_DISCOVER_DELAY_US		30000000
-#define MAX_THREADS					5000
+#define PROGRAM_NAME 					"Auditing-Cybersecurity"
+#define PROGRAM_MAJOR_VERSION			"1"
+#define PROGRAM_MINOR_VERSION			"2"
+#define PROGRAM_MICRO_VERSION			"8"
+#define PROGRAM_VERSION					PROGRAM_MAJOR_VERSION"."PROGRAM_MINOR_VERSION"."PROGRAM_MICRO_VERSION
+#define ALL_PORTS						65536
+#define MAX_PORTS_TO_SCAN	 			5001
+#define MAX_VIEW_PORTS					15
+#define PACKET_FORWARDING_LIMIT 		3
+#define SEND_PACKET_DELAY_US 			400000
+#define SEND_PACKET_PER_PORT_DELAY_US	0
+#define PATH_TO_RESOURCES 				"/usr/share/auditing-cybersecurity/resources/"
+#define BRUTE_FORCE_DELAY_US 			100000
+#define BRUTE_FORCE_TIMEOUT 			3
+#define CURL_TIMEOUT					5L
+#define SOCKET_CONNECT_TIMEOUT_S		5
+#define SOCKET_RECV_TIMEOUT_MS			2000
+#define SOCKET_SEND_TIMEOUT_MS			2000
+#define SSH_TIMEOUT_MS					5000
+#define SSL_TIMEOUT_S					5
+#define SNIFFING_THREAD_DELAY_US		10000000
+#define ARP_DISCOVER_TIMEOUT_S			2
+#define ARP_DISCOVER_DELAY_US			30000000
+#define MAX_THREADS						5000
 
-#define	BUFFER_SIZE_16B				16
-#define	BUFFER_SIZE_32B				32
-#define	BUFFER_SIZE_128B			128
-#define BUFFER_SIZE_256B			256
-#define BUFFER_SIZE_512B			512
-#define BUFFER_SIZE_1K				1024
-#define BUFFER_SIZE_2K				(1024*2)
-#define BUFFER_SIZE_8K				(1024*8)
-#define	BUFFER_SIZE_16K				(1024*16)
-#define	BUFFER_SIZE_128K			(1024*128)
+#define	BUFFER_SIZE_16B					16
+#define	BUFFER_SIZE_32B					32
+#define	BUFFER_SIZE_128B				128
+#define BUFFER_SIZE_256B				256
+#define BUFFER_SIZE_512B				512
+#define BUFFER_SIZE_1K					1024
+#define BUFFER_SIZE_2K					(1024*2)
+#define BUFFER_SIZE_8K					(1024*8)
+#define	BUFFER_SIZE_16K					(1024*16)
+#define	BUFFER_SIZE_128K				(1024*128)
 
-#define RETURN_ERROR 		-1
-#define RETURN_OK 			0
+#define RETURN_ERROR 					-1
+#define RETURN_OK 						0
 
-#define PRINT_DEBUG_MSG 	printf("\n%sWTF???%s\n",C_HRED,C_DEFAULT);
-#define PRINT_RESET 		printf("%s\n",C_DEFAULT)
+#define PRINT_DEBUG_MSG 				printf("\n%sWTF???%s\n",C_HRED,C_DEFAULT);
+#define PRINT_RESET 					printf("%s\n",C_DEFAULT)
 
-#define C_HCYAN 			"\e[0;96m"
-#define C_CYAN 				"\e[0;36m"
-#define C_HGREEN 			"\e[0;92m"
-#define C_HYELLOW 			"\e[0;93m"
-#define C_HRED 				"\e[0;91m"
-#define C_HWHITE 			"\e[0;97m"
-#define C_WHITE 			"\e[0;37m"
-#define C_HBLACK 			"\e[0;90m"
-#define C_DEFAULT 			"\e[0m"
-#define C_STRIKE			"\e[0;9m"
+#define C_HCYAN 						"\e[0;96m"
+#define C_CYAN 							"\e[0;36m"
+#define C_HGREEN 						"\e[0;92m"
+#define C_HYELLOW 						"\e[0;93m"
+#define C_HRED 							"\e[0;91m"
+#define C_HWHITE 						"\e[0;97m"
+#define C_WHITE 						"\e[0;37m"
+#define C_HBLACK 						"\e[0;90m"
+#define C_DEFAULT 						"\e[0m"
+#define C_STRIKE						"\e[0;9m"
 
-#define REMOVE_LINE			"\r\033[2K"
+#define REMOVE_LINE						"\r\033[2K"
 
 typedef enum{
 	FALSE=0,
@@ -211,6 +212,7 @@ extern int portUnderHacking;
 extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
 extern char *resourcesLocation;
+extern long int sendPacketPerPortDelayUs;
 
 int scan_init(char *);
 int scan_ports();
