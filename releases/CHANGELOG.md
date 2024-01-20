@@ -1,6 +1,7 @@
 ### auditing-cybersecurity-v1.2.8:UnderDev/Testing
 
 SHA2-256(auditing-cybersecurity_1.2_8.deb)=
+
 SHA2-256(auditing-cybersecurity_1.2_8-amd64.tar.gz)=
 
 Updated: 2024-XX-XX
@@ -12,11 +13,14 @@ BUG_FIXED:
 
 OTHERS:
 - in order to avoid, nah I mean, evaluate hhaha ids/ips/firewalls setups, with '-s | --scan-delay' is possible to specify the delay (in microseconds) between port scans. For example "--scan-delay 1000000" send one packet/port per second. Default value 0.
+- because previous comment, the evolution of the scanning is shown during the scan and re-checking algorithm was optimized (-under evaluation-).
+- scans/re-scans can be canceled.
 - minor changes & code cleaned-up.
 
 ### auditing-cybersecurity-v1.2.7:"Mar de las Pampas" hhahah (such amazing place... counting the days for returning)
 
 SHA2-256(auditing-cybersecurity_1.2_7.deb)=22e647522d8db007d11df72e3f2551a05b4a59924b16292751c90e61255f102f
+
 SHA2-256(auditing-cybersecurity_1.2_7-amd64.tar.gz)=ca484435f5d54dd006fbe8233e15d905911bf3f75b18625b51d5ee83b3de37cd
 
 Updated: 2024-01-03

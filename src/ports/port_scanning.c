@@ -58,7 +58,7 @@ int scan_init(char *urlIp){
 	return RETURN_OK;
 }
 
-static void process_packets(unsigned char* buffer, int size){
+static void process_packets(unsigned char* buffer){
 	struct iphdr *iph=(struct iphdr*) buffer;
 	struct sockaddr_in source,dest;
 	unsigned short iphdrlen;
@@ -104,8 +104,8 @@ static void process_packets(unsigned char* buffer, int size){
 static int reading_packets(){
 	struct timeval timeout;
 	timeout.tv_sec=1;
-	timeout.tv_usec=sendPacketPerPortDelayUs;
-	int sockRaw, dataSize;
+	timeout.tv_usec=0;
+	int sockRaw, bytesRecv;
 	socklen_t saddrSize;
 	struct sockaddr saddr;
 	unsigned char *buffer = (unsigned char *) malloc(65536);
@@ -118,12 +118,12 @@ static int reading_packets(){
 	}
 	saddrSize=sizeof saddr;
 	while(endScanProcess==FALSE){
-		dataSize=recvfrom(sockRaw,buffer,65536,0,&saddr,&saddrSize);
-		if(dataSize<0){
+		bytesRecv=recvfrom(sockRaw,buffer,65536,0,&saddr,&saddrSize);
+		if(bytesRecv<0){
 			free(buffer);
 			return set_last_activity_error(RECEIVING_PACKETS_ERROR,"");
 		}
-		if(dataSize>0) process_packets(buffer, dataSize);
+		if(bytesRecv>0) process_packets(buffer);
 	}
 	free(buffer);
 	close(sockRaw);
@@ -146,7 +146,6 @@ int scan_ports(){
 	struct tcphdr *tcph=(struct tcphdr *) (datagram + sizeof (struct ip));
 	struct sockaddr_in dest;
 	struct PseudoHeader psh;
-	int source_port=65000;
 	memset(datagram,0,4096);
 	iph->ihl=5;
 	iph->version=4;
@@ -160,8 +159,8 @@ int scan_ports(){
 	iph->saddr=inet_addr(networkInfo.interfaceIp);
 	iph->daddr=target.targetIp.s_addr;
 	iph->check=csum((unsigned short *) datagram, iph->tot_len >> 1);
-	tcph->source=htons(source_port);
-	tcph->dest=htons(80);
+	//tcph->source=htons(65000);
+	//tcph->dest=htons(80);
 	tcph->seq=htonl(1234567890);
 	tcph->ack_seq=0;
 	tcph->doff=sizeof(struct tcphdr)/4;
@@ -182,29 +181,45 @@ int scan_ports(){
 	dest.sin_family=AF_INET;
 	dest.sin_port=0;
 	dest.sin_addr.s_addr=target.targetIp.s_addr;
-	int contFilteredPortsChange=-1, endSendPackets=0, contFilteredPorts=0;;
+	psh.source_address=inet_addr(networkInfo.interfaceIp);
+	psh.dest_address=dest.sin_addr.s_addr;
+	psh.protocol=IPPROTO_TCP;
+	int contFilteredPortsChange=target.cantPortsToScan, endSendPackets=0, contFilteredPorts=0;
+	Bool recheck=FALSE;
 	while(endSendPackets!=PACKET_FORWARDING_LIMIT){
-		for(int i=0;i<target.cantPortsToScan;i++){
+		int contF=1;
+		for(int i=0;i<target.cantPortsToScan && cancelCurrentProcess==FALSE;i++){
 			if(target.portsToScan[i].portStatus==PORT_FILTERED){
-				contFilteredPorts++;
+				if(!recheck){
+					printf("\rQuerying port: %d (%d/%d)     ",target.portsToScan[i].portNumber, contF,contFilteredPortsChange);
+				}else{
+					printf("\rRe-querying port: %d (%d/%d)     ",target.portsToScan[i].portNumber, contF,contFilteredPortsChange);
+				}
+				fflush(stdout);
+				tcph->source=htons(rand()%60000+1024);
 				tcph->dest=htons(target.portsToScan[i].portNumber);
 				tcph->check=0;
-				psh.source_address=inet_addr(networkInfo.interfaceIp);
-				psh.dest_address=dest.sin_addr.s_addr;
 				psh.placeholder=0;
-				psh.protocol=IPPROTO_TCP;
 				psh.tcp_length=htons(sizeof(struct tcphdr));
 				memcpy(&psh.tcp,tcph,sizeof(struct tcphdr));
 				tcph->check=csum((unsigned short*) &psh,sizeof(struct PseudoHeader));
 				if(sendto(socketConn,datagram,sizeof(struct iphdr)+sizeof(struct tcphdr),0,(struct sockaddr *) &dest,sizeof (dest))<0) return set_last_activity_error(SENDING_PACKETS_ERROR,"");
+				usleep(sendPacketPerPortDelayUs);
+				contF++;
 			}
-			usleep(sendPacketPerPortDelayUs);
 		}
 		usleep(SEND_PACKET_DELAY_US);
+		PRINT_RESET;
+		if(cancelCurrentProcess) break;
+		PRINT_RESET;
+		contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
+		if(contFilteredPorts==0) break;
 		(contFilteredPortsChange==contFilteredPorts)?(endSendPackets++):(endSendPackets=0);
 		contFilteredPortsChange=contFilteredPorts;
 		contFilteredPorts=0;
+		recheck=TRUE;
 	}
+	cancelCurrentProcess=FALSE;
 	endScanProcess=TRUE;
 	pthread_join(readingPacketsThread, NULL);
 	contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;

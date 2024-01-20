@@ -24,8 +24,8 @@
 #define ALL_PORTS						65536
 #define MAX_PORTS_TO_SCAN	 			5001
 #define MAX_VIEW_PORTS					15
-#define PACKET_FORWARDING_LIMIT 		3
-#define SEND_PACKET_DELAY_US 			400000
+#define PACKET_FORWARDING_LIMIT 		1
+#define SEND_PACKET_DELAY_US 			500000
 #define SEND_PACKET_PER_PORT_DELAY_US	0
 #define PATH_TO_RESOURCES 				"/usr/share/auditing-cybersecurity/resources/"
 #define BRUTE_FORCE_DELAY_US 			100000

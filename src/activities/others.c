@@ -24,6 +24,10 @@ int others(int type){
 		fclose(f);
 		do{
 			msg=get_readline("![#]=templates,;=exit)-> ", TRUE);
+			if(strcmp(msg,"")==0){
+				PRINT_RESET;
+				continue;
+			}
 			if(strcmp(msg,";")==0) break;
 			if(strcmp(msg,"!")==0){
 				for(int i=0;i<totalStrings;i++) printf("\n  %d) %s", i+1, stringTemplates[i]);
