@@ -14,6 +14,9 @@ int others(int type){
 	FILE *f=NULL;
 	char *msg=NULL, cmd[BUFFER_SIZE_1K]="";
 	switch(type){
+	case OTHERS_SHOW_FILTERED_PORTS:
+		show_filtered_ports();
+		break;
 	case OTHERS_SHOW_OPENED_PORTS:
 		show_opened_ports();
 		break;

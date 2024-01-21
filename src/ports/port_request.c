@@ -136,6 +136,7 @@ static int hack_port() {
 		if(strcmp(c,"14.2")==0) valResp=mssql(MSSQL_SHELL);
 
 		if(strcmp(c,"o")==0) valResp=others(OTHERS_SHOW_OPENED_PORTS);
+		if(strcmp(c,"f")==0) valResp=others(OTHERS_SHOW_FILTERED_PORTS);
 		if(strcmp(c,"d")==0) valResp=others(OTHERS_ARP_DISCOVER);
 		if(strcmp(c,"i")==0) valResp=others(OTHERS_INTERACTIVE);
 		if(strcmp(c,"s")==0) valResp=others(OTHERS_SYSTEM_CALL);

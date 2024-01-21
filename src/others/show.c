@@ -217,12 +217,13 @@ void show_options(){
 	printf("\t\t\td)  Show hosts");
 	printf("\t\t\ti)  Interactive mode");
 	printf("\t\t\tg)  ChatGPT\n");
-	printf("\ts)  System call");
-	printf("\t\t\t\tt)  Traceroute");
-	printf("\t\t\tw)  Whois");
-	printf("\t\t\t\th)  Show activities\n");
-	printf("\tc)  Change port");
-	printf("\t\t\t\tq)  Exit\n\n");
+	printf("\tf)  Show filtered ports");
+	printf("\t\t\ts)  System call");
+	printf("\t\t\tt)  Traceroute");
+	printf("\t\t\t\tw)  Whois\n");
+	printf("\th)  Show activities");
+	printf("\t\t\tc)  Change port");
+	printf("\t\t\tq)  Exit\n\n");
 	//printf("\t d) Command description\n\n");
 }
 

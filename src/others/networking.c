@@ -129,6 +129,13 @@ void show_opened_ports(){
 	printf("%s",C_DEFAULT);
 }
 
+void show_filtered_ports(){
+	for(int i=0;i<target.cantPortsToScan;i++){
+		if(target.portsToScan[i].portStatus==PORT_FILTERED) printf("%s  Port: %d \t(%s?)\n",C_HYELLOW,target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+	}
+	printf("%s",C_DEFAULT);
+}
+
 int create_socket_conn(int *sk){
 	struct timeval timeout;
 	timeout.tv_sec=SOCKET_CONNECT_TIMEOUT_S;

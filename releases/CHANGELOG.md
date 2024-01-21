@@ -11,9 +11,13 @@ BUG_FIXED:
 - 2.3   -> fix false -
 - 6.2   -> fix false +
 
+IMPROVEMENT:
+- f)    -> activity added for listing the filtered ports.
+
 OTHERS:
 - in order to avoid, nah I mean, evaluate hhaha ids/ips/firewalls setups, with '-s | --scan-delay' is possible to specify the delay (in microseconds) between port scans. For example "--scan-delay 1000000" send one packet/port per second. Default value 0.
 - because previous comment, the evolution of the scanning is shown during the scan and re-checking algorithm was optimized (-under evaluation-).
+- opened ports are shown on-the-fly. Removed listing filtered & closed ports (see 'f)' for filtered ones).
 - scans/re-scans can be canceled.
 - minor changes & code cleaned-up.
 

@@ -89,6 +89,10 @@ static void process_packets(unsigned char* buffer){
 						break;
 					}
 					contOpenedPorts++;
+					printf(REMOVE_LINE);
+					printf("Opened port found: %s%d\t%s\t%s%s",C_HRED,target.portsToScan[i].portNumber,
+							target.portsToScan[i].operatingSystem,target.portsToScan[i].serviceName,C_DEFAULT);
+					printf("\n"REMOVE_LINE);
 					break;
 				}
 				if(tcph->rst==1){
@@ -208,10 +212,11 @@ int scan_ports(){
 				contF++;
 			}
 		}
+		printf(REMOVE_LINE);
+		printf(REMOVE_LINE);
+		printf(REMOVE_LINE);
 		usleep(SEND_PACKET_DELAY_US);
-		PRINT_RESET;
 		if(cancelCurrentProcess) break;
-		PRINT_RESET;
 		contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
 		if(contFilteredPorts==0) break;
 		(contFilteredPortsChange==contFilteredPorts)?(endSendPackets++):(endSendPackets=0);
@@ -219,44 +224,31 @@ int scan_ports(){
 		contFilteredPorts=0;
 		recheck=TRUE;
 	}
-	cancelCurrentProcess=FALSE;
 	endScanProcess=TRUE;
 	pthread_join(readingPacketsThread, NULL);
 	contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
 	Bool anyPortShown=FALSE;
-	for(int i=0;i<target.cantPortsToScan;i++){
-		if(target.portsToScan[i].portStatus==PORT_OPENED){
-			printf("%s",C_HRED);
-			printf("Port %d \topened \t\t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
-			anyPortShown=TRUE;
-		}
-		if(target.portsToScan[i].portStatus==PORT_FILTERED){
-			printf("%s",C_HYELLOW);
-			if(contFilteredPorts<MAX_VIEW_PORTS){
-				printf("Port %d \tfiltered \t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+	if(cancelCurrentProcess==FALSE){
+		for(int i=0;i<target.cantPortsToScan;i++){
+			if(target.portsToScan[i].portStatus==PORT_OPENED){
 				anyPortShown=TRUE;
+				break;
 			}
 		}
-		if(target.portsToScan[i].portStatus==PORT_CLOSED){
-			printf("%s",C_HGREEN);
-			if(contClosedPorts<MAX_VIEW_PORTS){
-				printf("Port %d \tclosed \t\t(%s)\n",target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
-				anyPortShown=TRUE;
-			}
-		}
+		clock_gettime(CLOCK_REALTIME, &tEnd);
+		double elapsedTime=(tEnd.tv_sec-tInit.tv_sec)+(tEnd.tv_nsec-tInit.tv_nsec)/1000000000.0;
+		printf("%s",C_DEFAULT);
+		if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n\n");
+		printf("Scanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
+		printf("%s",C_HGREEN);
+		printf("\tClosed: %d\n", contClosedPorts);
+		printf("%s",C_HYELLOW);
+		printf("\tFiltered: %d\n",contFilteredPorts);
+		printf("%s",C_HRED);
+		printf("\tOpened: %d\n\n",contOpenedPorts);
 	}
-	clock_gettime(CLOCK_REALTIME, &tEnd);
-	double elapsedTime=(tEnd.tv_sec-tInit.tv_sec)+(tEnd.tv_nsec-tInit.tv_nsec)/1000000000.0;
-	printf("%s",C_DEFAULT);
-	if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n\n");
-	printf("Scanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
-	printf("%s",C_HGREEN);
-	printf("\tClosed: %d\n", contClosedPorts);
-	printf("%s",C_HYELLOW);
-	printf("\tFiltered: %d\n",contFilteredPorts);
-	printf("%s",C_HRED);
-	printf("\tOpened: %d\n\n",contOpenedPorts);
 	close(socketConn);
+	cancelCurrentProcess=FALSE;
 	printf("%s",C_DEFAULT);
 	return RETURN_OK;
 }
