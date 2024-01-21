@@ -85,7 +85,7 @@ static int initMrAnderson(){
 
 int main(int argc, char *argv[]){
 	show_intro(PROGRAM_NAME, PROGRAM_VERSION);
-	Bool noIntro=FALSE, discover=FALSE;
+	Bool noIntro=FALSE, discover=FALSE, guess=FALSE;
 	char urlIp[255]="", msgError[BUFFER_SIZE_512B]="";
 	target.cantPortsToScan=0;
 	for(int i=1;i<argc;i++){
@@ -183,11 +183,12 @@ int main(int argc, char *argv[]){
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
-	if((strcmp(urlIp,"")==0 || target.cantPortsToScan==0) && !discover){
-		show_help("\nYou must enter, at least, the url|ip and the number of ports to be scanned\n");
+	if(strcmp(urlIp,"")==0 && !discover){
+		show_help("\nYou must enter the url|ip to be scanned\n");
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
+	if(target.cantPortsToScan==0) guess=TRUE;
 	if(!noIntro) show_intro_banner();
 	if(initMrAnderson()==RETURN_ERROR){
 		closeMrAnderson();
@@ -220,7 +221,7 @@ int main(int argc, char *argv[]){
 		exit(EXIT_SUCCESS);
 	}
 	if(scan_init(urlIp)==RETURN_ERROR) error_handling(0,TRUE);
-	if(scan_ports()==RETURN_ERROR) error_handling(0,TRUE);
+	if(!guess) if(scan_ports()==RETURN_ERROR) error_handling(0,TRUE);
 	if(hack_port_request()==RETURN_ERROR) error_handling(0,TRUE);
 	closeMrAnderson();
 	exit(EXIT_SUCCESS);

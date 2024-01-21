@@ -13,10 +13,11 @@ BUG_FIXED:
 
 IMPROVEMENT:
 - f)    -> activity added for listing the filtered ports.
+- Now, it's possible to query any port, independently if was scanned or not. In fact, if no port/s is/are specified (nor '-p', '-P', nor '-a'), the scanning is skipped and just the requesting for a port is asked.
 
 OTHERS:
 - in order to avoid, nah I mean, evaluate hhaha ids/ips/firewalls setups, with '-s | --scan-delay' is possible to specify the delay (in microseconds) between port scans. For example "--scan-delay 1000000" send one packet/port per second. Default value 0.
-- because previous comment, the evolution of the scanning is shown during the scan and re-checking algorithm was optimized (-under evaluation-).
+- because previous comment, the evolution of the scanning is shown during the scan (only if '-s'!=0 -default-) and the algorithm was optimized (_under evaluation_).
 - opened ports are shown on-the-fly. Removed listing filtered & closed ports (see 'f)' for filtered ones).
 - scans/re-scans can be canceled.
 - minor changes & code cleaned-up.

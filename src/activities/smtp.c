@@ -16,7 +16,7 @@ int smtp(int type){
 				"HELP\r\n"};
 		for(int i=0;i<2;i++){
 			bytesRecv=send_msg_to_server(&sk, target.targetIp, target.strHostname, portUnderHacking,
-					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					target.ports[portUnderHacking].connectionType,
 					msgs[i], strlen(msgs[i]), &serverResp, BUFFER_SIZE_1K, 0);
 			if(bytesRecv==0){
 				show_message("(Zero bytes received)",bytesRecv, 0, ERROR_MESSAGE, FALSE);

@@ -57,7 +57,7 @@ int others(int type){
 			int c=format_strings_from_files(msg,msg);
 			int sk=0;
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strHostname,portUnderHacking,
-					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					target.ports[portUnderHacking].connectionType,
 					msg, c, &serverResp,BUFFER_SIZE_128K, 5000);
 			free(msg);
 			close(sk);

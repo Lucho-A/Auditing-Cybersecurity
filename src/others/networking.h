@@ -14,7 +14,8 @@
 enum portStatuses{
 	PORT_FILTERED=0,
 	PORT_OPENED,
-	PORT_CLOSED
+	PORT_CLOSED,
+	PORT_UNKNOWN
 };
 
 enum connTypes{
@@ -34,7 +35,7 @@ struct PseudoHeader{
 };
 
 struct Port{
-	int portNumber;
+	//int portNumber;
 	int portStatus;
 	char serviceName[50];
 	char operatingSystem[50];
@@ -47,7 +48,7 @@ struct ServerTarget{
 	char strTargetURL[50];
 	char strHostname[50];
 	int cantPortsToScan;
-	struct Port *portsToScan;
+	struct Port *ports;
 };
 
 struct NetworkInfo{

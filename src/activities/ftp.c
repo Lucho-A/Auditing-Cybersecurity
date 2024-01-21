@@ -36,7 +36,7 @@ int ftp(int type){
 		unsigned char *serverResp=NULL;
 		int conn=0;
 		int bytesRecv=send_msg_to_server(&conn,target.targetIp, NULL,
-				portUnderHacking,target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+				portUnderHacking,target.ports[portUnderHacking].connectionType,
 				"\n", strlen("\n"), &serverResp,BUFFER_SIZE_128B,0);
 		if(bytesRecv<0) error_handling(0,FALSE);
 		if(bytesRecv>0) show_message((char *)serverResp, bytesRecv, 0, RESULT_MESSAGE, TRUE);

@@ -214,6 +214,7 @@ extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
 extern char *resourcesLocation;
 extern long int sendPacketPerPortDelayUs;
+extern Bool guess;
 
 int scan_init(char *);
 int scan_ports();

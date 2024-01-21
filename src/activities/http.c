@@ -218,11 +218,11 @@ static void *evaluate_response(void *arg){
 		usleep(rand()%1000 + 500);
 		snprintf(msg,sizeof(msg), stringTemplates[selectedOpt-1],files[i],target.strTargetURL);
 		resp=send_http_msg_to_server(target.targetIp,portUnderHacking,
-				target.portsToScan[get_port_index(portUnderHacking)].connectionType,msg,serverResp,BUFFER_SIZE_32B);
+				target.ports[portUnderHacking].connectionType,msg,serverResp,BUFFER_SIZE_32B);
 		if(resp<0 && !cancelCurrentProcess){
 			cancelCurrentProcess=TRUE;
 			PRINT_RESET;
-			//set_last_activity_error(resp, "");
+			set_last_activity_error(resp, "");
 			pthread_exit(NULL);
 		}
 		if(resp>0 && (strstr(serverResp," 200 ")!=NULL
@@ -264,14 +264,14 @@ int http(int type){
 				"Accept: */*\r\n\r\n",target.strTargetURL);
 		bytesRecv=send_http_msg_to_server(target.targetIp
 				,portUnderHacking
-				,target.portsToScan[get_port_index(portUnderHacking)].connectionType
+				,target.ports[portUnderHacking].connectionType
 				,msg,serverResp,BUFFER_SIZE_1K);
 		if(bytesRecv<0) return RETURN_ERROR;
 		show_message(serverResp,bytesRecv, 0, RESULT_MESSAGE,FALSE);
 		PRINT_RESET;
 		return RETURN_OK;
 	case HTTP_TLS_GRABBING:
-		if(target.portsToScan[get_port_index(portUnderHacking)].connectionType!=SSL_CONN_TYPE){
+		if(target.ports[portUnderHacking].connectionType!=SSL_CONN_TYPE){
 			show_message("SSL not supported for this port\n",0, 0, ERROR_MESSAGE, FALSE);
 			return RETURN_OK;
 		}
@@ -281,15 +281,15 @@ int http(int type){
 				"Host: %s\r\n"
 				"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
 				"Accept: */*\r\n\r\n",target.strTargetURL);
-		bytesRecv=send_http_msg_to_server(target.targetIp, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
+		bytesRecv=send_http_msg_to_server(target.targetIp, portUnderHacking, target.ports[portUnderHacking].connectionType
 				,msg, serverResp, BUFFER_SIZE_1K);
 		if(bytesRecv>0 && (strstr(serverResp," 200 ")!=NULL || strstr(serverResp," 204 ")!=NULL)){
 			show_message(serverResp,bytesRecv,0, RESULT_MESSAGE,TRUE);
 			if(strstr(serverResp," POST")!=NULL || strstr(serverResp," PUT")!=NULL || strstr(serverResp," DELETE")!=NULL) show_message("POST, PUT or DELETE option(s) found",0, 0, ERROR_MESSAGE, FALSE);
 			printf("\n");
-		}else{
-			show_message("No methods allowed found.",0,0, ERROR_MESSAGE,FALSE);
 		}
+		if(bytesRecv<0) return RETURN_ERROR;
+		show_message("No methods allowed found.",0,0, ERROR_MESSAGE,FALSE);
 		PRINT_RESET;
 		break;
 	case HTTP_SERVER_RESP_SPOOFED_HEADERS:
@@ -302,9 +302,9 @@ int http(int type){
 					"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
 					"Accept: */*\r\n\r\n",headers[i]);
 			char serverResp[BUFFER_SIZE_32B]="";
-			bytesRecv=send_http_msg_to_server(target.targetIp, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType
+			bytesRecv=send_http_msg_to_server(target.targetIp, portUnderHacking, target.ports[portUnderHacking].connectionType
 					,msg,serverResp,BUFFER_SIZE_32B);
-			if(bytesRecv==RETURN_ERROR){
+			if(bytesRecv<0){
 				free_char_double_pointer(&headers, totalFiles);
 				return RETURN_ERROR;
 			}
@@ -370,9 +370,7 @@ int http(int type){
 		free(tInfo);
 		free_char_double_pointer(&files, totalFiles);
 		free_char_double_pointer(&stringTemplates, totalStrings);
-		if(cancelCurrentProcess){
-			return RETURN_ERROR;
-		}
+		if(cancelCurrentProcess) return RETURN_ERROR;
 		PRINT_RESET;
 		return RETURN_OK;
 	case HTTP_OTHERS:

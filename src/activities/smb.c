@@ -136,7 +136,7 @@ static int smb_banner_grabbing(){
 			0x00};
 	payloadLen=185;
 	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, NULL, portUnderHacking,
-			target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			target.ports[portUnderHacking].connectionType,
 			payloadSmbv1, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 	//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, TRUE);
 	if(bytesReceived>0 && serverResp[5]=='S' && serverResp[6]=='M' && serverResp[7]=='B'){
@@ -164,7 +164,7 @@ static int smb_banner_grabbing(){
 			payloadLen=147;
 			free(serverResp);
 			bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
-					target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+					target.ports[portUnderHacking].connectionType,
 					payload, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 			if(bytesReceived==RETURN_ERROR){
 				error_handling(0,FALSE);
@@ -233,7 +233,7 @@ static int smb_banner_grabbing(){
 	payloadLen=70;
 	free(serverResp);
 	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
-			target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			target.ports[portUnderHacking].connectionType,
 			payloadSmbv2, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 	if(bytesReceived>0) {
 		// body start at 68
@@ -281,7 +281,7 @@ static int smb_banner_grabbing(){
 			//printf("\n%02X %02X %02X %02X\n",serverResp[cont],serverResp[cont-1],serverResp[cont-2],serverResp[cont-3]);
 			//printf("\n%ld\n",strtoul(strL,NULL,16));
 			//bytesReceived=send_payloaded_msg_to_server(&smbConn, payload, serverResp, payloadLen);
-			//bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[get_port_index(portUnderHacking)].connectionType,
+			//bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[portUnderHacking].connectionType,
 			//payload, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
 			//if(bytesReceived==RETURN_ERROR) error_handling(FALSE);
 			//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, TRUE);

@@ -161,7 +161,6 @@ static int hack_port() {
 
 int hack_port_request(){
 	do{
-		int selectedPort=0;
 		do{
 			printf("%s",C_DEFAULT);
 			char *c=get_readline("Insert port to hack (0 = exit, default): ",FALSE);
@@ -169,21 +168,22 @@ int hack_port_request(){
 				free(c);
 				return RETURN_OK;
 			}
-			for(int i=0;i<target.cantPortsToScan;i++){
-				if(target.portsToScan[i].portNumber==strtol(c,NULL,10) && target.portsToScan[i].portStatus==PORT_OPENED)
-					selectedPort=strtol(c,NULL,10);
+			if(strtol(c,NULL,10)>0 && strtol(c,NULL,10)<ALL_PORTS){
+				portUnderHacking=strtol(c,NULL,10);
+				free(c);
+				break;
 			}
+			show_message("Port number not valid (1-65535)\n", strlen("Port number not valid (1-65535)\n"),
+					0, ERROR_MESSAGE, TRUE);
 			free(c);
-			if(selectedPort==0) show_message("\nInsert an opened port\n\n", 0, 0, ERROR_MESSAGE,FALSE);
-		}while(selectedPort==0);
-		portUnderHacking=selectedPort;
-		if(target.portsToScan[get_port_index(portUnderHacking)].connectionType==UNKNOWN_CONN_TYPE){
+		}while(TRUE);
+		if(target.ports[portUnderHacking].connectionType==UNKNOWN_CONN_TYPE){
 			int resp=0;
-			if((resp=check_conn_type())==RETURN_ERROR){
+			if((resp=check_conn_type())<0){
 				error_handling(0,FALSE);
 				continue;
 			}
-			target.portsToScan[get_port_index(portUnderHacking)].connectionType=resp;
+			target.ports[portUnderHacking].connectionType=resp;
 		}
 		hack_port();
 	}while(TRUE);

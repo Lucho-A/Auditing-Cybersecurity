@@ -115,23 +115,16 @@ int init_networking(){
 	return RETURN_OK;
 }
 
-int get_port_index(int port){
-	for(int i=0;i<target.cantPortsToScan;i++){
-		if(target.portsToScan[i].portNumber==port) return i;
-	}
-	return RETURN_ERROR;
-}
-
 void show_opened_ports(){
-	for(int i=0;i<target.cantPortsToScan;i++){
-		if(target.portsToScan[i].portStatus==PORT_OPENED) printf("%s  Port: %d \t(%s?)\n",C_HRED,target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+	for(int i=0;i<ALL_PORTS;i++){
+		if(target.ports[i].portStatus==PORT_OPENED) printf("%s  Port: %d \t(%s?)\n",C_HRED,i, target.ports[i].serviceName);
 	}
 	printf("%s",C_DEFAULT);
 }
 
 void show_filtered_ports(){
-	for(int i=0;i<target.cantPortsToScan;i++){
-		if(target.portsToScan[i].portStatus==PORT_FILTERED) printf("%s  Port: %d \t(%s?)\n",C_HYELLOW,target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
+	for(int i=0;i<ALL_PORTS;i++){
+		if(target.ports[i].portStatus==PORT_FILTERED) printf("%s  Port: %d \t(%s?)\n",C_HYELLOW,i, target.ports[i].serviceName);
 	}
 	printf("%s",C_DEFAULT);
 }

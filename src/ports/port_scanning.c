@@ -13,6 +13,7 @@
 int contClosedPorts=0;
 int contOpenedPorts=0;
 int endScanProcess=FALSE;
+int riskyPorts[5000];
 
 static void get_iana_service_name(int port, char *serviceName){
 	struct servent *service_resp=getservbyport(htons(port), "tcp");
@@ -38,20 +39,14 @@ int scan_init(char *urlIp){
 	ip_to_hostname(target.strTargetIp, target.strHostname);
 	printf("Hostname: %s%s%s\n\n",C_HWHITE,target.strHostname,C_DEFAULT);
 	FILE *ports=NULL;
-	if(target.cantPortsToScan!=ALL_PORTS){
-		if(open_file(resourcesLocation,"ports.txt", &ports)==RETURN_ERROR) return set_last_activity_error(OPENING_PORT_FILE_ERROR, "");
-	}
-	target.portsToScan= (struct Port *) malloc(target.cantPortsToScan * sizeof(struct Port));
-	for(int i=0;i<target.cantPortsToScan;i++){
-		if(target.cantPortsToScan==1){
-			target.portsToScan[i].portNumber=singlePortToScan;
-		}else{
-			(target.cantPortsToScan==ALL_PORTS)?(target.portsToScan[i].portNumber=i):(fscanf(ports,"%d,",&target.portsToScan[i].portNumber));
-		}
-		target.portsToScan[i].portStatus=PORT_FILTERED;
-		strcpy(target.portsToScan[i].operatingSystem,"");
-		get_iana_service_name(target.portsToScan[i].portNumber, target.portsToScan[i].serviceName);
-		target.portsToScan[i].connectionType=UNKNOWN_CONN_TYPE;
+	if(open_file(resourcesLocation,"ports.txt", &ports)==RETURN_ERROR) return set_last_activity_error(OPENING_PORT_FILE_ERROR, "");
+	target.ports= (struct Port *) malloc(ALL_PORTS * sizeof(struct Port));
+	for(int i=0;i<ALL_PORTS;i++){
+		if(i<5000) fscanf(ports,"%d,",&riskyPorts[i]);
+		target.ports[i].portStatus=PORT_UNKNOWN;
+		strcpy(target.ports[i].operatingSystem,"");
+		get_iana_service_name(i, target.ports[i].serviceName);
+		target.ports[i].connectionType=UNKNOWN_CONN_TYPE;
 	}
 	if(ports!=NULL) fclose(ports);
 	printf("%s",C_DEFAULT);
@@ -70,36 +65,32 @@ static void process_packets(unsigned char* buffer){
 		source.sin_addr.s_addr=iph->saddr;
 		memset(&dest,0,sizeof(dest));
 		dest.sin_addr.s_addr=iph->daddr;
-		for(int i=0;i<target.cantPortsToScan;i++){
-			if(target.portsToScan[i].portNumber==ntohs(tcph->source) && source.sin_addr.s_addr==target.targetIp.s_addr && target.portsToScan[i].portStatus==PORT_FILTERED){
-				if(tcph->syn==1 && tcph->ack==1){
-					target.portsToScan[i].portStatus=PORT_OPENED;
-					switch(iph->ttl){
-					case 129 ... 255:
-					strcpy(target.portsToScan[i].operatingSystem,"Solaris - Cisco/Network");
-					break;
-					case 65 ... 128:
-					strcpy(target.portsToScan[i].operatingSystem,"Win");
-					break;
-					case 0 ... 64:
-					strcpy(target.portsToScan[i].operatingSystem,"*nix");
-					break;
-					default:
-						strcpy(target.portsToScan[i].operatingSystem,"???");
-						break;
-					}
-					contOpenedPorts++;
-					printf(REMOVE_LINE);
-					printf("Opened port found: %s%d\t%s\t%s%s",C_HRED,target.portsToScan[i].portNumber,
-							target.portsToScan[i].operatingSystem,target.portsToScan[i].serviceName,C_DEFAULT);
-					printf("\n"REMOVE_LINE);
+		if(source.sin_addr.s_addr==target.targetIp.s_addr && target.ports[ntohs(tcph->source)].portStatus==PORT_FILTERED){
+			if(tcph->syn==1 && tcph->ack==1){
+				target.ports[ntohs(tcph->source)].portStatus=PORT_OPENED;
+				switch(iph->ttl){
+				case 129 ... 255:
+				strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"Solaris - Cisco/Network");
+				break;
+				case 65 ... 128:
+				strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"Win");
+				break;
+				case 0 ... 64:
+				strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"*nix");
+				break;
+				default:
+					strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"???");
 					break;
 				}
-				if(tcph->rst==1){
-					target.portsToScan[i].portStatus=PORT_CLOSED;
-					contClosedPorts++;
-					break;
-				}
+				contOpenedPorts++;
+				printf(REMOVE_LINE);
+				printf("Opened port found: %s%d\t%s\t%s%s",C_HRED,ntohs(tcph->source),
+						target.ports[ntohs(tcph->source)].operatingSystem,target.ports[ntohs(tcph->source)].serviceName,C_DEFAULT);
+				printf("\n"REMOVE_LINE);
+			}
+			if(tcph->rst==1){
+				target.ports[ntohs(tcph->source)].portStatus=PORT_CLOSED;
+				contClosedPorts++;
 			}
 		}
 	}
@@ -190,18 +181,27 @@ int scan_ports(){
 	psh.protocol=IPPROTO_TCP;
 	int contFilteredPortsChange=target.cantPortsToScan, endSendPackets=0, contFilteredPorts=0;
 	Bool recheck=FALSE;
+	int port=0;
 	while(endSendPackets!=PACKET_FORWARDING_LIMIT){
 		int contF=1;
 		for(int i=0;i<target.cantPortsToScan && cancelCurrentProcess==FALSE;i++){
-			if(target.portsToScan[i].portStatus==PORT_FILTERED){
-				if(!recheck){
-					printf("\rQuerying port: %d (%d/%d)     ",target.portsToScan[i].portNumber, contF,contFilteredPortsChange);
-				}else{
-					printf("\rRe-querying port: %d (%d/%d)     ",target.portsToScan[i].portNumber, contF,contFilteredPortsChange);
+			if(singlePortToScan!=0){
+				port=singlePortToScan;
+			}else{
+				(target.cantPortsToScan==ALL_PORTS)?(port=i):(port=riskyPorts[i]);
+			}
+			if(target.ports[port].portStatus==PORT_UNKNOWN) target.ports[port].portStatus=PORT_FILTERED;
+			if(target.ports[port].portStatus==PORT_FILTERED){
+				if(sendPacketPerPortDelayUs!=0){
+					if(!recheck){
+						printf("\rQuerying port: %d (%d/%d)     ",port, contF,contFilteredPortsChange);
+					}else{
+						printf("\rRe-querying port: %d (%d/%d)     ",port, contF,contFilteredPortsChange);
+					}
 				}
 				fflush(stdout);
 				tcph->source=htons(rand()%60000+1024);
-				tcph->dest=htons(target.portsToScan[i].portNumber);
+				tcph->dest=htons(port);
 				tcph->check=0;
 				psh.placeholder=0;
 				psh.tcp_length=htons(sizeof(struct tcphdr));
@@ -229,8 +229,8 @@ int scan_ports(){
 	contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
 	Bool anyPortShown=FALSE;
 	if(cancelCurrentProcess==FALSE){
-		for(int i=0;i<target.cantPortsToScan;i++){
-			if(target.portsToScan[i].portStatus==PORT_OPENED){
+		for(int i=0;i<ALL_PORTS;i++){
+			if(target.ports[port].portStatus==PORT_OPENED){
 				anyPortShown=TRUE;
 				break;
 			}
@@ -239,7 +239,7 @@ int scan_ports(){
 		double elapsedTime=(tEnd.tv_sec-tInit.tv_sec)+(tEnd.tv_nsec-tInit.tv_nsec)/1000000000.0;
 		printf("%s",C_DEFAULT);
 		if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n\n");
-		printf("Scanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
+		printf("\nScanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
 		printf("%s",C_HGREEN);
 		printf("\tClosed: %d\n", contClosedPorts);
 		printf("%s",C_HYELLOW);
