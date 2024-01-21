@@ -98,12 +98,12 @@ static void process_packets(unsigned char* buffer){
 
 static int reading_packets(){
 	struct timeval timeout;
-	timeout.tv_sec=1;
-	timeout.tv_usec=0;
+	timeout.tv_sec=2;
+	timeout.tv_usec=500000;
 	int sockRaw, bytesRecv;
 	socklen_t saddrSize;
 	struct sockaddr saddr;
-	unsigned char *buffer = (unsigned char *) malloc(65536);
+	unsigned char *buffer=(unsigned char *) malloc(65536);
 	sockRaw=socket(AF_INET,SOCK_RAW,IPPROTO_TCP);
 	setsockopt(sockRaw, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
 	setsockopt(sockRaw, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
@@ -154,8 +154,6 @@ int scan_ports(){
 	iph->saddr=inet_addr(networkInfo.interfaceIp);
 	iph->daddr=target.targetIp.s_addr;
 	iph->check=csum((unsigned short *) datagram, iph->tot_len >> 1);
-	//tcph->source=htons(65000);
-	//tcph->dest=htons(80);
 	tcph->seq=htonl(1234567890);
 	tcph->ack_seq=0;
 	tcph->doff=sizeof(struct tcphdr)/4;
@@ -230,7 +228,7 @@ int scan_ports(){
 	Bool anyPortShown=FALSE;
 	if(cancelCurrentProcess==FALSE){
 		for(int i=0;i<ALL_PORTS;i++){
-			if(target.ports[port].portStatus==PORT_OPENED){
+			if(target.ports[i].portStatus==PORT_OPENED){
 				anyPortShown=TRUE;
 				break;
 			}
@@ -238,7 +236,7 @@ int scan_ports(){
 		clock_gettime(CLOCK_REALTIME, &tEnd);
 		double elapsedTime=(tEnd.tv_sec-tInit.tv_sec)+(tEnd.tv_nsec-tInit.tv_nsec)/1000000000.0;
 		printf("%s",C_DEFAULT);
-		if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n\n");
+		if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n");
 		printf("\nScanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
 		printf("%s",C_HGREEN);
 		printf("\tClosed: %d\n", contClosedPorts);

@@ -38,6 +38,7 @@ void show_help(char *msgError){
 	printf("-n | --no-intro: no 'Waking Up' intro.\n\n");
 	printf("Examples: \n\n");
 	printf("$ auditing-cybersecurity --discover --no-intro\n");
+	printf("$ auditing-cybersecurity -t lucho-a.github.io\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 500\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 100 --scan-delay 100000\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 30 -n -r /home/user/res/\n");
