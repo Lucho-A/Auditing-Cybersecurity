@@ -86,6 +86,7 @@ enum errors{
 	MALLOC_ERROR,
 	REALLOC_ERROR,
 	RECEIVING_PACKETS_ERROR,
+	ZERO_BYTES_RECV_ERROR,
 	DEVICE_NOT_FOUND_ERROR,
 	DEVICE_MAC_NOT_FOUND_ERROR,
 	DEVICE_NOT_ETHERNET_ERROR,
@@ -207,14 +208,12 @@ struct LastestError{
 extern Bool canceledBySignal;
 extern Bool cancelCurrentProcess;
 extern struct ServerTarget target;
-extern int singlePortToScan;
 extern struct NetworkInfo networkInfo;
 extern int portUnderHacking;
 extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
 extern char *resourcesLocation;
 extern long int sendPacketPerPortDelayUs;
-extern Bool guess;
 
 int scan_init(char *);
 int scan_ports();

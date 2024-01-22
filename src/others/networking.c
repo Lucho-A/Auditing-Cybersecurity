@@ -21,6 +21,21 @@ static void clean_ssl(SSL *ssl){
 	}
 }
 
+char * get_ttl_description(int ttlValue){
+	switch(ttlValue){
+	case 129 ... 255:
+		return "Solaris - Cisco/Network";
+	case 65 ... 128:
+		return"Win";
+	break;
+	case 0 ... 64:
+		return "*nix";
+	default:
+		return "???";
+	}
+}
+
+
 static void get_local_ip(char * buffer){
 	int socketConn=socket(AF_INET,SOCK_DGRAM,0);
 	setsockopt(socketConn, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
@@ -316,6 +331,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 	for(int i=0;i<maxSizeResponse && i<totalBytesReceived;i++) (*serverResp)[i]=bufferHTTP[i];
 	free(bufferHTTP);
 	clean_ssl(sslConn);
+	if(totalBytesReceived==0) return set_last_activity_error(ZERO_BYTES_RECV_ERROR, "");
 	return totalBytesReceived;
 }
 

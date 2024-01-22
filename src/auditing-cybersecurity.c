@@ -24,7 +24,6 @@
 struct LastestError lastActivityError;
 struct ServerTarget target;
 struct NetworkInfo networkInfo;
-int singlePortToScan=0;
 int portUnderHacking=0;
 Bool cancelCurrentProcess=FALSE;
 Bool canceledBySignal=FALSE;
@@ -85,8 +84,9 @@ static int initMrAnderson(){
 
 int main(int argc, char *argv[]){
 	show_intro(PROGRAM_NAME, PROGRAM_VERSION);
-	Bool noIntro=FALSE, discover=FALSE, guess=FALSE;
+	Bool noIntro=FALSE, discover=FALSE;
 	char urlIp[255]="", msgError[BUFFER_SIZE_512B]="";
+	int singlePortToScan=0;
 	target.cantPortsToScan=0;
 	for(int i=1;i<argc;i++){
 		if(strcmp(argv[i],"-v")==0 || strcmp(argv[i],"--version")==0){
@@ -188,7 +188,6 @@ int main(int argc, char *argv[]){
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
-	if(target.cantPortsToScan==0) guess=TRUE;
 	if(!noIntro) show_intro_banner();
 	if(initMrAnderson()==RETURN_ERROR){
 		closeMrAnderson();
@@ -221,7 +220,7 @@ int main(int argc, char *argv[]){
 		exit(EXIT_SUCCESS);
 	}
 	if(scan_init(urlIp)==RETURN_ERROR) error_handling(0,TRUE);
-	if(!guess) if(scan_ports()==RETURN_ERROR) error_handling(0,TRUE);
+	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, TRUE)==RETURN_ERROR) error_handling(0,TRUE);
 	if(hack_port_request()==RETURN_ERROR) error_handling(0,TRUE);
 	closeMrAnderson();
 	exit(EXIT_SUCCESS);

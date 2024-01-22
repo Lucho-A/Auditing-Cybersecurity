@@ -68,20 +68,7 @@ static void process_packets(unsigned char* buffer){
 		if(source.sin_addr.s_addr==target.targetIp.s_addr && target.ports[ntohs(tcph->source)].portStatus==PORT_FILTERED){
 			if(tcph->syn==1 && tcph->ack==1){
 				target.ports[ntohs(tcph->source)].portStatus=PORT_OPENED;
-				switch(iph->ttl){
-				case 129 ... 255:
-				strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"Solaris - Cisco/Network");
-				break;
-				case 65 ... 128:
-				strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"Win");
-				break;
-				case 0 ... 64:
-				strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"*nix");
-				break;
-				default:
-					strcpy(target.ports[ntohs(tcph->source)].operatingSystem,"???");
-					break;
-				}
+				strcpy(target.ports[ntohs(tcph->source)].operatingSystem,get_ttl_description(iph->ttl));
 				contOpenedPorts++;
 				printf(REMOVE_LINE);
 				printf("Opened port found: %s%d\t%s\t%s%s",C_HRED,ntohs(tcph->source),
@@ -130,7 +117,8 @@ static void * start_reading_packets(void *args){
 	pthread_exit(NULL);
 }
 
-int scan_ports(){
+int scan_ports(int singlePortToScan, int showSummarize){
+	if(singlePortToScan!=0) target.cantPortsToScan=1;
 	struct timespec tInit, tEnd;
 	clock_gettime(CLOCK_REALTIME, &tInit);
 	int socketConn=socket(AF_INET,SOCK_RAW,IPPROTO_TCP);
@@ -224,9 +212,10 @@ int scan_ports(){
 	}
 	endScanProcess=TRUE;
 	pthread_join(readingPacketsThread, NULL);
+	endScanProcess=FALSE;
 	contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
 	Bool anyPortShown=FALSE;
-	if(cancelCurrentProcess==FALSE){
+	if(cancelCurrentProcess==FALSE && showSummarize==TRUE){
 		for(int i=0;i<ALL_PORTS;i++){
 			if(target.ports[i].portStatus==PORT_OPENED){
 				anyPortShown=TRUE;

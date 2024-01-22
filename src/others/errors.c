@@ -41,6 +41,9 @@ int error_handling(int errorType, Bool exitProgram){
 	case RECEIVING_PACKETS_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error receiving packets");
 		break;
+	case ZERO_BYTES_RECV_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "(Zero bytes received)");
+		break;
 	case DEVICE_NOT_FOUND_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Device not found");
 		break;

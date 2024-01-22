@@ -7,6 +7,8 @@
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 #include "../activities/activities.h"
+#include <errno.h>
+#include <netinet/ip.h>
 
 static int check_conn_type(){
 	int sk=0;
@@ -15,7 +17,7 @@ static int check_conn_type(){
 	serverAddress.sin_port=htons(portUnderHacking);
 	serverAddress.sin_addr.s_addr= target.targetIp.s_addr;
 	if(create_socket_conn(&sk)!=RETURN_OK) return RETURN_ERROR;
-	// check SSH
+	// check SSH_0
 	LIBSSH2_SESSION *sshSession=NULL;
 	if((sshSession = libssh2_session_init())==NULL) return set_last_activity_error(SSH_HANDSHAKE_ERROR,"");
 	libssh2_session_set_timeout(sshSession, SSH_TIMEOUT_MS);
@@ -178,6 +180,18 @@ int hack_port_request(){
 			free(c);
 		}while(TRUE);
 		if(target.ports[portUnderHacking].connectionType==UNKNOWN_CONN_TYPE){
+			if(target.ports[portUnderHacking].portStatus==PORT_UNKNOWN){
+				PRINT_RESET;
+				scan_ports(portUnderHacking, FALSE);
+			}
+			switch (target.ports[portUnderHacking].portStatus){
+			case PORT_FILTERED:
+				printf("%sFiltered%s\n\n", C_HYELLOW, C_DEFAULT);
+				continue;
+			case PORT_CLOSED:
+				printf("%sClosed%s\n\n", C_HGREEN, C_DEFAULT);
+				continue;
+			}
 			int resp=0;
 			if((resp=check_conn_type())<0){
 				error_handling(0,FALSE);
