@@ -99,14 +99,14 @@ static int reading_packets(){
 		return set_last_activity_error(SOCKET_CREATION_ERROR,"");
 	}
 	saddrSize=sizeof saddr;
-	while(endScanProcess==FALSE){
+	do{
 		bytesRecv=recvfrom(sockRaw,buffer,65536,0,&saddr,&saddrSize);
 		if(bytesRecv<0){
 			free(buffer);
 			return set_last_activity_error(RECEIVING_PACKETS_ERROR,"");
 		}
 		if(bytesRecv>0) process_packets(buffer);
-	}
+	}while(endScanProcess==FALSE);
 	free(buffer);
 	close(sockRaw);
 	return RETURN_OK;

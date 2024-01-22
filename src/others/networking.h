@@ -71,6 +71,7 @@ int send_msg_to_server(int *, struct in_addr, char *, int, int, char *, long int
 int get_port_index(int);
 char * get_ttl_description(int);
 void show_opened_ports();
+void show_filtered_ports();
 int update();
 int check_updates();
 
