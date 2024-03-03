@@ -42,6 +42,7 @@ git clone https://github.com/lucho-a/Auditing-Cybersecurity.git
 cd Auditing-Cybersecurity/src
 gcc -o "auditing-cybersecurity" main.c auditing-cybersecurity.h  others/* ports/* activities/* libodpi/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
 ```
+<!--
 ### Bonus Track
 I backed up a WSL2 Ubuntu (22.04) image that I created for testing purposes. You can download it if you want:
 ```
@@ -52,6 +53,7 @@ ftp ftp://wsl_images:wsl_images@lucho-a.ddns.net:2121/wsl_images/wsl2-ubuntu-220
 Althought there are few intentional issues in certain services, the vm does not pretend to be a kind of "challenge" for anybody, nor a complete testing environment, but only a kind of (backup) starting point for setting-up a testing lab under WSL2 system.
 
 BTW, into the user's home, there is an script for setting up the network in case you've set a bridge connection before.
+-->
 <!-- ### Documentation about activity descriptions -->
 <!-- You can find a brief description [here](https://github.com/Lucho-A/Auditing-Cybersecurity/blob/master/Auditing-Cybersecurity-README_v1.0.3.txt). -->
 ### Documentation
