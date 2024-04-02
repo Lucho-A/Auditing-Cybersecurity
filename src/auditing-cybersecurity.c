@@ -2,7 +2,7 @@
  ============================================================================
  Name        : main.c
  Author      : L.
- Version     : 1.2.7
+ Version     : 1.2.8
  Copyright   : GNU General Public License v3.0
  Description : Main file
  ============================================================================

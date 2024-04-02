@@ -180,10 +180,8 @@ int hack_port_request(){
 			free(c);
 		}while(TRUE);
 		if(target.ports[portUnderHacking].connectionType==UNKNOWN_CONN_TYPE){
-			if(target.ports[portUnderHacking].portStatus==PORT_UNKNOWN){
-				PRINT_RESET;
-				scan_ports(portUnderHacking, FALSE);
-			}
+			PRINT_RESET;
+			if(target.ports[portUnderHacking].portStatus==PORT_UNKNOWN) scan_ports(portUnderHacking, FALSE);
 			switch (target.ports[portUnderHacking].portStatus){
 			case PORT_FILTERED:
 				printf("%sFiltered%s\n\n", C_HYELLOW, C_DEFAULT);

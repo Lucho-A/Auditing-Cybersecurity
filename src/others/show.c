@@ -35,6 +35,7 @@ void show_help(char *msgError){
 	printf("-p | --port [int]: scan just one port.\n");
 	printf("-a | --all: scan all (65535) ports.\n");
 	printf("-s | --scan-delay [long int]: delay in us between sending packets. Default 0.\n");
+	printf("-r | --resources-location [string]: path to resource files. Default '/usr/share/auditing-cybersecurity/resources/'.\n");
 	printf("-n | --no-intro: no 'Waking Up' intro.\n\n");
 	printf("Examples: \n\n");
 	printf("$ auditing-cybersecurity --discover --no-intro\n");
