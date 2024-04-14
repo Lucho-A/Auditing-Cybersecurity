@@ -12,9 +12,7 @@ For those folks who ask me if I will release the source code: yes, I will. Two r
 ### Changelog
 _Follow the rabbit..._
 
-[(\\(\\
-( -.-)
-o_(")(")](https://github.com/Lucho-A/Auditing-Cybersecurity/tree/master/changelog)
+[(\\(\\<br>( -.-)<br>o_(")(")](https://github.com/Lucho-A/Auditing-Cybersecurity/tree/master/changelog)
 ### Installation
 <!--
 [Download](https://github.com/Lucho-A/Auditing-Cybersecurity/releases/latest) the file, and use apt-get for resolving dependencies:
