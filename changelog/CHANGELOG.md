@@ -1,10 +1,6 @@
-### auditing-cybersecurity-v1.2.8:UnderDev/Testing
+### auditing-cybersecurity-v1.2.8
 
-SHA2-256(auditing-cybersecurity_1.2_8.deb)=
-
-SHA2-256(auditing-cybersecurity_1.2_8-amd64.tar.gz)=
-
-Updated: 2024-XX-XX
+Updated: 2024-04-14
 Criticality: medium
 
 BUG_FIXED:
