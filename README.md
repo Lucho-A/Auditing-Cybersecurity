@@ -10,8 +10,13 @@ Finally, just mention that, since v1.2.4, I started to incorporate AI into the p
 For those folks who ask me if I will release the source code: yes, I will. Two reasons stop me right now: in first place, I'm not fully comfortable with the code. I've been re-organizing it, I have a lot of ideas, etc.. In second place (first?), I've been looking for a job since 2 years ago, I've had more than 40 interviews, and I didn't getting hire!, so, I’m not sure why I should give my work to the society for free if this shameless society is incapable to give a job to me! hhahah... anyway, as I said: take me patience, I will ;)
 -->
 ### Changelog
-[Here](https://github.com/Lucho-A/Auditing-Cybersecurity/releases/latest)
-### Installation/Updating
+_Follow the rabbit..._
+
+[(\\(\\
+( -.-)
+o_(")(")](https://github.com/Lucho-A/Auditing-Cybersecurity/tree/master/changelog)
+### Installation
+<!--
 [Download](https://github.com/Lucho-A/Auditing-Cybersecurity/releases/latest) the file, and use apt-get for resolving dependencies:
 ```
 sudo apt-get install ./auditing-cybersecurity_X.X_X.deb
@@ -19,6 +24,21 @@ sudo apt-get install ./auditing-cybersecurity_X.X_X.deb
 Note: if you already have installed the program, since v1.2.2, it's possible to perform the update executing:
 ```
 sudo auditing-cybersecurity --update
+```
+-->
+#### Dependencies:
+```
+sudo apt-get install libcurl4-gnutls-dev libssh2-1-dev libmysqlclient-dev libc6-dev libpq-dev libsmbclient-dev libssl3 libodbc2 libreadline-dev libpcap0.8-dev libnet1-dev libftp-dev unixodbc-dev libesmtp-dev
+```
+Note: ODPI-C does require Oracle Client libraries: https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html
+
+#### Compilation:
+```
+git clone https://github.com/lucho-a/Auditing-Cybersecurity.git
+cd Auditing-Cybersecurity/src
+gcc -o "auditing-cybersecurity" auditing-cybersecurity.c auditing-cybersecurity.h  others/* ports/* activities/* libodpi/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
+set -e
+sudo setcap CAP_NET_RAW=+eip auditing-cybersecurity
 ```
 Optional (recommended) third-party software's:
 ```
@@ -29,20 +49,6 @@ Then, you will need "resource" files in order to perform the scanning, and speci
 Finally:
 ```
 auditing-cybersecurity --help
-```
-### Dependencies:
-```
-sudo apt-get install libcurl4-gnutls-dev libssh2-1-dev libmysqlclient-dev libc6-dev libpq-dev libsmbclient-dev libssl3 libodbc2 libreadline-dev libpcap0.8-dev libnet1-dev libftp-dev unixodbc-dev libesmtp-dev
-```
-Note: ODPI-C does require Oracle Client libraries: https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html
-
-### Compilation:
-```
-git clone https://github.com/lucho-a/Auditing-Cybersecurity.git
-cd Auditing-Cybersecurity/src
-gcc -o "auditing-cybersecurity" auditing-cybersecurity.c auditing-cybersecurity.h  others/* ports/* activities/* libodpi/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
-set -e
-sudo setcap CAP_NET_RAW=+eip auditing-cybersecurity
 ```
 <!--
 ### Bonus Track

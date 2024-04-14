@@ -98,15 +98,6 @@ int main(int argc, char *argv[]){
 			closeMrAnderson();
 			exit(EXIT_FAILURE);
 		}
-		if(strcmp(argv[i],"-u")==0 || strcmp(argv[i],"--update")==0){
-			if(getuid()!=0) return show_message("You must be root for updating.\n", 0, 0, ERROR_MESSAGE, TRUE);
-			if(update()==RETURN_ERROR){
-				printf("\n%sUpdating error. %s.\n",C_HRED,strerror(errno));
-				PRINT_RESET;
-			}
-			closeMrAnderson();
-			exit(EXIT_SUCCESS);
-		}
 		if(strcmp(argv[i],"-d")==0 || strcmp(argv[i],"--discover")==0){
 			discover=TRUE;
 			continue;

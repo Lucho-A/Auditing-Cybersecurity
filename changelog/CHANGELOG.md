@@ -25,6 +25,7 @@ OTHERS:
 - scans/re-scans can be canceled.
 - the default "resource" folder was removed, and '-r' option is now mandatory.
 - update ODPI-C library. Just for the records, note that ODPI-C does require Oracle Client libraries: https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html
+- due to technical needs & scoping, the development of the program will begin to slow down. So, deb package wont be delivered anymore, and the program, let's say, is going to be in a permanent development stage. So, at the moment, won't have new "official" releases, and automatic updates are stand-by.
 - minor changes & code cleaned-up.
 
 ### auditing-cybersecurity-v1.2.7:"Mar de las Pampas" hhahah (such amazing place... counting the days for returning)

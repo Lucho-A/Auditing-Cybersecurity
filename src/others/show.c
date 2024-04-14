@@ -27,7 +27,6 @@ void show_help(char *msgError){
 	printf("\nOptions:\n\n");
 	printf("-v | --version: show version.\n");
 	printf("-h | --help: show this.\n");
-	printf("-u | --update: update.\n");
 	printf("-d | --discover: search for devices in the network.\n");
 	//printf("-m | --monitor: monitoring queries through an interface.\n");
 	printf("-t | --target [string]: url|ip to scan.\n");
@@ -45,7 +44,6 @@ void show_help(char *msgError){
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 30 -n -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io --all --no-intro -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -p 2221 -n -r /home/user/res/\n");
-	printf("$ sudo auditing-cybersecurity --update\n");
 	printf("$ auditing-cybersecurity --help\n\n");
 	printf("See https://github.com/Lucho-A/Auditing-Cybersecurity for a full description.\n\n");
 }
