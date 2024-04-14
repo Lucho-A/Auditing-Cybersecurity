@@ -46,9 +46,9 @@ static int get_latest_version(char *latestVersion){
 	unsigned char *serverResp=NULL;
 	if(connect_to_github(&serverResp)==RETURN_ERROR) return RETURN_ERROR;
 	char *buffer="";
-	char *token="\"name\":\"auditing-cybersecurity-v";
+	char *token="\"name\":\"v";
 	if((buffer=strstr((char *) serverResp,token))!=NULL){
-		for(int i=strlen(token);buffer[i]!=' ';i++) latestVersion[i-strlen(token)]=buffer[i];
+		for(int i=strlen(token);buffer[i]!='\"';i++) latestVersion[i-strlen(token)]=buffer[i];
 		free(serverResp);
 		return RETURN_OK;
 	}

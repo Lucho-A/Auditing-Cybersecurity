@@ -199,7 +199,7 @@ int main(int argc, char *argv[]){
 		if(latestVersion){
 			printf("%sup-to-date\n",C_HGREEN);
 		}else{
-			printf("%sout-of-date. You can execute 'auditing-cybersecurity --update' or download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest\n",C_HRED);
+			printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest\n",C_HRED);
 		}
 		PRINT_RESET;
 		printf("Internet connection: %sOK",C_HGREEN);
