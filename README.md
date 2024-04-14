@@ -30,7 +30,7 @@ Finally:
 ```
 auditing-cybersecurity --help
 ```
-### Dependencies installation (Debian way):
+### Dependencies:
 ```
 sudo apt-get install libcurl4-gnutls-dev libssh2-1-dev libmysqlclient-dev libc6-dev libpq-dev libsmbclient-dev libssl3 libodbc2 libreadline-dev libpcap0.8-dev libnet1-dev libftp-dev unixodbc-dev libesmtp-dev
 ```
@@ -62,7 +62,7 @@ BTW, into the user's home, there is an script for setting up the network in case
 _(Under development)_
 ### Feedback
 Any doubt, suggestion or feedback, pls, just contact me.
-
+<!--
 ### Screenshots:
 <p align="center">
 
@@ -77,3 +77,4 @@ Any doubt, suggestion or feedback, pls, just contact me.
 ![imagen](https://github.com/Lucho-A/Auditing-Cybersecurity/assets/40904281/7adfdfb6-63c2-44bc-8bd0-75806f81dba1)
 
 </p>
+-->
