@@ -24,23 +24,25 @@ Optional (recommended) third-party software's:
 ```
 sudo apt-get install nmap metasploit-framework sqlmap fierce dnsenum traceroute whois
 ```
-Then:
+Then, you will need "resource" files in order to perform the scanning, and specifying the different brute force attack usernames & password files, HTTP grabbing files, etc.: [link](https://github.com/Lucho-A/Auditing-Cybersecurity/tree/master/default_resources_files)
+
+Finally:
 ```
 auditing-cybersecurity --help
-```
-Finally, I recommend you to edit the different brute force attack usernames & password files, HTTP grabbing files, etc. located into:
-```
-cd /usr/share/auditing-cybersecurity/resources/
 ```
 ### Dependencies installation (Debian way):
 ```
 sudo apt-get install libcurl4-gnutls-dev libssh2-1-dev libmysqlclient-dev libc6-dev libpq-dev libsmbclient-dev libssl3 libodbc2 libreadline-dev libpcap0.8-dev libnet1-dev libftp-dev unixodbc-dev libesmtp-dev
 ```
+Note: ODPI-C does require Oracle Client libraries: https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html
+
 ### Compilation:
 ```
 git clone https://github.com/lucho-a/Auditing-Cybersecurity.git
 cd Auditing-Cybersecurity/src
-gcc -o "auditing-cybersecurity" main.c auditing-cybersecurity.h  others/* ports/* activities/* libodpi/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
+gcc -o "auditing-cybersecurity" auditing-cybersecurity.c auditing-cybersecurity.h  others/* ports/* activities/* libodpi/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
+set -e
+sudo setcap CAP_NET_RAW=+eip auditing-cybersecurity
 ```
 <!--
 ### Bonus Track
@@ -60,8 +62,6 @@ BTW, into the user's home, there is an script for setting up the network in case
 _(Under development)_
 ### Feedback
 Any doubt, suggestion or feedback, pls, just contact me.
-
-Have fun!
 
 ### Screenshots:
 <p align="center">
