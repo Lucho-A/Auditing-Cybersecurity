@@ -1,6 +1,6 @@
 ### auditing-cybersecurity-v1.2.8
 
-Updated: 2024-04-14
+Updated: 2024-04-14 <br>
 Criticality: medium
 
 BUG_FIXED:
