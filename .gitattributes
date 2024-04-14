@@ -1,1 +1,4 @@
-src/
+.settings export-ignore
+changelog/ export-ignore
+default_resources_files export-ignore
+.* export-ignore
