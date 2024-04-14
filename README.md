@@ -13,9 +13,7 @@ For those folks who ask me if I will release the source code: yes, I will. Two r
 _Follow the rabbit..._
 
 [(\\(\\
-
 ( -.-)
-
 o_(")(")](https://github.com/Lucho-A/Auditing-Cybersecurity/tree/master/changelog)
 ### Installation
 <!--
