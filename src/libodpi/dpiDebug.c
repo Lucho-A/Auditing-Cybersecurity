@@ -27,7 +27,7 @@
 //   Methods used for debugging ODPI-C.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 #define DPI_DEBUG_THREAD_FORMAT         "%.5" PRIu64
 #define DPI_DEBUG_DATE_FORMAT           "%.4d-%.2d-%.2d"

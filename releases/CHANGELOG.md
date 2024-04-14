@@ -11,6 +11,9 @@ BUG_FIXED:
 - 2.3   -> fix false -
 - 6.2   -> fix false +
 
+FEATURE:
+- _(UNDER EVALUATION)_ When performing BFA on certain port/services, the activity asks for performing only a "test user login". The idea here is evaluating the variation coefficient associated with the elapsed time between login attempts. If this value is closer to 0 (lesser than 10% in practice), this implies that the login time between queries is quiet homogeneous. The algorithm in this case, evaluate if a login attempt for each user is not in line with the average elapsed time value (20% higher) and report it. Context: once a time, there were several issues and vulnerabilities regarding with this. In short, if a user exist, the service delayed a bit more the response than if the user doesn't. A well-security-design in this regard, for example, could implement randomly delays in order to avoid this issue. Nowadays, is quiet weird find a service with this vulnerability but, who knows...
+
 IMPROVEMENT:
 - f)    -> activity added for listing the filtered ports.
 - Now, it's possible to query any port, independently if was scanned or not. In fact, if no port/s is/are specified (nor '-p', '-P', nor '-a'), the scanning is skipped and just the requesting for a port is asked.
@@ -20,6 +23,8 @@ OTHERS:
 - because previous comment, the evolution of the scanning is shown during the scan (only if '-s'!=0 -default-) and the algorithm was optimized (_under evaluation_).
 - opened ports are shown on-the-fly. Removed listing filtered & closed ports (see 'f)' for filtered ones).
 - scans/re-scans can be canceled.
+- the default "resource" folder was removed, and '-r' option is now mandatory.
+- update ODPI-C library. Just for the records, note that ODPI-C does require Oracle Client libraries: https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html
 - minor changes & code cleaned-up.
 
 ### auditing-cybersecurity-v1.2.7:"Mar de las Pampas" hhahah (such amazing place... counting the days for returning)

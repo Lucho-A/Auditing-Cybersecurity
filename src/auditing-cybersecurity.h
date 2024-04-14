@@ -56,7 +56,7 @@
 #define RETURN_OK 						0
 
 #define PRINT_DEBUG_MSG 				printf("\n%sWTF???%s\n",C_HRED,C_DEFAULT);
-#define PRINT_RESET 					printf("%s\n",C_DEFAULT)
+#define PRINT_RESET 					printf("%s\n",C_DEFAULT);
 
 #define C_HCYAN 						"\e[0;96m"
 #define C_CYAN 							"\e[0;36m"

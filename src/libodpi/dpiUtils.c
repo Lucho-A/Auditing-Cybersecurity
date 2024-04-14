@@ -27,7 +27,7 @@
 //   Utility methods that aren't specific to a particular type.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiUtils__allocateMemory() [INTERNAL]

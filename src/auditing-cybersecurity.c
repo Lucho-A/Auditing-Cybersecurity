@@ -188,6 +188,11 @@ int main(int argc, char *argv[]){
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
+	if(resourcesLocation==NULL && !discover){
+		show_help("\nYou must enter the resource folder path.\n");
+		closeMrAnderson();
+		exit(EXIT_FAILURE);
+	}
 	if(!noIntro) show_intro_banner();
 	if(initMrAnderson()==RETURN_ERROR){
 		closeMrAnderson();

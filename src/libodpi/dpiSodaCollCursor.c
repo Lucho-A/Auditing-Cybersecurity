@@ -27,7 +27,7 @@
 //   Implementation of SODA collection cursors.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiSodaCollCursor__allocate() [INTERNAL]

@@ -11,10 +11,11 @@ int smtp(int type){
 	case SMTP_BANNER_GRABBING:
 		int sk=0, bytesRecv=0;
 		unsigned char *serverResp=NULL;
-		char msgs[2][BUFFER_SIZE_32B]=
+		char msgs[3][BUFFER_SIZE_32B]=
 				{"EHLO .\r\n",
-				"HELP\r\n"};
-		for(int i=0;i<2;i++){
+				"HELP\r\n",
+				"VRFY\r\n"};
+		for(int i=0;i<3;i++){
 			bytesRecv=send_msg_to_server(&sk, target.targetIp, target.strHostname, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
 					msgs[i], strlen(msgs[i]), &serverResp, BUFFER_SIZE_1K, 0);

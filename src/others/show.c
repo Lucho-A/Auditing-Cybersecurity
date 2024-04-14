@@ -35,20 +35,19 @@ void show_help(char *msgError){
 	printf("-p | --port [int]: scan just one port.\n");
 	printf("-a | --all: scan all (65535) ports.\n");
 	printf("-s | --scan-delay [long int]: delay in us between sending packets. Default 0.\n");
-	printf("-r | --resources-location [string]: path to resource files. Default '/usr/share/auditing-cybersecurity/resources/'.\n");
+	printf("-r | --resources-location [string]: path to resource files.\n");
 	printf("-n | --no-intro: no 'Waking Up' intro.\n\n");
 	printf("Examples: \n\n");
 	printf("$ auditing-cybersecurity --discover --no-intro\n");
-	printf("$ auditing-cybersecurity -t lucho-a.github.io\n");
-	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 500\n");
-	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 100 --scan-delay 100000\n");
+	printf("$ auditing-cybersecurity -t lucho-a.github.io -r /home/user/res/\n");
+	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 500 -r /home/user/res/\n");
+	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 100 --scan-delay 100000 -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 30 -n -r /home/user/res/\n");
-	printf("$ auditing-cybersecurity -t lucho-a.github.io --all --no-intro\n");
-	printf("$ auditing-cybersecurity -t lucho-a.github.io -p 2221 -n\n");
+	printf("$ auditing-cybersecurity -t lucho-a.github.io --all --no-intro -r /home/user/res/\n");
+	printf("$ auditing-cybersecurity -t lucho-a.github.io -p 2221 -n -r /home/user/res/\n");
 	printf("$ sudo auditing-cybersecurity --update\n");
 	printf("$ auditing-cybersecurity --help\n\n");
-	printf("Note: usernames & passwords, and others useful files are located in /usr/share/auditing-cybersecurity/resources/\n\n");
-	printf("Pls, see https://github.com/Lucho-A/Auditing-Cybersecurity for a full description.\n\n");
+	printf("See https://github.com/Lucho-A/Auditing-Cybersecurity for a full description.\n\n");
 }
 
 void show_intro_banner(){

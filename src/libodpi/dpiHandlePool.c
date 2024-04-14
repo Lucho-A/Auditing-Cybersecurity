@@ -29,7 +29,7 @@
 // acquired from the front and released to the back.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiHandlePool__acquire() [INTERNAL]

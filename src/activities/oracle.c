@@ -1,12 +1,14 @@
 
-#include "dpi.h"
-#include "../libodpi/dpiImpl.h"
-//#include "dpi.c"
 #include <errno.h>
 #include <string.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 #include "activities.h"
+#include "dpi.h"
+
+// ODPI-C does require Oracle Client libraries: https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html
+
+dpiConn *dpiSamples_getConn(int withPool, dpiCommonCreateParams *commonParams);
 
 int oracle_check_user(char *username, char *password){
 	char dbURL[BUFFER_SIZE_1K]="";

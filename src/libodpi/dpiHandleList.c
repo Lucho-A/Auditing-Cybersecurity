@@ -29,7 +29,7 @@
 // structures. No references are held by the list of handles defined here.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiHandleList__addHandle() [INTERNAL]

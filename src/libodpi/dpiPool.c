@@ -27,7 +27,7 @@
 //   Implementation of session pools.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiPool__acquireConnection() [INTERNAL]

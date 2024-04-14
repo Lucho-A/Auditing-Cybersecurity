@@ -27,7 +27,7 @@
 //   Implementation of objects.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 // forward declarations of internal functions only used in this file
 int dpiObject__closeHelper(dpiObject *obj, int checkError, dpiError *error);

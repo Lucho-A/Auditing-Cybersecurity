@@ -27,7 +27,7 @@
 //   Implementation of subscriptions (CQN).
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 // forward declarations of internal functions only used in this file
 static void dpiSubscr__freeMessage(dpiSubscrMessage *message);

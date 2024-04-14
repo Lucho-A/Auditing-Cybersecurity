@@ -27,7 +27,7 @@
 //   Implementation of transformation routines.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 // constants used for converting timestamps to/from an interval
 #define DPI_MS_DAY        86400000  // 24 * 60 * 60 * 1000

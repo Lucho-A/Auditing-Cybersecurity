@@ -27,7 +27,7 @@
 //   Implementation of AQ enqueue options.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiEnqOptions__create() [INTERNAL]

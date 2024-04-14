@@ -27,7 +27,7 @@
 //   Implementation of environment.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiEnv__getBaseDate() [INTERNAL]

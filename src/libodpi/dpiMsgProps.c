@@ -27,7 +27,7 @@
 //   Implementation of AQ message properties.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 //-----------------------------------------------------------------------------
 // dpiMsgProps__allocate() [INTERNAL]

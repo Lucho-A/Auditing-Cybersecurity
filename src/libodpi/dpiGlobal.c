@@ -28,7 +28,7 @@
 // well as for looking up encodings.
 //-----------------------------------------------------------------------------
 
-#include "../libodpi/dpiImpl.h"
+#include "dpiImpl.h"
 
 // cross platform way of defining an initializer that runs at application
 // startup (similar to what is done for the constructor calls for static C++
