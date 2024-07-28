@@ -2,7 +2,7 @@
  ============================================================================
  Name        : main.c
  Author      : L.
- Version     : 1.2.8
+ Version     : 1.2.9
  Copyright   : GNU General Public License v3.0
  Description : Main file
  ============================================================================
@@ -189,22 +189,6 @@ int main(int argc, char *argv[]){
 		closeMrAnderson();
 		error_handling(0,TRUE);
 	}
-	printf("\nChecking updates: ");
-	int latestVersion=check_updates();
-	if(latestVersion==RETURN_ERROR){
-		printf("%s%s\n",C_HRED,"connection error");
-		PRINT_RESET;
-		printf("Internet connection: %sno",C_HRED);
-	}else{
-		if(latestVersion){
-			printf("%sup-to-date\n",C_HGREEN);
-		}else{
-			printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest\n",C_HRED);
-		}
-		PRINT_RESET;
-		printf("Internet connection: %sOK",C_HGREEN);
-	}
-	PRINT_RESET;
 	time_t timestamp = time(NULL);
 	struct tm tm = *localtime(&timestamp);
 	char strTimeStamp[50]="";

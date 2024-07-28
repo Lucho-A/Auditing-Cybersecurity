@@ -1,3 +1,11 @@
+### auditing-cybersecurity-v1.2.9
+
+Updated: 2024-07-27
+Criticality: low
+
+FEATURE:
+- information about public ip (from api.ipify.org) is shown.
+
 ### auditing-cybersecurity-v1.2.8
 
 Updated: 2024-04-14 <br>

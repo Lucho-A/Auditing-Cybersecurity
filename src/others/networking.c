@@ -24,30 +24,49 @@ static void clean_ssl(SSL *ssl){
 char * get_ttl_description(int ttlValue){
 	switch(ttlValue){
 	case 129 ... 255:
-		return "Solaris - Cisco/Network";
+	return "Solaris - Cisco/Network";
 	case 65 ... 128:
-		return"Win";
+	return"Win";
 	break;
 	case 0 ... 64:
-		return "*nix";
+	return "*nix";
 	default:
 		return "???";
 	}
 }
 
+static int get_public_ip(unsigned char **serverResp){
+	struct hostent *he;
+	struct in_addr **addrList;
+	if((he=gethostbyname("api.ipify.org"))==NULL) return RETURN_ERROR;
+	addrList=(struct in_addr **) he->h_addr_list;
+	if(addrList[0]==NULL) return RETURN_ERROR;
+	char *msg="GET / HTTP/1.1\r\n"
+			"Host: api.ipify.org\r\n"
+			"user-agent: auditing-cybersecurity\r\n"
+			"accept: */*\r\n"
+			"connection: close\r\n\r\n";
+	struct in_addr ip;
+	ip.s_addr=inet_addr(inet_ntoa(*addrList[0]));
+	int conn=0;
+	int br=0;
+	if((br=send_msg_to_server(&conn,ip,"api.ipify.org",443, SSL_CONN_TYPE, msg,strlen(msg),
+			serverResp, BUFFER_SIZE_8K,0))<0) return RETURN_ERROR;
+	close(conn);
+	return br;
+}
 
-static void get_local_ip(char * buffer){
+static void get_local_ip(char *buffer){
 	int socketConn=socket(AF_INET,SOCK_DGRAM,0);
 	setsockopt(socketConn, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-	const char* kGoogleDnsIp="8.8.8.8";
+	const char* kGoogleDnsIp="1.1.1.1";
 	int dns_port=53;
 	struct sockaddr_in serv;
 	memset(&serv,0,sizeof(serv));
 	serv.sin_family=AF_INET;
 	serv.sin_addr.s_addr=inet_addr(kGoogleDnsIp);
 	serv.sin_port=htons(dns_port);
-	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0)
-		error_handling(SOCKET_CONNECTION_ERROR,TRUE);
+	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0) error_handling(SOCKET_CONNECTION_ERROR,TRUE);
 	struct sockaddr_in name;
 	socklen_t namelen=sizeof(name);
 	if(getsockname(socketConn,(struct sockaddr*) &name, &namelen)<0) error_handling(GETSOCKNAME_ERROR,TRUE);
@@ -119,6 +138,18 @@ int init_networking(){
 			&networkInfo.interfaceMacHex[3], &networkInfo.interfaceMacHex[4], &networkInfo.interfaceMacHex[5]);
 	get_local_ip(networkInfo.interfaceIp);
 	printf("\nLocal IP: %s%s%s\n", C_HWHITE, networkInfo.interfaceIp, C_DEFAULT);
+	unsigned char *publicIp=NULL;
+	int br=get_public_ip(&publicIp);
+	if(br<1){
+		printf("\nPublic IP: %sNo Internet connection%s\n",C_HRED,C_DEFAULT);
+	}else{
+		char *buffer="";
+		buffer=strstr((char *) publicIp,"\n\r\n");
+		printf("\nPublic IP: %s", C_HWHITE);
+		for(int i=3;i<strlen(buffer);i++) printf("%c", buffer[i]);
+		PRINT_RESET
+	}
+	free(publicIp);
 	if (pcap_lookupnet(networkInfo.interfaceName, &networkInfo.net, &networkInfo.mask, errbuf)==-1) {
 		show_message("Unable to getting the netmask.",0, 0, ERROR_MESSAGE, TRUE);
 		networkInfo.net=networkInfo.mask=0;
@@ -127,6 +158,23 @@ int init_networking(){
 	printf("\nLocal network: %s%s%s\n", C_HWHITE, inet_ntoa(networkInfo.netMask), C_DEFAULT);
 	networkInfo.netBroadcast.s_addr=networkInfo.netMask.s_addr | ~networkInfo.mask;
 	printf("\nBroadcast: %s%s%s\n", C_HWHITE, inet_ntoa(networkInfo.netBroadcast), C_DEFAULT);
+	printf("\nChecking updates: ");
+	if(br>1){
+		int latestVersion=check_updates();
+		if(latestVersion==RETURN_ERROR){
+			printf("%s%s",C_HRED,"connection error");
+			PRINT_RESET;
+		}else{
+			if(latestVersion){
+				printf("%sup-to-date",C_HGREEN);
+			}else{
+				printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest",C_HRED);
+			}
+		}
+	}else{
+		printf("%s%s",C_HRED,"Unable to check updates (no Internet connection)");
+	}
+	PRINT_RESET;
 	return RETURN_OK;
 }
 

@@ -29,19 +29,6 @@ static int connect_to_github(unsigned char **serverResp){
 	return RETURN_OK;
 }
 
-static int get_latest_version_url(char *latestVersionURL){
-	unsigned char *serverResp=NULL;
-	if(connect_to_github(&serverResp)==RETURN_ERROR) return RETURN_ERROR;
-	char *buffer="";
-	if((buffer=strstr((char *) serverResp,"\"browser_download_url\":\""))!=NULL){
-		for(int i=24;buffer[i]!='"';i++) latestVersionURL[i-24]=buffer[i];
-		free(serverResp);
-		return RETURN_OK;
-	}
-	free(serverResp);
-	return RETURN_ERROR;
-}
-
 static int get_latest_version(char *latestVersion){
 	unsigned char *serverResp=NULL;
 	if(connect_to_github(&serverResp)==RETURN_ERROR) return RETURN_ERROR;
