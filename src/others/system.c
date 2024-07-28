@@ -18,6 +18,11 @@ int system_call(char *cmdArg){
 	fclose(f);
 	do{
 		char *cmd=get_readline("![#]=templates,;=exit)-> ", TRUE);
+		if(cmd[0]==0){
+			PRINT_RESET
+			free(cmd);
+			continue;
+		}
 		if(strcmp(cmd,";")==0) break;
 		if(strcmp(cmd,"!")==0){
 			for(int i=0;i<totalStrings;i++) printf("\n  %d) %s", i+1, stringTemplates[i]);

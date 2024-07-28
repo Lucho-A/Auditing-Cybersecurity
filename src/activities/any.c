@@ -239,6 +239,11 @@ int any(int type){
 			fclose(f);
 			do{
 				char *sqlCmd=get_readline("![#]=templates,;=exit)-> ", FALSE);
+				if(sqlCmd[0]==0){
+					PRINT_RESET
+					free(sqlCmd);
+					continue;
+				}
 				if(strcmp(sqlCmd,";")==0) {
 					free(sqlCmd);
 					break;

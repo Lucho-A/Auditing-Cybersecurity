@@ -59,12 +59,12 @@ static int get_public_ip(unsigned char **serverResp){
 static void get_local_ip(char *buffer){
 	int socketConn=socket(AF_INET,SOCK_DGRAM,0);
 	setsockopt(socketConn, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-	const char* kGoogleDnsIp="1.1.1.1";
+	const char* dnsIp="1.1.1.1";
 	int dns_port=53;
 	struct sockaddr_in serv;
 	memset(&serv,0,sizeof(serv));
 	serv.sin_family=AF_INET;
-	serv.sin_addr.s_addr=inet_addr(kGoogleDnsIp);
+	serv.sin_addr.s_addr=inet_addr(dnsIp);
 	serv.sin_port=htons(dns_port);
 	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0) error_handling(SOCKET_CONNECTION_ERROR,TRUE);
 	struct sockaddr_in name;
@@ -142,11 +142,13 @@ int init_networking(){
 	int br=get_public_ip(&publicIp);
 	if(br<1){
 		printf("\nPublic IP: %sNo Internet connection%s\n",C_HRED,C_DEFAULT);
+		networkInfo.internetAccess=FALSE;
 	}else{
 		char *buffer="";
 		buffer=strstr((char *) publicIp,"\n\r\n");
 		printf("\nPublic IP: %s", C_HWHITE);
 		for(int i=3;i<strlen(buffer);i++) printf("%c", buffer[i]);
+		networkInfo.internetAccess=TRUE;
 		PRINT_RESET
 	}
 	free(publicIp);
@@ -172,7 +174,7 @@ int init_networking(){
 			}
 		}
 	}else{
-		printf("%s%s",C_HRED,"Unable to check updates (no Internet connection)");
+		printf("%s%s",C_HRED,"Unable to check updates");
 	}
 	PRINT_RESET;
 	return RETURN_OK;

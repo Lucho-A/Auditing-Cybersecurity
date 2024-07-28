@@ -27,7 +27,7 @@ int scan_init(char *urlIp){
 		target.targetIp.s_addr=inet_addr(urlIp);
 	}else{
 		char *ip=hostname_to_ip(urlIp);
-		if(ip==NULL){
+		if(ip==NULL || networkInfo.internetAccess==FALSE){
 			printf("URL (%s%s%s) resolved to: %sunable to resolve the host.%s \n\n",C_HWHITE,urlIp,C_DEFAULT,C_HRED,C_DEFAULT);
 			exit(EXIT_SUCCESS);
 		}

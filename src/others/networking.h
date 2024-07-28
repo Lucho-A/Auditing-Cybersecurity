@@ -60,6 +60,7 @@ struct NetworkInfo{
 	struct in_addr netBroadcast;
 	u_int mask;
 	u_int net;
+	int internetAccess;
 };
 
 int init_networking();

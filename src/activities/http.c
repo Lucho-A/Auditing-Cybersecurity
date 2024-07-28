@@ -236,9 +236,9 @@ static void *evaluate_response(void *arg){
 				//		|| strstr(serverResp," 204 " )!=NULL
 				//		|| strstr(serverResp," 302 " )!=NULL
 				//		|| strstr(serverResp," 301 " )!=NULL)){
-					printf(REMOVE_LINE);
-					printf("  File found: %s/%s%s (%sredirected%s)",C_HRED, files[i],C_DEFAULT, C_HWHITE,C_DEFAULT);
-					printf("\n\n"REMOVE_LINE);
+				printf(REMOVE_LINE);
+				printf("  File found: %s/%s%s (%sredirected%s)",C_HRED, files[i],C_DEFAULT, C_HWHITE,C_DEFAULT);
+				printf("\n\n"REMOVE_LINE);
 				//}
 				continue;
 			}
@@ -380,6 +380,11 @@ int http(int type){
 		fclose(f);
 		do{
 			char *command=get_readline("![#]=templates,;=exit)-> ", FALSE);
+			if(command[0]==0){
+				PRINT_RESET
+				free(command);
+				continue;
+			}
 			if(strcmp(command,";")==0){
 				free(command);
 				break;
