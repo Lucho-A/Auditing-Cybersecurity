@@ -1,9 +1,3 @@
-/*
- * networking.h
- *
- *  Created on: 14 sep. 2023
- *      Author: luch-l
- */
 
 #ifndef OTHERS_NETWORKING_H_
 #define OTHERS_NETWORKING_H_
@@ -35,7 +29,6 @@ struct PseudoHeader{
 };
 
 struct Port{
-	//int portNumber;
 	int portStatus;
 	char serviceName[50];
 	char operatingSystem[50];

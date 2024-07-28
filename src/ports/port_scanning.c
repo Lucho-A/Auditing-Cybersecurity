@@ -24,6 +24,11 @@ int scan_init(char *urlIp){
 	printf("\n");
 	if(inet_addr(urlIp)!=-1){
 		printf("No need to resolve the IP (%s%s%s)\n\n",C_HWHITE,urlIp,C_DEFAULT);
+		if((strstr(urlIp, "10.")!=urlIp && strstr(urlIp, "172.16")!=urlIp && strstr(urlIp, "192.168")!=urlIp)
+				&& networkInfo.internetAccess==FALSE){
+			printf("Public IP: %sno Internet access.%s \n\n",C_HRED,C_DEFAULT);
+			exit(EXIT_SUCCESS);
+		}
 		target.targetIp.s_addr=inet_addr(urlIp);
 	}else{
 		char *ip=hostname_to_ip(urlIp);

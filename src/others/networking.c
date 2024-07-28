@@ -24,7 +24,7 @@ static void clean_ssl(SSL *ssl){
 char * get_ttl_description(int ttlValue){
 	switch(ttlValue){
 	case 129 ... 255:
-	return "Solaris - Cisco/Network";
+	return "Solaris-Cisco/Network";
 	case 65 ... 128:
 	return"Win";
 	break;
@@ -161,7 +161,7 @@ int init_networking(){
 	networkInfo.netBroadcast.s_addr=networkInfo.netMask.s_addr | ~networkInfo.mask;
 	printf("\nBroadcast: %s%s%s\n", C_HWHITE, inet_ntoa(networkInfo.netBroadcast), C_DEFAULT);
 	printf("\nChecking updates: ");
-	if(br>1){
+	if(networkInfo.internetAccess){
 		int latestVersion=check_updates();
 		if(latestVersion==RETURN_ERROR){
 			printf("%s%s",C_HRED,"connection error");
@@ -393,7 +393,6 @@ void ip_to_hostname(char *ip, char *hostname){
 	char host[1024], service[20];
 	int valResp=getnameinfo((struct sockaddr*)&sa, sizeof(sa), host, sizeof host, service, sizeof service, 0);
 	(!valResp)?(snprintf(hostname,sizeof(host),"%s",host)):(snprintf(hostname,sizeof(host),"%s",""));
-	//free(sa.sin_family);
 }
 
 char* hostname_to_ip(char * hostname){

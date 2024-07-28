@@ -200,8 +200,6 @@ struct ThreadInfo{
 
 struct LastestError{
 	int errorType;
-	//bool exitProgram;
-	//int errorNumber;
 	char errorAditionalDescription[BUFFER_SIZE_256B];
 };
 
