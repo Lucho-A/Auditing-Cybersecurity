@@ -272,6 +272,7 @@ int ollama_unload_model(){
 			"%s", oi.ip, (int) strlen(body), body);
 	char *buffer=NULL;
 	ollama_send_message(msg, &buffer,NULL, FALSE);
+	if(buffer==NULL) return RETURN_ERROR;
 	if(strstr(buffer,"200 OK")!=NULL){
 		free(buffer);
 		return RETURN_OK;
