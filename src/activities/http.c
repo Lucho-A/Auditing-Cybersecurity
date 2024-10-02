@@ -16,13 +16,6 @@ long int selectedOpt=0;
 int totalThreads=0;
 int contProcesedFiles=0;
 
-static void clean_ssl(SSL *ssl){
-	if(ssl!=NULL) SSL_shutdown(ssl);
-	if(ssl!=NULL) SSL_certs_clear(ssl);
-	if(ssl!=NULL) SSL_clear(ssl);
-	if(ssl!=NULL) SSL_free(ssl);
-}
-
 static int compare_dates(struct tm tm1,struct tm tm2){
 	char strTm1[BUFFER_SIZE_32B]="", strTm2[BUFFER_SIZE_32B]="";
 	snprintf(strTm1,BUFFER_SIZE_32B,"%d%02d%02d",tm1.tm_year,tm1.tm_mon,tm1.tm_mday);

@@ -1,6 +1,0 @@
-[API]
-
-[MAX_TOKENS]
-512
-[TEMP]
-1.0

@@ -28,7 +28,6 @@ void show_help(char *msgError){
 	printf("-v | --version: show version.\n");
 	printf("-h | --help: show this.\n");
 	printf("-d | --discover: search for devices in the network.\n");
-	//printf("-m | --monitor: monitoring queries through an interface.\n");
 	printf("-t | --target [string]: url|ip to scan.\n");
 	printf("-P | --ports [int]: number of ports to scan (1-5000).\n");
 	printf("-p | --port [int]: scan just one port.\n");
@@ -146,16 +145,14 @@ void show_options(){
 
 	printf("\t1) %sAny%s service:\n",C_HWHITE, C_DEFAULT);
 	printf("\t1.1)  Service info & responses grabbing");
-	printf("\t1.2)  DoS Syn Flood Attack");
-	printf("\t\t\t\t\t\t1.11)  CVE searching\n");
-	printf("\t1.3)  nMap Vulners scan");
-	printf("\t\t\t1.4)  Code Red buffer overflow\n");
+	printf("\t1.2)  nMap Vulners scan");
+	printf("\t\t1.3)  Search for nMap script");
+	printf("\t\t1.4)  Run nMap script\n");
 	printf("\t1.5)  Search for Msf module");
-	printf("\t\t1.6)  Run Msf module\n");
-	printf("\t1.7)  Search for nMap script");
-	printf("\t\t1.8)  Run nMap script\n");
-	printf("\t1.9)  SQLmap query");
-	printf("\t\t\t1.10) Sniffing (ARP Poisoning attack)/DoS ARP Flooding attack\n\n");
+	printf("\t\t1.6)  Run Msf module");
+	printf("\t\t1.7)  SQLmap query\n");
+	printf("\t1.8)  DoS Syn Flood Attack");
+	printf("\t\t1.9)  Sniffing (ARP Poisoning attack)/DoS ARP Flooding attack\n\n");
 
 	printf("\t2) %sHTTP/HTTPS%s services:\n", C_HWHITE,C_DEFAULT);
 	printf("\t2.1)  Header banner grabbing");
@@ -215,7 +212,7 @@ void show_options(){
 	printf("\to)  Show opened ports");
 	printf("\t\t\td)  Show hosts");
 	printf("\t\t\ti)  Interactive mode");
-	printf("\t\t\tg)  ChatGPT\n");
+	printf("\t\t\tv)  CVE searching\n");
 	printf("\tf)  Show filtered ports");
 	printf("\t\t\ts)  System call");
 	printf("\t\t\tt)  Traceroute");
@@ -223,6 +220,5 @@ void show_options(){
 	printf("\th)  Show activities");
 	printf("\t\t\tc)  Change port");
 	printf("\t\t\tq)  Exit\n\n");
-	//printf("\t d) Command description\n\n");
 }
 

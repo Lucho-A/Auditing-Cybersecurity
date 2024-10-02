@@ -27,7 +27,6 @@
 #define PACKET_FORWARDING_LIMIT 		1
 #define SEND_PACKET_DELAY_US 			500000
 #define SEND_PACKET_PER_PORT_DELAY_US	0
-#define PATH_TO_RESOURCES 				"/usr/share/auditing-cybersecurity/resources/"
 #define BRUTE_FORCE_DELAY_US 			100000
 #define BRUTE_FORCE_TIMEOUT 			3
 #define CURL_TIMEOUT					5L
@@ -82,7 +81,9 @@ enum errors{
 	SOCKET_CONNECTION_ERROR,
 	SOCKET_CONNECTION_CLOSED_ERROR,
 	SOCKET_SETOPT_ERROR,
+	SOCKET_SELECT_ERROR,
 	SENDING_PACKETS_ERROR,
+	GETADDRINFO_ERROR,
 	MALLOC_ERROR,
 	REALLOC_ERROR,
 	RECEIVING_PACKETS_ERROR,
@@ -105,14 +106,16 @@ enum errors{
 	HOSTNAME_TO_IP_ERROR,
 	OPENING_PORT_FILE_ERROR,
 	OPENING_FILE_ERROR,
+	OPENING_SETTING_FILE_ERROR,
 	THREAD_CREATION_ERROR,
 	FTP_CONNECTION_ERROR,
 	FTP_ERROR,
 	MYSQL_CONNECTION_ERROR,
-	SMB_CONTEXT_CREATION_ERROR
+	SMB_CONTEXT_CREATION_ERROR,
+	OLLAMA_SERVER_UNAVAILABLE
 };
 
-enum msgGradings{
+enum msgLevels{
 	ERROR_MESSAGE=-1,
 	INFO_MESSAGE,
 	WARNING_MESSAGE,
@@ -132,7 +135,6 @@ enum activitiesTypes{
 	ANY_RUN_NMAP,
 	ANY_SQL_MAP,
 	ANY_ARP_SNIFFING,
-	ANY_SEARCH_CVE,
 	HTTP_HEADER_BANNER_GRABBING,
 	HTTP_TLS_GRABBING,
 	HTTP_HEADER_GRABBING,
@@ -178,7 +180,7 @@ enum activitiesTypes{
 	OTHERS_MONITOR_IF,
 	OTHERS_SHOW_ACTIVIIES,
 	OTHERS_WHOIS,
-	OTHERS_CHATGPT,
+	OTHERS_SEARCH_CVE,
 	OTHERS_EXIT,
 	USER_GUEST_SSH
 };
@@ -203,10 +205,20 @@ struct LastestError{
 	char errorAditionalDescription[BUFFER_SIZE_256B];
 };
 
+struct OllamaInfo{
+	char *ip;
+	int port;
+	char *model;
+	int maxTokens;
+	int context;
+	float temp;
+};
+
 extern Bool canceledBySignal;
 extern Bool cancelCurrentProcess;
 extern struct ServerTarget target;
 extern struct NetworkInfo networkInfo;
+extern struct OllamaInfo oi;
 extern int portUnderHacking;
 extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
@@ -232,5 +244,7 @@ int system_call(char *);
 int request_quantity_threads(int);
 int read_usernames_and_password_files(struct BfaInfo *, char *, char *);
 void free_char_double_pointer(char ***, size_t);
+int ollama_check_service_status();
+int ollama_send_prompt(char *);
 
 #endif /* AUDITING_CYBERSECURITY_H_ */

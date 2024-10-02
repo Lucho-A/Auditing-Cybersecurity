@@ -24,6 +24,7 @@
 struct LastestError lastActivityError;
 struct ServerTarget target;
 struct NetworkInfo networkInfo;
+struct OllamaInfo oi;
 int portUnderHacking=0;
 Bool cancelCurrentProcess=FALSE;
 Bool canceledBySignal=FALSE;
@@ -32,16 +33,16 @@ char *resourcesLocation=NULL;
 long int sendPacketPerPortDelayUs=SEND_PACKET_PER_PORT_DELAY_US;
 
 static void signal_handler(int signalType){
-	printf("%s\n\n",C_DEFAULT);
 	switch(signalType){
 	case SIGINT:
 	case SIGTSTP:
+		printf("%s\n\n",C_DEFAULT);
 		printf("  Canceling...\n");
 		cancelCurrentProcess=TRUE;
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
 	case SIGPIPE:
-		show_message("SIGPIPE babyyy...", 0, 0, ERROR_MESSAGE, TRUE);
+		//show_message("'SIGPIPE' signal received: the write end of the pipe or socket is closed.", 0, 0, ERROR_MESSAGE, FALSE);
 		break;
 	default:
 		break;
@@ -75,9 +76,51 @@ static int initMrAnderson(){
 	SSL_library_init();
 	libssh2_init(0);
 	rl_getc_function=readline_input;
-	if(resourcesLocation==NULL){
-		resourcesLocation=malloc(strlen(PATH_TO_RESOURCES)+1);
-		snprintf(resourcesLocation, sizeof(PATH_TO_RESOURCES)+1,"%s", PATH_TO_RESOURCES);
+	FILE *f=NULL;
+	int entries=open_file(resourcesLocation, "settings.txt", &f);
+	if(entries==RETURN_ERROR) return set_last_activity_error(OPENING_SETTING_FILE_ERROR, "");
+	int chars;
+	size_t len;
+	char *line=NULL;
+	oi.ip="127.0.0.1";
+	oi.port=443;
+	oi.maxTokens=2048;
+	oi.temp=0.5;
+	while((chars=getline(&line, &len, f))!=-1){
+		if((strstr(line,"[OLLAMA_SERVER_ADDR]"))==line){
+			chars=getline(&line, &len, f);
+			oi.ip=malloc(chars+1);
+			memset(oi.ip,0,chars+1);
+			for(int i=0;i<chars-1;i++) oi.ip[i]=line[i];
+			continue;
+		}
+		if((strstr(line,"[OLLAMA_SERVER_PORT]"))==line){
+			chars=getline(&line, &len, f);
+			oi.port=strtol(line,NULL,10);
+			continue;
+		}
+		if((strstr(line,"[OLLAMA_SERVER_MODEL]"))==line){
+			chars=getline(&line, &len, f);
+			oi.model=malloc(chars+1);
+			memset(oi.model,0,chars+1);
+			for(int i=0;i<chars-1;i++) oi.model[i]=line[i];
+			continue;
+		}
+		if((strstr(line,"[OLLAMA_SERVER_MAX_TOKENS]"))==line){
+			chars=getline(&line, &len, f);
+			oi.maxTokens=strtol(line,NULL,10);
+			continue;
+		}
+		if((strstr(line,"[OLLAMA_SERVER_CONTEXT]"))==line){
+			chars=getline(&line, &len, f);
+			oi.context=strtol(line,NULL,10);
+			continue;
+		}
+		if((strstr(line,"[OLLAMA_SERVER_TEMP]"))==line){
+			chars=getline(&line, &len, f);
+			oi.temp=strtod(line,NULL);
+			continue;
+		}
 	}
 	return init_networking();
 }

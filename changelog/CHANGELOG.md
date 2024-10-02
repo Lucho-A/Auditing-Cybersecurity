@@ -1,14 +1,23 @@
 ### auditing-cybersecurity-v1.2.9 - Under dev.
 
-Updated: 2024-07-27
-Criticality: low
+Updated:
+Criticality: medium
 
 BUG_FIXED:
 - 1.9, 2.6, s   -> fixed no entering command issue
+- v)   -> fixed CVE searching (under evaluation changing API)
 
 FEATURE:
 - information about public ip (from api.ipify.org) is shown.
+- (experimental) when the program asks for an activity, the prompt will query to Ollama server (SSL) if the prompt doesnt match with any option.
 
+OTHERS:
+- g) activity (ChatGPT) removed.
+- CVE searching moved to Others) -> v)
+- the resource file called chatgpt.txt was replaced by settings.txt. Also, this file will be used for setting global parameters.
+- minor changes, code optimized & code cleaned-up.
+
+------------------------------------------------------------------------------------------------------
 ### auditing-cybersecurity-v1.2.8
 
 Updated: 2024-04-14 <br>
@@ -35,6 +44,7 @@ OTHERS:
 - due to personal goals & scoping, the development of the program will begin to slow down. So, deb package wont be delivered anymore, and the program, let's say, is going to be in a permanent development stage. So, at the moment, won't have new "official" releases, and automatic updates are stand-by.
 - minor changes & code cleaned-up.
 
+------------------------------------------------------------------------------------------------------
 ### auditing-cybersecurity-v1.2.7:"Mar de las Pampas" hhahah (such amazing place... counting the days for returning)
 
 SHA2-256(auditing-cybersecurity_1.2_7.deb)=22e647522d8db007d11df72e3f2551a05b4a59924b16292751c90e61255f102f

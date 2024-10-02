@@ -5,14 +5,13 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <openssl/ssl.h>
 #include <arpa/inet.h>
 #include <readline/readline.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 #include "libpcap.h"
 
-static void clean_ssl(SSL *ssl){
+void clean_ssl(SSL *ssl){
 	if(ssl!=NULL){
 		SSL_shutdown(ssl);
 		SSL_certs_clear(ssl);
@@ -38,9 +37,9 @@ char * get_ttl_description(int ttlValue){
 static int get_public_ip(unsigned char **serverResp){
 	struct hostent *he;
 	struct in_addr **addrList;
-	if((he=gethostbyname("api.ipify.org"))==NULL) return RETURN_ERROR;
+	if((he=gethostbyname("api.ipify.org"))==NULL) return set_last_activity_error(GETADDRINFO_ERROR, "");
 	addrList=(struct in_addr **) he->h_addr_list;
-	if(addrList[0]==NULL) return RETURN_ERROR;
+	if(addrList[0]==NULL) return set_last_activity_error(GETADDRINFO_ERROR, "");;
 	char *msg="GET / HTTP/1.1\r\n"
 			"Host: api.ipify.org\r\n"
 			"user-agent: auditing-cybersecurity\r\n"
@@ -161,6 +160,7 @@ int init_networking(){
 	networkInfo.netBroadcast.s_addr=networkInfo.netMask.s_addr | ~networkInfo.mask;
 	printf("\nBroadcast: %s%s%s\n", C_HWHITE, inet_ntoa(networkInfo.netBroadcast), C_DEFAULT);
 	printf("\nChecking updates: ");
+	fflush(stdout);
 	if(networkInfo.internetAccess){
 		int latestVersion=check_updates();
 		if(latestVersion==RETURN_ERROR){
@@ -171,6 +171,24 @@ int init_networking(){
 				printf("%sup-to-date",C_HGREEN);
 			}else{
 				printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest",C_HRED);
+			}
+		}
+	}else{
+		printf("%s%s",C_HRED,"Unable to check updates");
+	}
+	PRINT_RESET;
+	printf("\nChecking Ollama server status: ");
+	fflush(stdout);
+	if(networkInfo.internetAccess){
+		int ollamaStatus=ollama_check_service_status();
+		if(ollamaStatus==RETURN_ERROR){
+			printf("%s%s",C_HRED,"connection error");
+			PRINT_RESET;
+		}else{
+			if(ollamaStatus){
+				printf("%srunning",C_HGREEN);
+			}else{
+				printf("%snot available",C_HRED);
 			}
 		}
 	}else{
@@ -262,6 +280,8 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 			}
+			//SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER, NULL);
+			//SSL_CTX_set_default_verify_paths(sslCtx);
 			if((sslConn=SSL_new(sslCtx))==NULL){
 				clean_ssl(sslConn);
 				SSL_CTX_free(sslCtx);
@@ -395,7 +415,7 @@ void ip_to_hostname(char *ip, char *hostname){
 	(!valResp)?(snprintf(hostname,sizeof(host),"%s",host)):(snprintf(hostname,sizeof(host),"%s",""));
 }
 
-char* hostname_to_ip(char * hostname){
+char* hostname_to_ip(char *hostname){
 	struct hostent *he;
 	struct in_addr **addr_list;
 	if((he=gethostbyname(hostname))==NULL) return NULL;

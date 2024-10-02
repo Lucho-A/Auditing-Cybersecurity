@@ -203,7 +203,6 @@ int arp(int type){
 			fclose(f);
 			break;
 		}while(TRUE);
-		//snprintf(pcapFilter, BUFFER_SIZE_128B, "host %s and port %d", target.strTargetIp, portUnderHacking);
 		snprintf(pcapFilter, BUFFER_SIZE_128B, "host %s", target.strTargetIp);
 		if(pcap_compile(arpHandle,&fp,pcapFilter,0,networkInfo.net)==-1){
 			pcap_close(arpHandle);
@@ -220,7 +219,7 @@ int arp(int type){
 		if(pthread_create(&sendingArpSpoofedPacketsThread,NULL,&start_sending_arp_sniffing_packets,NULL)<0){
 			pcap_close(arpHandle);
 			pcap_freecode(&fp);
-			return THREAD_CREATION_ERROR;
+			return set_last_activity_error(THREAD_CREATION_ERROR,"");
 		}
 		pcap_loop(arpHandle, -1, process_sniffed_packet, NULL);
 		pcap_close(arpHandle);
@@ -239,7 +238,7 @@ int arp(int type){
 		if(pthread_create(&sendArpDiscoverPacketsThread,NULL,&start_send_arp_discover_packets_thread,NULL)<0){
 			pcap_close(arpHandle);
 			pcap_freecode(&fp);
-			return THREAD_CREATION_ERROR;
+			return set_last_activity_error(THREAD_CREATION_ERROR,"");
 		}
 		if(type==OTHERS_ARP_DISCOVER_D){
 			printf("\nNumber of hosts supported by the network: %s%d%s\n\n", C_HWHITE, numHosts, C_DEFAULT);

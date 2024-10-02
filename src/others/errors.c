@@ -12,7 +12,7 @@ int set_last_activity_error(int errorType, char const *errorAditionalDescription
 
 int error_handling(int errorType, Bool exitProgram){
 	char errorMsg[BUFFER_SIZE_1K]="", errorDescription[BUFFER_SIZE_256B]="";
-	if(errorType>0) lastActivityError.errorType=errorType;
+	if(errorType<0) lastActivityError.errorType=errorType;
 	switch(lastActivityError.errorType){
 	case RETURN_OK:
 		return RETURN_OK;
@@ -31,8 +31,14 @@ int error_handling(int errorType, Bool exitProgram){
 	case SOCKET_SETOPT_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error setting socket options",strerror(errno));
 		break;
+	case SOCKET_SELECT_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error socket select",strerror(errno));
+		break;
 	case SENDING_PACKETS_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error sending packets");
+		break;
+	case GETADDRINFO_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error getting address info");
 		break;
 	case MALLOC_ERROR:
 	case REALLOC_ERROR:
@@ -83,6 +89,9 @@ int error_handling(int errorType, Bool exitProgram){
 	case OPENING_FILE_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error opening file", strerror(errno));
 		break;
+	case OPENING_SETTING_FILE_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error opening setting file", strerror(errno));
+		break;
 	case THREAD_CREATION_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error creating thread", strerror(errno));
 		break;
@@ -103,6 +112,9 @@ int error_handling(int errorType, Bool exitProgram){
 		break;
 	case SMB_CONTEXT_CREATION_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error creating SMB context");
+		break;
+	case OLLAMA_SERVER_UNAVAILABLE:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Ollama server unavailable");
 		break;
 	default:
 		break;

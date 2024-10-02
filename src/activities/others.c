@@ -71,137 +71,6 @@ int others(int type){
 		}while(TRUE);
 		free_char_double_pointer(&stringTemplates, totalStrings);
 		break;
-	case OTHERS_CHATGPT:
-		srand(time(0));
-		char **api=NULL;
-		int entries=open_file_str(resourcesLocation, "chatgpt.txt", &f, &api);
-		fclose(f);
-		if(entries==RETURN_ERROR || strcmp(api[1],"")==0 || api[1]==NULL) return show_message("API not found.\n", strlen("API not found."), 0, ERROR_MESSAGE, FALSE);
-		char *chatGptIp=hostname_to_ip("api.openai.com");
-		if(chatGptIp==NULL) return RETURN_ERROR;
-		struct in_addr ip;
-		ip.s_addr=inet_addr(chatGptIp);
-		char *prevUserMsg=malloc(1), *prevAssistantMsg=malloc(1);
-		prevUserMsg[0]=0;
-		prevAssistantMsg[0]=0;
-		do{
-			cancelCurrentProcess=FALSE;
-			unsigned char *serverResp=NULL;
-			char *msg=get_readline(";=exit)-> ", TRUE);
-			if(strcmp(msg,";")==0){
-				free(msg);
-				break;
-			}
-			char *msgParsed=malloc(strlen(msg)*2);
-			memset(msgParsed,0,strlen(msg)*2);
-			int parsedIdx=0;
-			for(int i=0;i<strlen(msg);i++,parsedIdx++){
-				switch(msg[i]){
-				case '\n':
-					msgParsed[parsedIdx]='\\';
-					msgParsed[++parsedIdx]='n';
-					break;
-				case '\t':
-					msgParsed[parsedIdx]='\\';
-					msgParsed[++parsedIdx]='t';
-					break;
-				case '"':
-					msgParsed[parsedIdx]='\\';
-					msgParsed[++parsedIdx]='\"';
-					break;
-				default:
-					msgParsed[parsedIdx]=msg[i];
-					break;
-				}
-			}
-			free(msg);
-			int len=strlen(msgParsed)+strlen(prevUserMsg)+strlen(prevAssistantMsg)+BUFFER_SIZE_1K;
-			char *payload=malloc(len);
-			memset(payload,0,len);
-			snprintf(payload,len,
-					"{"
-					"\"model\":\"gpt-3.5-turbo\","
-					"\"messages\":["
-					"{\"role\":\"system\",\"content\":\"Act as IT auditor, security and cybersecurity professional.\"},"
-					"{\"role\":\"user\",\"content\":\"%s\"},"
-					"{\"role\":\"assistant\",\"content\":\"%s\"},"
-					"{\"role\":\"user\",\"content\":\"%s\"}"
-					"],"
-					"\"max_tokens\": %ld,"
-					"\"temperature\": %.2f"
-					"}\r\n\r\n",prevUserMsg,prevAssistantMsg,msgParsed,strtol(api[3],NULL,10),strtod(api[5],NULL));
-			if(prevUserMsg!=NULL) free(prevUserMsg);
-			prevUserMsg=malloc(strlen(msgParsed)+1);
-			snprintf(prevUserMsg,strlen(msgParsed)+1,"%s",msgParsed);
-			free(msgParsed);
-			char *httpMsg=malloc(strlen(payload)+BUFFER_SIZE_256B);
-			memset(httpMsg,0,strlen(payload)+BUFFER_SIZE_256B);
-			snprintf(httpMsg,strlen(payload)+BUFFER_SIZE_1K,
-					"POST /v1/chat/completions HTTP/1.1\r\n"
-					"Host: api.openai.com\r\n"
-					"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n"
-					"content-type: application/json\r\n"
-					"authorization: Bearer %s\r\n"
-					"content-length: %ld\r\n\r\n"
-					"%s \r\n\r\n",api[1],strlen(payload),payload);
-			free(payload);
-			int bytesRecv=0;
-			int sk=0;
-			if((bytesRecv=send_msg_to_server(&sk,ip,"api.openai.com", 443, SSL_CONN_TYPE, httpMsg,
-					strlen(httpMsg), &serverResp,BUFFER_SIZE_8K,60000))<0) return RETURN_ERROR;
-			close(sk);
-			free(httpMsg);
-			printf("%s\n  ",C_HWHITE);
-			char *resp=strstr((char *) serverResp,"\"content\": \"");
-			if(resp==NULL){
-				if((resp=strstr((char *) serverResp,"\"error\": {"))!=NULL){
-					resp=strstr((char *) serverResp,"\"message\": \"");
-					printf(" %s\n", C_HRED);
-					for(int i=strlen("\"message\": \"");resp[i]!='"';i++) printf("%c", resp[i]);
-					PRINT_RESET;
-				}
-				if(bytesRecv==0) printf("  %sOps, 0 bytes received... maybe, service momentarily unavailable. Try again...\n",C_HRED);
-				PRINT_RESET;
-				free(serverResp);
-				continue;
-			}
-			if(prevAssistantMsg!=NULL) free(prevAssistantMsg);
-			prevAssistantMsg=malloc(strlen(resp)+1);
-			memset(prevAssistantMsg,0,strlen(resp)+1);
-			for(int i=strlen("\"content\": \"");!(resp[i-1]!='\\' && resp[i]=='"');i++) prevAssistantMsg[i-strlen("\"content\": \"")]=resp[i];
-			for(int i=strlen("\"content\": \"");!(resp[i-1]!='\\' && resp[i]=='"') && !cancelCurrentProcess;i++){
-				usleep(rand() % 10000 + 20000);
-				if(resp[i]=='\\'){
-					switch(resp[i+1]){
-					case 'n':
-						printf("\n");
-						break;
-					case '"':
-						printf("\"");
-						break;
-					case 't':
-						printf("\t");
-						break;
-					case '\\':
-						printf("\\");
-						break;
-					default:
-						break;
-					}
-					i++;
-					continue;
-				}
-				printf("%c",resp[i]);
-				fflush(stdout);
-			}
-			PRINT_RESET;
-			PRINT_RESET;
-			free(serverResp);
-		}while(TRUE);
-		if(prevUserMsg!=NULL) free(prevUserMsg);
-		if(prevAssistantMsg!=NULL) free(prevAssistantMsg);
-		free_char_double_pointer(&api, entries);
-		break;
 	case OTHERS_SYSTEM_CALL:
 		system_call(NULL);
 		break;
@@ -222,6 +91,88 @@ int others(int type){
 	case OTHERS_WHOIS:
 		snprintf(cmd,sizeof(cmd),"whois %s", target.strTargetIp);
 		system_call(cmd);
+		break;
+	case OTHERS_SEARCH_CVE:
+		srand(time(0));
+		char httpMsg[BUFFER_SIZE_512B]="";
+		char *host="app.opencve.io";
+		char *nistIP=hostname_to_ip(host);
+		if(nistIP==NULL) return RETURN_ERROR;
+		struct in_addr ip;
+		ip.s_addr=inet_addr(nistIP);
+		do{
+			cancelCurrentProcess=FALSE;
+			unsigned char *serverResp=NULL;
+			char *msg=get_readline("  Insert string to search (;=exit): ", TRUE);
+			if(strcmp(msg,";")==0){
+				free(msg);
+				break;
+			}
+			for(int i=0;i<strlen(msg);i++){
+				if(msg[i]==' ' || msg[i]=='\"') msg[i]='+';
+			}
+			snprintf(httpMsg,BUFFER_SIZE_512B,
+					"GET /api/cve/?search=%s HTTP/1.1\r\n"
+					"Host: %s\r\n"
+					"Authorization: Basic YXVkaXRpbmctYW5kLXNlY3VyaXR5Ok1yQW5kZXJzb25PcGVuQ1ZF\r\n"
+					"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\r\n"
+					"Accept: */*\r\n\r\n",msg,host);
+			free(msg);
+			int bytesRecv=0, sk=0;
+			if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg,strlen(httpMsg),
+					&serverResp,BUFFER_SIZE_16K,30000))<0){
+				return RETURN_ERROR;
+			}
+			close(sk);
+			char *token="\"cve_id\":";
+			char *json=strstr((char *)serverResp,token);
+			if(json==NULL){
+				free(serverResp);
+				show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
+				PRINT_RESET;
+				continue;
+			}
+			int cont=0, cveId=1;
+			while(json!=NULL && cont<bytesRecv){
+				printf("%s\n\t%d) ",C_HWHITE,cveId);
+				for(cont=strlen(token);;cont++){
+					if((json[cont]=='"'&& json[cont+1]==',') || cont>=bytesRecv) break;
+					printf("%c",json[cont]);
+					json[cont-strlen(token)]='X';
+				}
+				printf("%s:",C_DEFAULT);
+				cont+=2;
+				for(int i=cont+strlen("\"description\":");;i++,cont++){
+					if((json[i]=='"'&& json[i+1]=='}') || cont>=bytesRecv) break;
+					if(json[i]=='\\'){
+						switch(json[i+1]){
+						case 'n':
+							break;
+						case '"':
+							printf("\"");
+							break;
+						case '\\':
+							printf("\\");
+							break;
+						default:
+							break;
+						}
+						i++;
+						continue;
+					}
+					printf("%c",json[i]);
+				}
+				printf("\"\n  ");
+				json=strstr(json,token);
+				if(cveId==10){
+					show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, TRUE);
+					break;
+				}
+				cveId++;
+			}
+			free(serverResp);
+			PRINT_RESET;
+		}while(TRUE);
 		break;
 	case OTHERS_EXIT:
 		printf("%s",C_DEFAULT);
