@@ -209,8 +209,7 @@ struct OllamaInfo{
 	char *ip;
 	int port;
 	char *model;
-	int maxTokens;
-	int context;
+	int numCtx;
 	float temp;
 };
 

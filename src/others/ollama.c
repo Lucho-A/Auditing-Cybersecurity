@@ -286,8 +286,7 @@ int ollama_send_prompt(char *message){
 	ssize_t len=
 			strlen(oi.model)
 			+sizeof(oi.temp)
-			+sizeof(oi.maxTokens)
-			+sizeof(oi.maxTokens)
+			+sizeof(oi.numCtx)
 			+strlen("IT Security Auditor")
 			+strlen(messageParsed)
 			+512;
@@ -296,7 +295,6 @@ int ollama_send_prompt(char *message){
 	snprintf(body,len,
 			"{\"model\":\"%s\","
 			"\"temperature\": %f,"
-			"\"max_tokens\": %d,"
 			"\"num_ctx\": %d,"
 			"\"stream\": true,"
 			"\"keep_alive\": -1,"
@@ -306,8 +304,7 @@ int ollama_send_prompt(char *message){
 			"{\"role\": \"user\",\"content\": \"%s\"}]}",
 			oi.model,
 			oi.temp,
-			oi.maxTokens,
-			oi.context,
+			oi.numCtx,
 			"IT Security Auditor",
 			messageParsed);
 	len=strlen(oi.ip)+sizeof(oi.port)+sizeof((int) strlen(body))+strlen(body)+512;

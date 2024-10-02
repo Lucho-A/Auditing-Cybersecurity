@@ -84,7 +84,7 @@ static int initMrAnderson(){
 	char *line=NULL;
 	oi.ip="127.0.0.1";
 	oi.port=443;
-	oi.maxTokens=2048;
+	oi.numCtx=2048;
 	oi.temp=0.5;
 	while((chars=getline(&line, &len, f))!=-1){
 		if((strstr(line,"[OLLAMA_SERVER_ADDR]"))==line){
@@ -106,14 +106,9 @@ static int initMrAnderson(){
 			for(int i=0;i<chars-1;i++) oi.model[i]=line[i];
 			continue;
 		}
-		if((strstr(line,"[OLLAMA_SERVER_MAX_TOKENS]"))==line){
+		if((strstr(line,"[OLLAMA_SERVER_NUM_CTX]"))==line){
 			chars=getline(&line, &len, f);
-			oi.maxTokens=strtol(line,NULL,10);
-			continue;
-		}
-		if((strstr(line,"[OLLAMA_SERVER_CONTEXT]"))==line){
-			chars=getline(&line, &len, f);
-			oi.context=strtol(line,NULL,10);
+			oi.numCtx=strtol(line,NULL,10);
 			continue;
 		}
 		if((strstr(line,"[OLLAMA_SERVER_TEMP]"))==line){
