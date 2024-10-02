@@ -6,14 +6,18 @@ Criticality: medium
 BUG_FIXED:
 - 1.9, 2.6, s   -> fixed no entering command issue
 - v)   -> fixed CVE searching (under evaluation changing API)
+- 6.2) execution fixed
 
 FEATURE:
 - information about public ip (from api.ipify.org) is shown.
 - (experimental) when the program asks for an activity, the prompt will query to Ollama server (SSL) if the prompt doesnt match with any option.
+- 6.1) smb grabbing improved.
+- 6.3) smb BFA improved.
 
 OTHERS:
 - g) activity (ChatGPT) removed.
 - CVE searching moved to Others) -> v)
+- 1.3) in order to avoid using 'locate'/'updatedb', the searching is just performed into '/usr/share/nmap/scripts'
 - the resource file called chatgpt.txt was replaced by settings.txt. Also, this file will be used for setting global parameters.
 - minor changes, code optimized & code cleaned-up.
 

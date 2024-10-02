@@ -179,20 +179,16 @@ int init_networking(){
 	PRINT_RESET;
 	printf("\nChecking Ollama server status: ");
 	fflush(stdout);
-	if(networkInfo.internetAccess){
-		int ollamaStatus=ollama_check_service_status();
-		if(ollamaStatus==RETURN_ERROR){
-			printf("%s%s",C_HRED,"connection error");
-			PRINT_RESET;
-		}else{
-			if(ollamaStatus){
-				printf("%srunning",C_HGREEN);
-			}else{
-				printf("%snot available",C_HRED);
-			}
-		}
+	int ollamaStatus=ollama_check_service_status();
+	if(ollamaStatus==RETURN_ERROR){
+		printf("%s%s",C_HRED,"connection error");
+		PRINT_RESET;
 	}else{
-		printf("%s%s",C_HRED,"Unable to check updates");
+		if(ollamaStatus){
+			printf("%srunning",C_HGREEN);
+		}else{
+			printf("%snot available",C_HRED);
+		}
 	}
 	PRINT_RESET;
 	return RETURN_OK;

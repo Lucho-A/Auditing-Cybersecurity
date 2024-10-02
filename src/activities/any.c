@@ -197,7 +197,8 @@ int any(int type){
 					break;
 				}
 				printf("\n");
-				snprintf(cmd,sizeof(cmd),"locate *.nse | grep %s",strSearch);
+				//snprintf(cmd,sizeof(cmd),"locate *.nse | grep %s",strSearch);
+				snprintf(cmd,sizeof(cmd),"ls /usr/share/nmap/scripts | grep %s",strSearch);
 				system_call(cmd);
 				free(strSearch);
 				PRINT_RESET;
@@ -211,7 +212,7 @@ int any(int type){
 					free(strSearch);
 					break;
 				}
-				snprintf(cmd,sizeof(cmd),"nmap -p%d --script=%s %s",portUnderHacking, strSearch,target.strTargetIp);
+				snprintf(cmd,sizeof(cmd),"nmap -p%d --script %s %s",portUnderHacking, strSearch,target.strTargetIp);
 				system_call(cmd);
 				free(strSearch);
 				PRINT_RESET;

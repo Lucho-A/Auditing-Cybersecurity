@@ -155,7 +155,10 @@ static int hack_port() {
 		//TODO create notes
 		//if(strcmp(c,"noted;")){
 		//}
-		if(valResp==ACTIVITY_NOT_SELECTED) valResp=ollama_send_prompt(c);
+		if(valResp==ACTIVITY_NOT_SELECTED){
+			valResp=ollama_send_prompt(c);
+			PRINT_RESET
+		}
 		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,FALSE);
 		free(c);
 		PRINT_RESET;
