@@ -260,18 +260,33 @@ static int ollama_send_message(char *payload, char **fullResponse, char **conten
 	return totalBytesReceived;
 }
 
+int ollama_unload_model(){
+	char body[1024]="";
+	snprintf(body,1024,"{\"model\": \"%s\", \"keep_alive\": 0}",oi.model);
+	char msg[2048]="";
+	snprintf(msg,2048,
+			"POST /api/chat HTTP/1.1\r\n"
+			"Host: %s\r\n"
+			"Content-Type: application/json\r\n"
+			"Content-Length: %d\r\n\r\n"
+			"%s", oi.ip, (int) strlen(body), body);
+	char *buffer=NULL;
+	ollama_send_message(msg, &buffer,NULL, FALSE);
+	if(strstr(buffer,"200 OK")!=NULL){
+		free(buffer);
+		return RETURN_OK;
+	}
+	free(buffer);
+	return RETURN_ERROR;
+}
+
 int ollama_check_service_status(){
 	char msg[2048]="";
 	snprintf(msg,2048,
 			"GET / HTTP/1.1\r\n"
 			"Host: %s\r\n\r\n", oi.ip);
 	char *buffer=NULL;
-	int retVal=0;
-	if((retVal=ollama_send_message(msg, &buffer,NULL, FALSE))<0){
-		printf("\n%s\n\n%d\n", buffer, retVal);
-		free(buffer);
-		return retVal;
-	}
+	ollama_send_message(msg, &buffer,NULL, FALSE);
 	if(strstr(buffer,"Ollama")==NULL){
 		free(buffer);
 		return FALSE;

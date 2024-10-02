@@ -53,6 +53,7 @@
 
 #define RETURN_ERROR 					-1
 #define RETURN_OK 						0
+#define RETURN_CLOSE					1
 
 #define PRINT_DEBUG_MSG 				printf("\n%sWTF???%s\n",C_HRED,C_DEFAULT);
 #define PRINT_RESET 					printf("%s\n",C_DEFAULT);
@@ -245,5 +246,6 @@ int read_usernames_and_password_files(struct BfaInfo *, char *, char *);
 void free_char_double_pointer(char ***, size_t);
 int ollama_check_service_status();
 int ollama_send_prompt(char *);
+int ollama_unload_model();
 
 #endif /* AUDITING_CYBERSECURITY_H_ */

@@ -53,6 +53,7 @@ static void signal_handler(int signalType){
 static int closeMrAnderson(){
 	printf("%s\n",C_DEFAULT);
 	if(resourcesLocation!=NULL) free(resourcesLocation);
+	ollama_unload_model();
 	return RETURN_OK;
 }
 

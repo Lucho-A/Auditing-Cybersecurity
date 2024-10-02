@@ -150,10 +150,9 @@ static int hack_port() {
 		}
 		if(strcmp(c,"q")==0){
 			free(c);
-			cancelCurrentProcess=TRUE;
-			exit(EXIT_SUCCESS);
+			return RETURN_CLOSE;
 		}
-		//TODO noted tiene el problema de comandos sin printf system()
+		//TODO create notes
 		//if(strcmp(c,"noted;")){
 		//}
 		if(valResp==ACTIVITY_NOT_SELECTED) valResp=ollama_send_prompt(c);
@@ -200,7 +199,7 @@ int hack_port_request(){
 			}
 			target.ports[portUnderHacking].connectionType=resp;
 		}
-		hack_port();
+		if(hack_port()==RETURN_CLOSE) return RETURN_OK;
 	}while(TRUE);
 }
 
