@@ -335,7 +335,7 @@ int ollama_send_prompt(char *message){
 			"%s",oi.ip,(int) strlen(body), body);
 	free(body);
 	char *fullResponse=NULL, *content=NULL;
-	int retVal=ollama_send_message(msg, &fullResponse, &content, TRUE);
+	ollama_send_message(msg, &fullResponse, &content, TRUE);
 	free(msg);
 	if(strstr(fullResponse,"{\"error")!=NULL){
 		show_message(strstr(fullResponse,"{\"error"), strlen(strstr(fullResponse,"{\"error")), 0, ERROR_MESSAGE, FALSE);
@@ -344,20 +344,7 @@ int ollama_send_prompt(char *message){
 		free(content);
 		return RETURN_ERROR;
 	}
-	if(strstr(fullResponse," 503 ")!=NULL){
-		show_message(strstr(fullResponse," 503 "), strlen(strstr(fullResponse," 503 ")), 0, ERROR_MESSAGE, FALSE);
-		free(messageParsed);
-		free(fullResponse);
-		free(content);
-		return RETURN_ERROR;
-	}
 	if(strstr(fullResponse,"\"done\":true")==NULL || strstr(fullResponse,"\"done\": true")!=NULL){
-		free(messageParsed);
-		free(fullResponse);
-		free(content);
-		return set_last_activity_error(OLLAMA_SERVER_UNAVAILABLE, "");
-	}
-	if(retVal<0){
 		free(messageParsed);
 		free(fullResponse);
 		free(content);
