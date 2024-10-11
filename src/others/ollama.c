@@ -16,6 +16,11 @@ static int parse_output(char **stringTo, char *stringFrom){
 	int cont=0;
 	for(int i=0;stringFrom[i]!=0;i++,cont++){
 		if(stringFrom[i]=='\\'){
+			if(stringFrom[i+1]=='\\' && stringFrom[i+2]=='\"' && stringFrom[i+3]=='}' && stringFrom[i+4]==','){
+				(*stringTo)[cont]='\\';
+				i+=4;
+				continue;
+			}
 			switch(stringFrom[i+1]){
 			case 'n':
 				(*stringTo)[cont]='\n';
@@ -31,6 +36,12 @@ static int parse_output(char **stringTo, char *stringFrom){
 				break;
 			case '"':
 				(*stringTo)[cont]='\"';
+				break;
+			case 'u':
+				char buf[5]="";
+				snprintf(buf,5,"%c%c%c%c",stringFrom[i+2],stringFrom[i+3],stringFrom[i+4],stringFrom[i+5]);
+				(*stringTo)[cont]=strtol(buf,NULL,16);
+				i+=4;
 				break;
 			default:
 				break;
@@ -172,90 +183,62 @@ static int ollama_send_message(char *payload, char **fullResponse, char **conten
 		clean_ssl(sslConn);
 		return set_last_activity_error(SSL_CONNECT_ERROR, "");
 	}
-	struct pollfd pfds[1];
-	int numEvents=0,pollinHappened=0,bytesSent=0;
-	fcntl(socketConn, F_SETFL, O_NONBLOCK);
-	pfds[0].fd=socketConn;
-	pfds[0].events=POLLOUT;
-	numEvents=poll(pfds,1,5);
-	if(numEvents==0){
-		close(socketConn);
-		clean_ssl(sslConn);
-		return set_last_activity_error(POLLIN_ERROR, "");
-	}
-	pollinHappened=pfds[0].revents & POLLOUT;
-	if(pollinHappened){
-		int totalBytesSent=0;
-		while(totalBytesSent<strlen(payload)){
-			bytesSent=SSL_write(sslConn, payload + totalBytesSent, strlen(payload) - totalBytesSent);
-			if(bytesSent<=0){
-				close(socketConn);
-				clean_ssl(sslConn);
-				return set_last_activity_error(SENDING_PACKETS_ERROR, "");;
-			}
-			totalBytesSent+=bytesSent;
+	int bytesSent=0, totalBytesSent=0;
+	while(totalBytesSent<strlen(payload)){
+		bytesSent=SSL_write(sslConn, payload + totalBytesSent, strlen(payload) - totalBytesSent);
+		if(bytesSent<=0){
+			close(socketConn);
+			clean_ssl(sslConn);
+			return set_last_activity_error(SENDING_PACKETS_ERROR, "");;
 		}
-	}else{
-		close(socketConn);
-		clean_ssl(sslConn);
-		return RETURN_ERROR;
+		totalBytesSent+=bytesSent;
 	}
 	ssize_t bytesReceived=0,totalBytesReceived=0;
-	pfds[0].events=POLLIN;
-	numEvents=poll(pfds, 1, 5);
-	if(numEvents==0){
-		close(socketConn);
-		clean_ssl(sslConn);
-		return set_last_activity_error(POLLIN_ERROR, "");;
-	}
-	pollinHappened = pfds[0].revents & POLLIN;
 	*fullResponse=malloc(1);
 	(*fullResponse)[0]=0;
 	if(content!=NULL){
 		*content=malloc(1);
 		(*content)[0]=0;
 	}
-	if (pollinHappened){
-		do{
-			char buffer[BUFFER_SIZE_16K]="";
-			bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
-			if(bytesReceived==0) break;
-			if(bytesReceived<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
-			if(bytesReceived<0 && (errno!=EAGAIN)){
-				close(socketConn);
-				clean_ssl(sslConn);
-				return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");;
-			}
-			if(bytesReceived>0){
-				totalBytesReceived+=bytesReceived;
-				char **result=NULL;
-				if(streamed){
-					int retVal=get_string_from_token(buffer, "\"content\":\"", &result, '"');
-					if(retVal>0){
-						char *buffer=NULL;
-						parse_output(&buffer, *result);
-						for(int i=0;buffer[i]!=0 && !cancelCurrentProcess;i++){
-							usleep(15000);
-							printf("%c",buffer[i]);
-							fflush(stdout);
-						}
-						free(buffer);
-						if(content!=NULL){
-							*content=realloc(*content,totalBytesReceived+1);
-							strcat(*content,result[0]);
-							free(result[0]);
-							free(result);
-						}
+	do{
+		char buffer[BUFFER_SIZE_16K]="";
+		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
+		if(bytesReceived==0) break;
+		if(bytesReceived<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+		if(bytesReceived<0 && (errno!=EAGAIN)){
+			close(socketConn);
+			clean_ssl(sslConn);
+			return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");;
+		}
+		if(bytesReceived>0){
+			totalBytesReceived+=bytesReceived;
+			char **result=NULL;
+			if(streamed){
+				int retVal=get_string_from_token(buffer, "\"content\":\"", &result, '"');
+				if(retVal>0){
+					char *buffer=NULL;
+					parse_output(&buffer, *result);
+					for(int i=0;buffer[i]!=0 && !cancelCurrentProcess;i++){
+						usleep(15000);
+						printf("%c",buffer[i]);
+						fflush(stdout);
+					}
+					free(buffer);
+					if(content!=NULL){
+						*content=realloc(*content,totalBytesReceived+1);
+						strcat(*content,result[0]);
+						free(result[0]);
+						free(result);
 					}
 				}
-				*fullResponse=realloc(*fullResponse,totalBytesReceived+1);
-				strcat(*fullResponse,buffer);
-				if(strstr(buffer,"\"done\":false")!=NULL || strstr(buffer,"\"done\": false")!=NULL) continue;
-				if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) break;
 			}
-			if(!SSL_pending(sslConn)) break;
-		}while(TRUE && !cancelCurrentProcess);
-	}
+			*fullResponse=realloc(*fullResponse,totalBytesReceived+1);
+			strcat(*fullResponse,buffer);
+			if(strstr(buffer,"\"done\":false")!=NULL || strstr(buffer,"\"done\": false")!=NULL) continue;
+			if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) break;
+		}
+		if(!SSL_pending(sslConn)) break;
+	}while(TRUE && !cancelCurrentProcess);
 	close(socketConn);
 	clean_ssl(sslConn);
 	return totalBytesReceived;
