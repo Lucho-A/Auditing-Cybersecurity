@@ -126,7 +126,7 @@ static void send_arp_discover_packets_thread(){
 		}
 		libnet_destroy(libnetHandle);
 		usleep(ARP_DISCOVER_DELAY_US);
-	}while(TRUE);
+	}while(!cancelCurrentProcess);
 }
 
 static void * start_send_arp_discover_packets_thread(void *ptr){

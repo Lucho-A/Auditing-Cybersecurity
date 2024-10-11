@@ -46,11 +46,12 @@ int any(int type){
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
 					msg,c,&serverResp,BUFFER_SIZE_128K,0);
+			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
 			if(bytesRecv<=0){
+				error_handling(0,FALSE);
 				free(serverResp);
 				continue;
 			}
-			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
 			show_message((char *) serverResp,bytesRecv, 0, RESULT_MESSAGE, TRUE);
 			printf("\n");
 			close(sk);

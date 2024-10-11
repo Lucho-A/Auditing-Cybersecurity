@@ -219,6 +219,13 @@ static int ollama_send_message(char *payload, char **fullResponse, char **conten
 		do{
 			char buffer[BUFFER_SIZE_16K]="";
 			bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
+			if(bytesReceived==0) break;
+			if(bytesReceived<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(bytesReceived<0 && (errno!=EAGAIN)){
+				close(socketConn);
+				clean_ssl(sslConn);
+				return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");;
+			}
 			if(bytesReceived>0){
 				totalBytesReceived+=bytesReceived;
 				char **result=NULL;
@@ -246,13 +253,7 @@ static int ollama_send_message(char *payload, char **fullResponse, char **conten
 				if(strstr(buffer,"\"done\":false")!=NULL || strstr(buffer,"\"done\": false")!=NULL) continue;
 				if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) break;
 			}
-			if(bytesReceived==0) break;
-			if(bytesReceived<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
-			if(bytesReceived<0 && (errno!=EAGAIN)){
-				close(socketConn);
-				clean_ssl(sslConn);
-				return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");;
-			}
+			if(!SSL_pending(sslConn)) break;
 		}while(TRUE && !cancelCurrentProcess);
 	}
 	close(socketConn);
@@ -287,7 +288,8 @@ int ollama_check_service_status(){
 			"GET / HTTP/1.1\r\n"
 			"Host: %s\r\n\r\n", oi.ip);
 	char *buffer=NULL;
-	ollama_send_message(msg, &buffer,NULL, FALSE);
+	int retVal=ollama_send_message(msg, &buffer,NULL, FALSE);
+	if(retVal<0) return retVal;
 	if(strstr(buffer,"Ollama")==NULL){
 		free(buffer);
 		return FALSE;
@@ -336,7 +338,8 @@ int ollama_send_prompt(char *message){
 			"%s",oi.ip,(int) strlen(body), body);
 	free(body);
 	char *fullResponse=NULL, *content=NULL;
-	ollama_send_message(msg, &fullResponse, &content, TRUE);
+	int retVal=ollama_send_message(msg, &fullResponse, &content, TRUE);
+	if(retVal<0) return retVal;
 	free(msg);
 	if(strstr(fullResponse,"{\"error")!=NULL){
 		show_message(strstr(fullResponse,"{\"error"), strlen(strstr(fullResponse,"{\"error")), 0, ERROR_MESSAGE, FALSE);

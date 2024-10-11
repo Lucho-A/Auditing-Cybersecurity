@@ -230,8 +230,8 @@ int scan_ports(int singlePortToScan, int showSummarize){
 		clock_gettime(CLOCK_REALTIME, &tEnd);
 		double elapsedTime=(tEnd.tv_sec-tInit.tv_sec)+(tEnd.tv_nsec-tInit.tv_nsec)/1000000000.0;
 		printf("%s",C_DEFAULT);
-		if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n");
-		printf("\nScanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
+		if(anyPortShown) printf("\nThe identified service names are the IANA standards ones and could differ in practice.\n\n");
+		printf("Scanned ports: %d in %.3lf secs\n\n",target.cantPortsToScan, elapsedTime);
 		printf("%s",C_HGREEN);
 		printf("\tClosed: %d\n", contClosedPorts);
 		printf("%s",C_HYELLOW);
