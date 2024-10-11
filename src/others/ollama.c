@@ -322,7 +322,7 @@ int ollama_send_prompt(char *message){
 	free(body);
 	char *fullResponse=NULL, *content=NULL;
 	int retVal=ollama_send_message(msg, &fullResponse, &content, TRUE);
-	if(retVal<0) return retVal;
+	if(retVal<=0) return retVal;
 	free(msg);
 	if(strstr(fullResponse,"{\"error")!=NULL){
 		show_message(strstr(fullResponse,"{\"error"), strlen(strstr(fullResponse,"{\"error")), 0, ERROR_MESSAGE, FALSE);

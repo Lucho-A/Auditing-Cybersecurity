@@ -39,6 +39,7 @@ static void signal_handler(int signalType){
 		printf("%s\n\n",C_DEFAULT);
 		printf("  Canceling...\n");
 		cancelCurrentProcess=TRUE;
+		canceledBySignal=TRUE;
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
 	case SIGPIPE:
@@ -47,7 +48,6 @@ static void signal_handler(int signalType){
 	default:
 		break;
 	}
-	canceledBySignal=TRUE;
 }
 
 static int closeMrAnderson(){
