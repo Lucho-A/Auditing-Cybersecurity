@@ -45,8 +45,10 @@ static int get_latest_version(char *latestVersion){
 
 int check_updates(){
 	char latestVersion[BUFFER_SIZE_16B]="";
-	if(get_latest_version(latestVersion)==RETURN_ERROR) return RETURN_ERROR;;
-	if(strstr(latestVersion, PROGRAM_VERSION)==NULL) return FALSE;
-	return TRUE;
+	if(get_latest_version(latestVersion)==RETURN_ERROR) return RETURN_ERROR;
+	int version=strcmp(latestVersion, PROGRAM_VERSION);
+	if(version==0) return UPDATED;
+	if(version<0) return UNDER_TESTING;
+	return OUT_OF_DATE;
 }
 

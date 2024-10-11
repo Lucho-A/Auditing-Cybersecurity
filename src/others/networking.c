@@ -167,10 +167,16 @@ int init_networking(){
 			printf("%s%s",C_HRED,"connection error");
 			PRINT_RESET;
 		}else{
-			if(latestVersion){
+			switch(latestVersion){
+			case UPDATED:
 				printf("%sup-to-date",C_HGREEN);
-			}else{
+				break;
+			case OUT_OF_DATE:
 				printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest",C_HRED);
+				break;
+			default:
+				printf("%sUsing under testing version",C_HRED);
+				break;
 			}
 		}
 	}else{

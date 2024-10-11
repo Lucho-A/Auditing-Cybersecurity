@@ -76,6 +76,12 @@ typedef enum{
 	TRUE
 }Bool;
 
+enum programVersion{
+	UPDATED=1,
+	OUT_OF_DATE=2,
+	UNDER_TESTING=3
+};
+
 enum errors{
 	SOCKET_CREATION_ERROR=-50,
 	SOCKET_CONNECTION_TIMEOUT_ERROR,
