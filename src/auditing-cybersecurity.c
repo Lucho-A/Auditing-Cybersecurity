@@ -79,7 +79,7 @@ static int initMrAnderson(){
 	rl_getc_function=readline_input;
 	FILE *f=NULL;
 	int entries=open_file(resourcesLocation, "settings.txt", &f);
-	if(entries==RETURN_ERROR) return set_last_activity_error(OPENING_SETTING_FILE_ERROR, "");
+	if(entries!=RETURN_OK) return set_last_activity_error(OPENING_SETTING_FILE_ERROR, "");
 	int chars;
 	size_t len;
 	char *line=NULL;
@@ -224,9 +224,10 @@ int main(int argc, char *argv[]){
 		exit(EXIT_FAILURE);
 	}
 	if(!noIntro) show_intro_banner();
-	if(initMrAnderson()==RETURN_ERROR){
+	if(initMrAnderson()!=RETURN_OK){
+		error_handling(0,FALSE);
 		closeMrAnderson();
-		error_handling(0,TRUE);
+		exit(EXIT_FAILURE);
 	}
 	time_t timestamp = time(NULL);
 	struct tm tm = *localtime(&timestamp);
@@ -234,13 +235,13 @@ int main(int argc, char *argv[]){
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
 	printf("%s\nStarting: %s\n",C_DEFAULT,strTimeStamp);
 	if(discover){
-		if(others(OTHERS_ARP_DISCOVER_D)==RETURN_ERROR) error_handling(0,TRUE);
+		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0,TRUE);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
-	if(scan_init(urlIp)==RETURN_ERROR) error_handling(0,TRUE);
-	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, TRUE)==RETURN_ERROR) error_handling(0,TRUE);
-	if(hack_port_request()==RETURN_ERROR) error_handling(0,TRUE);
+if(scan_init(urlIp)!=RETURN_OK) error_handling(0,TRUE);
+	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, TRUE)!=RETURN_OK) error_handling(0,TRUE);
+	if(hack_port_request()!=RETURN_OK) error_handling(0,TRUE);
 	closeMrAnderson();
 	exit(EXIT_SUCCESS);
 }
