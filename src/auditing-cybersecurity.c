@@ -79,7 +79,7 @@ static int initMrAnderson(){
 	rl_getc_function=readline_input;
 	FILE *f=NULL;
 	int entries=open_file(resourcesLocation, "settings.txt", &f);
-	if(entries!=RETURN_OK) return set_last_activity_error(OPENING_SETTING_FILE_ERROR, "");
+	if(entries<0) return set_last_activity_error(OPENING_SETTING_FILE_ERROR, "");
 	int chars;
 	size_t len;
 	char *line=NULL;
