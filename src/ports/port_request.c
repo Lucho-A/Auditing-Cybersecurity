@@ -156,7 +156,22 @@ static int hack_port() {
 		//if(strcmp(c,"noted;")){
 		//}
 		if(valResp==ACTIVITY_NOT_SELECTED){
-			valResp=ollama_send_prompt(c);
+			if((valResp=OCl_send_chat(ocl,c))!=RETURN_OK){
+				switch(valResp){
+				case OCL_ERR_RESPONSE_MESSAGE_ERROR:
+					show_message(OCL_get_response_error(ocl), strlen(OCL_get_response_error(ocl)),
+							0, ERROR_MESSAGE, TRUE);
+					break;
+				default:
+					if(ocl_canceled){
+						printf("\n");
+						break;
+					}
+					show_message(OCL_error_handling(valResp), strlen(OCL_error_handling(valResp)),
+							0, ERROR_MESSAGE, TRUE);
+					break;
+				}
+			}
 			PRINT_RESET
 		}
 		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,FALSE);

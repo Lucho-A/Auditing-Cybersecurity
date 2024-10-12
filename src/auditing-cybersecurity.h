@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <pcap.h>
 
+#include "libs/libOCL/libOllama-C-lient.h"
+
 // #define LIBSSH_STATIC 1
 
 #define PROGRAM_NAME 					"Auditing-Cybersecurity"
@@ -71,10 +73,12 @@
 
 #define REMOVE_LINE						"\r\033[2K"
 
+/*
 typedef enum{
 	FALSE=0,
 	TRUE
 }Bool;
+*/
 
 enum programVersion{
 	UPDATED=1,
@@ -214,17 +218,19 @@ struct LastestError{
 
 struct OllamaInfo{
 	char *ip;
-	int port;
+	char *port;
 	char *model;
-	int numCtx;
-	float temp;
+	char *numCtx;
+	char *maxHistoryCtx;
+	char *temp;
 };
 
+extern OCl *ocl;
+extern struct OllamaInfo oi;
 extern Bool canceledBySignal;
 extern Bool cancelCurrentProcess;
 extern struct ServerTarget target;
 extern struct NetworkInfo networkInfo;
-extern struct OllamaInfo oi;
 extern int portUnderHacking;
 extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
@@ -250,8 +256,5 @@ int system_call(char *);
 int request_quantity_threads(int);
 int read_usernames_and_password_files(struct BfaInfo *, char *, char *);
 void free_char_double_pointer(char ***, size_t);
-int ollama_check_service_status();
-int ollama_send_prompt(char *);
-int ollama_unload_model();
 
 #endif /* AUDITING_CYBERSECURITY_H_ */

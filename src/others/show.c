@@ -88,8 +88,7 @@ void show_result(char *result){
 	while(result[i]<33) i++;
 	for(;result[i]!='\0';i++){
 		if(isprint(result[i])) printf("%c", result[i]);
-		if(result[i]=='\n') printf("\n  ");
-		if(result[i]=='\r') printf("  ");
+		if(result[i]=='\n') printf("\n");
 		if(result[i]=='\t') printf("\t");
 	}
 }
@@ -117,11 +116,11 @@ int show_message(char *msg, int msgLenght, int errNum, int level, Bool setParagr
 		if(errNum!=0){
 			char errMsg[BUFFER_SIZE_1K]="";
 			snprintf(errMsg, BUFFER_SIZE_1K, "%sError %d: %s", msg, errNum, strerror(errNum));
-			(setParagraph)?(printf("\n  %s\n", errMsg)):(printf("  %s", errMsg));
+			(setParagraph)?(printf("\n%s\n", errMsg)):(printf("%s", errMsg));
 			printf("%s",C_DEFAULT);
 			return RETURN_ERROR;
 		}else{
-			(setParagraph)?(printf("\n  %s\n", msg)):(printf("  %s", msg));
+			(setParagraph)?(printf("\n%s\n", msg)):(printf("%s", msg));
 			printf("%s",C_DEFAULT);
 			return RETURN_ERROR;
 		}
@@ -129,7 +128,7 @@ int show_message(char *msg, int msgLenght, int errNum, int level, Bool setParagr
 		break;
 	}
 	if(setParagraph){
-		printf("%s\n  ",textColour);
+		printf("%s\n",textColour);
 		for(int i=0;i<msgLenght;i++)(isprint(msg[i]) || msg[i]=='\n' || msg[i]=='\t')?(printf("%c",msg[i])):(printf("·"));
 		PRINT_RESET;
 	}else{

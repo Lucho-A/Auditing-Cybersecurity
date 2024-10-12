@@ -24,6 +24,7 @@
 struct LastestError lastActivityError;
 struct ServerTarget target;
 struct NetworkInfo networkInfo;
+OCl *ocl=NULL;
 struct OllamaInfo oi;
 int portUnderHacking=0;
 Bool cancelCurrentProcess=FALSE;
@@ -53,7 +54,7 @@ static void signal_handler(int signalType){
 static int closeMrAnderson(){
 	PRINT_RESET
 	if(resourcesLocation!=NULL) free(resourcesLocation);
-	ollama_unload_model();
+	OCl_load_model(ocl, FALSE);
 	return RETURN_OK;
 }
 
@@ -84,9 +85,9 @@ static int initMrAnderson(){
 	size_t len;
 	char *line=NULL;
 	oi.ip="127.0.0.1";
-	oi.port=443;
-	oi.numCtx=2048;
-	oi.temp=0.5;
+	oi.port="443";
+	oi.numCtx="2048";
+	oi.temp="0.5";
 	while((chars=getline(&line, &len, f))!=-1){
 		if((strstr(line,"[OLLAMA_SERVER_ADDR]"))==line){
 			chars=getline(&line, &len, f);
@@ -97,7 +98,9 @@ static int initMrAnderson(){
 		}
 		if((strstr(line,"[OLLAMA_SERVER_PORT]"))==line){
 			chars=getline(&line, &len, f);
-			oi.port=strtol(line,NULL,10);
+			oi.port=malloc(chars+1);
+			memset(oi.port,0,chars+1);
+			for(int i=0;i<chars-1;i++) oi.port[i]=line[i];
 			continue;
 		}
 		if((strstr(line,"[OLLAMA_SERVER_MODEL]"))==line){
@@ -109,12 +112,23 @@ static int initMrAnderson(){
 		}
 		if((strstr(line,"[OLLAMA_SERVER_NUM_CTX]"))==line){
 			chars=getline(&line, &len, f);
-			oi.numCtx=strtol(line,NULL,10);
+			oi.numCtx=malloc(chars+1);
+			memset(oi.numCtx,0,chars+1);
+			for(int i=0;i<chars-1;i++) oi.numCtx[i]=line[i];
+			continue;
+		}
+		if((strstr(line,"[OLLAMA_SERVER_MAX_HISTORY_CTX]"))==line){
+			chars=getline(&line, &len, f);
+			oi.maxHistoryCtx=malloc(chars+1);
+			memset(oi.maxHistoryCtx,0,chars+1);
+			for(int i=0;i<chars-1;i++) oi.maxHistoryCtx[i]=line[i];
 			continue;
 		}
 		if((strstr(line,"[OLLAMA_SERVER_TEMP]"))==line){
 			chars=getline(&line, &len, f);
-			oi.temp=strtod(line,NULL);
+			oi.temp=malloc(chars+1);
+			memset(oi.temp,0,chars+1);
+			for(int i=0;i<chars-1;i++) oi.temp[i]=line[i];
 			continue;
 		}
 	}
