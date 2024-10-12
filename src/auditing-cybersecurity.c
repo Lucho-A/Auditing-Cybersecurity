@@ -54,7 +54,7 @@ static void signal_handler(int signalType){
 static int closeMrAnderson(){
 	PRINT_RESET
 	if(resourcesLocation!=NULL) free(resourcesLocation);
-	OCl_load_model(ocl, FALSE);
+	if(ocl!=NULL) OCl_load_model(ocl, FALSE);
 	return RETURN_OK;
 }
 
