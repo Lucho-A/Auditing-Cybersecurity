@@ -175,7 +175,7 @@ int init_networking(){
 				printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest",C_HRED);
 				break;
 			default:
-				printf("%sUsing under testing version",C_HRED);
+				printf("%sUsing a dev/testing version",C_HRED);
 				break;
 			}
 		}
