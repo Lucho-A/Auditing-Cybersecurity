@@ -34,7 +34,7 @@ Note: ODPI-C does require Oracle Client libraries: https://odpi-c.readthedocs.io
 ```
 git clone https://github.com/lucho-a/Auditing-Cybersecurity.git
 cd Auditing-Cybersecurity/src
-gcc -o "auditing-cybersecurity" auditing-cybersecurity.c auditing-cybersecurity.h  others/* ports/* activities/* libodpi/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
+gcc -o "auditing-cybersecurity" auditing-cybersecurity.c auditing-cybersecurity.h  others/* ports/* activities/* libs/libodpi/* libs/libOCL/* -lsmbclient -lnet -lpcap -lreadline -lm -lodbc -lcrypto -lssl -lcurl -lssh2 -lpq -lmysqlclient -lftp -lesmtp
 set -e
 sudo setcap CAP_NET_RAW=+eip auditing-cybersecurity
 ```
