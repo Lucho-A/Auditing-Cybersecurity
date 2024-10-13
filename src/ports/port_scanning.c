@@ -12,7 +12,7 @@
 
 int contClosedPorts=0;
 int contOpenedPorts=0;
-int endScanProcess=FALSE;
+int endScanProcess=false;
 int riskyPorts[5000];
 
 static void get_iana_service_name(int port, char *serviceName){
@@ -25,14 +25,14 @@ int scan_init(char *urlIp){
 	if(inet_addr(urlIp)!=-1){
 		printf("No need to resolve the IP (%s%s%s)\n\n",C_HWHITE,urlIp,C_DEFAULT);
 		if((strstr(urlIp, "10.")!=urlIp && strstr(urlIp, "172.16")!=urlIp && strstr(urlIp, "192.168")!=urlIp)
-				&& networkInfo.internetAccess==FALSE){
+				&& networkInfo.internetAccess==false){
 			printf("Public IP: %sno Internet access.%s \n\n",C_HRED,C_DEFAULT);
 			exit(EXIT_SUCCESS);
 		}
 		target.targetIp.s_addr=inet_addr(urlIp);
 	}else{
 		char *ip=hostname_to_ip(urlIp);
-		if(ip==NULL || networkInfo.internetAccess==FALSE){
+		if(ip==NULL || networkInfo.internetAccess==false){
 			printf("URL (%s%s%s) resolved to: %sunable to resolve the host.%s \n\n",C_HWHITE,urlIp,C_DEFAULT,C_HRED,C_DEFAULT);
 			exit(EXIT_SUCCESS);
 		}
@@ -111,7 +111,7 @@ static int reading_packets(){
 			return set_last_activity_error(RECEIVING_PACKETS_ERROR,"");
 		}
 		if(bytesRecv>0) process_packets(buffer);
-	}while(endScanProcess==FALSE);
+	}while(endScanProcess==false);
 	free(buffer);
 	close(sockRaw);
 	return RETURN_OK;
@@ -171,11 +171,11 @@ int scan_ports(int singlePortToScan, int showSummarize){
 	psh.dest_address=dest.sin_addr.s_addr;
 	psh.protocol=IPPROTO_TCP;
 	int contFilteredPortsChange=target.cantPortsToScan, endSendPackets=0, contFilteredPorts=0;
-	Bool recheck=FALSE;
+	bool recheck=false;
 	int port=0;
 	while(endSendPackets!=PACKET_FORWARDING_LIMIT){
 		int contF=1;
-		for(int i=0;i<target.cantPortsToScan && cancelCurrentProcess==FALSE;i++){
+		for(int i=0;i<target.cantPortsToScan && cancelCurrentProcess==false;i++){
 			if(singlePortToScan!=0){
 				port=singlePortToScan;
 			}else{
@@ -213,17 +213,17 @@ int scan_ports(int singlePortToScan, int showSummarize){
 		(contFilteredPortsChange==contFilteredPorts)?(endSendPackets++):(endSendPackets=0);
 		contFilteredPortsChange=contFilteredPorts;
 		contFilteredPorts=0;
-		recheck=TRUE;
+		recheck=true;
 	}
-	endScanProcess=TRUE;
+	endScanProcess=true;
 	pthread_join(readingPacketsThread, NULL);
-	endScanProcess=FALSE;
+	endScanProcess=false;
 	contFilteredPorts=target.cantPortsToScan-contOpenedPorts-contClosedPorts;
-	Bool anyPortShown=FALSE;
-	if(cancelCurrentProcess==FALSE && showSummarize==TRUE){
+	bool anyPortShown=false;
+	if(cancelCurrentProcess==false && showSummarize==true){
 		for(int i=0;i<ALL_PORTS;i++){
 			if(target.ports[i].portStatus==PORT_OPENED){
-				anyPortShown=TRUE;
+				anyPortShown=true;
 				break;
 			}
 		}
@@ -240,7 +240,7 @@ int scan_ports(int singlePortToScan, int showSummarize){
 		printf("\tOpened: %d\n\n",contOpenedPorts);
 	}
 	close(socketConn);
-	cancelCurrentProcess=FALSE;
+	cancelCurrentProcess=false;
 	printf("%s",C_DEFAULT);
 	return RETURN_OK;
 }

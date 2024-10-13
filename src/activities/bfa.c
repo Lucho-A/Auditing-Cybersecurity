@@ -9,37 +9,37 @@
 
 struct BfaInfo bfaInfo;
 int contUsersAndPasswords=0;
-Bool onlyUserCheck=FALSE;
+bool onlyUserCheck=false;
 
-Bool ask_user_check_only(){
+bool ask_user_check_only(){
 	char prompt[BUFFER_SIZE_512B]="";
 	snprintf(prompt, BUFFER_SIZE_512B,"  User checking, only?? [y|Y] (default: no): ");
 	do{
-		char *userCheckOnly=get_readline(prompt, FALSE);
+		char *userCheckOnly=get_readline(prompt, false);
 		if(strcmp(userCheckOnly, "")==0){
 			free(userCheckOnly);
-			return FALSE;
+			return false;
 		}
 		if(strcmp(userCheckOnly, "y")==0 || strcmp(userCheckOnly, "Y")==0){
 			free(userCheckOnly);
-			return TRUE;
+			return true;
 		}
 		free(userCheckOnly);
-	}while(TRUE);
+	}while(true);
 }
 
 void *bfa_check_users(void *arg){
 	struct ThreadInfo *tinfo=arg;
 	int posF=ceil(bfaInfo.totalUsernames/tinfo->totalThreads),cont=0,posI=tinfo->threadID*posF;
 	if(tinfo->threadID==tinfo->totalThreads-1) posF=bfaInfo.totalUsernames;
-	Bool again=FALSE,nextI=FALSE,isStdDevHomogeneous=FALSE;
+	bool again=false,nextI=false,isStdDevHomogeneous=false;
 	struct timespec tInit, tEnd;
 	int repeat=0, contLoginAttemps=0, contLogins=0;
 	double avg=0.0, time=0.0, stdDev=0.0, cv=0.0,totalTime=0.0,totalVarianceNum=0.0;
 	if(onlyUserCheck) repeat=3;
 	do{
 		for(int i=posI;i<bfaInfo.totalUsernames && cont<posF && !cancelCurrentProcess;i++,cont++){
-			nextI=FALSE;
+			nextI=false;
 			for(int j=0;j<bfaInfo.totalPasswords && !cancelCurrentProcess;j++){
 				contUsersAndPasswords++;
 				usleep(rand()%1000 + 1000);
@@ -53,8 +53,8 @@ void *bfa_check_users(void *arg){
 				fflush(stdout);
 				if(nextI) continue;
 				do{
-					again=FALSE;
-					int resp=FALSE;
+					again=false;
+					int resp=false;
 					clock_gettime(CLOCK_MONOTONIC_RAW, &tInit);
 					switch(tinfo->service){
 					case FTP_BFA:
@@ -81,19 +81,19 @@ void *bfa_check_users(void *arg){
 					}
 					clock_gettime(CLOCK_MONOTONIC_RAW, &tEnd);
 					switch(resp){
-					case TRUE:
+					case true:
 						printf(REMOVE_LINE);
 						printf("  %sUser found: %s%s/%s%s",C_HWHITE,C_HRED,bfaInfo.usernames[i],bfaInfo.passwords[j],C_DEFAULT);
 						printf("\n\n"REMOVE_LINE);
-						nextI=TRUE;
+						nextI=true;
 						break;
-					case FALSE:
+					case false:
 						break;
 					case SSH_SOCKET_DISCONNECTION_ERROR:
-						again=TRUE;
+						again=true;
 						break;
 					default:
-						cancelCurrentProcess=TRUE;
+						cancelCurrentProcess=true;
 						pthread_exit(NULL);
 					}
 				}while(again && !cancelCurrentProcess);
@@ -105,7 +105,7 @@ void *bfa_check_users(void *arg){
 					totalVarianceNum+=dev;
 					stdDev=pow(totalVarianceNum/contLoginAttemps,0.5);
 					cv=(stdDev/avg)*100;
-					(cv<10)?(isStdDevHomogeneous=TRUE):(isStdDevHomogeneous=FALSE);
+					(cv<10)?(isStdDevHomogeneous=true):(isStdDevHomogeneous=false);
 					if(isStdDevHomogeneous && time>avg*1.2 && repeat==1){
 						printf("\n\n%s  Warning: %s%s%s. Elapsed Time: %.6f, Avg. Time: %.6f. Standard Deviation: %.6f\n\n",
 								C_HYELLOW, C_HWHITE, bfaInfo.usernames[i], C_DEFAULT, time, avg, stdDev);
@@ -122,7 +122,7 @@ void *bfa_check_users(void *arg){
 }
 
 int bfa_init(int threadsDefault, char *usernamesFile, char *passwordFile, int service){
-	onlyUserCheck=FALSE;
+	onlyUserCheck=false;
 	contUsersAndPasswords=0;
 	read_usernames_and_password_files(&bfaInfo, usernamesFile, passwordFile);
 	int tThreads=0;

@@ -17,7 +17,7 @@ int system_call(char *cmdArg){
 	if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR, "");
 	fclose(f);
 	do{
-		char *cmd=get_readline("![#]=templates,;=exit)-> ", TRUE);
+		char *cmd=get_readline("![#]=templates,;=exit)-> ", true);
 		if(cmd[0]==0){
 			PRINT_RESET
 			free(cmd);
@@ -34,7 +34,7 @@ int system_call(char *cmdArg){
 			for(int i=1;i<strlen(cmd);i++) buf[i-1]=cmd[i];
 			long int selectedOpt=strtol(buf,NULL,10);
 			if(selectedOpt<1 || selectedOpt>totalStrings){
-				show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
+				show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true);
 				continue;
 			}
 			char msg[BUFFER_SIZE_1K]="";
@@ -46,7 +46,7 @@ int system_call(char *cmdArg){
 		printf("%s\n",C_HWHITE);
 		system(cmd);
 		PRINT_RESET;
-	}while(TRUE);
+	}while(true);
 	free_char_double_pointer(&stringTemplates, totalStrings);
 	clear_history();
 	return RETURN_OK;

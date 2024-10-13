@@ -66,12 +66,12 @@ static void get_local_ip(char *buffer){
 	serv.sin_family=AF_INET;
 	serv.sin_addr.s_addr=inet_addr(dnsIp);
 	serv.sin_port=htons(dns_port);
-	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0) error_handling(SOCKET_CONNECTION_ERROR,TRUE);
+	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0) error_handling(SOCKET_CONNECTION_ERROR,true);
 	struct sockaddr_in name;
 	socklen_t namelen=sizeof(name);
-	if(getsockname(socketConn,(struct sockaddr*) &name, &namelen)<0) error_handling(GETSOCKNAME_ERROR,TRUE);
+	if(getsockname(socketConn,(struct sockaddr*) &name, &namelen)<0) error_handling(GETSOCKNAME_ERROR,true);
 	const char *p=inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
-	if(p==NULL) error_handling(INET_NTOP_ERROR,TRUE);
+	if(p==NULL) error_handling(INET_NTOP_ERROR,true);
 	close(socketConn);
 }
 
@@ -109,12 +109,12 @@ int init_networking(){
 			}
 		}
 		do{
-			char *c=get_readline("\nSelect device number: ",FALSE);
+			char *c=get_readline("\nSelect device number: ",false);
 			selectedOpt=strtol(c,NULL,10);
 			free(c);
 			if(selectedOpt<1 || selectedOpt>cantDevs) continue;
 			break;
-		}while(TRUE);
+		}while(true);
 		int i=1;
 		for(dev=devs;dev!=NULL;dev=dev->next,i++){
 			if((dev->flags & PCAP_IF_UP) && (dev->flags & PCAP_IF_RUNNING) && !(dev->flags & PCAP_IF_LOOPBACK) && i==selectedOpt){
@@ -142,18 +142,18 @@ int init_networking(){
 	int br=get_public_ip(&publicIp);
 	if(br<1){
 		printf("\nPublic IP: %sNo Internet connection%s\n",C_HRED,C_DEFAULT);
-		networkInfo.internetAccess=FALSE;
+		networkInfo.internetAccess=false;
 	}else{
 		char *buffer="";
 		buffer=strstr((char *) publicIp,"\n\r\n");
 		printf("\nPublic IP: %s", C_HWHITE);
 		for(int i=3;i<strlen(buffer);i++) printf("%c", buffer[i]);
-		networkInfo.internetAccess=TRUE;
+		networkInfo.internetAccess=true;
 		PRINT_RESET
 	}
 	free(publicIp);
 	if (pcap_lookupnet(networkInfo.interfaceName, &networkInfo.net, &networkInfo.mask, errbuf)==-1) {
-		show_message("Unable to getting the netmask.",0, 0, ERROR_MESSAGE, TRUE);
+		show_message("Unable to getting the netmask.",0, 0, ERROR_MESSAGE, true);
 		networkInfo.net=networkInfo.mask=0;
 	}
 	networkInfo.netMask.s_addr=networkInfo.net&networkInfo.mask;
@@ -192,7 +192,7 @@ int init_networking(){
 			OCL_SOCKET_RECV_TIMEOUT_S,OCL_RESPONSE_SPEED, NULL, oi.model,
 			"IT Auditor and IT Security expert", oi.maxHistoryCtx, oi.temp,oi.numCtx,
 			oi.numCtx,NULL))!=RETURN_OK)
-		show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , TRUE);
+		show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , true);
 	int ollamaStatus=OCl_check_service_status(ocl);
 	if(ollamaStatus==RETURN_ERROR){
 		printf("%s%s",C_HRED,"connection error");
@@ -317,11 +317,11 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 		numEvents=poll(pfds,1,SOCKET_SEND_TIMEOUT_MS);
 		if(numEvents==0){
 			if(contSendingAttemps==0){
-				show_message("\n  Timeout sending message. Trying to re-connect and sending the message again...",0, errno, ERROR_MESSAGE, TRUE);
+				show_message("\n  Timeout sending message. Trying to re-connect and sending the message again...",0, errno, ERROR_MESSAGE, true);
 				contSendingAttemps++;
 				continue;
 			}
-			show_message("  Second timeout (IP locked?). Returning...",0, errno, ERROR_MESSAGE, TRUE);
+			show_message("  Second timeout (IP locked?). Returning...",0, errno, ERROR_MESSAGE, true);
 			return SENDING_PACKETS_ERROR;
 		}
 		pollinHappened=pfds[0].revents & POLLOUT;
@@ -339,11 +339,11 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 			}
 			if(bytesSent<=0){
 				if(contSendingAttemps==0){
-					show_message("\n  Error sending message. Trying to re-connect and sending the message again...",0, 0, ERROR_MESSAGE, TRUE);
+					show_message("\n  Error sending message. Trying to re-connect and sending the message again...",0, 0, ERROR_MESSAGE, true);
 					contSendingAttemps++;
 					continue;
 				}else{
-					show_message("Error sending message (IP locked?). Returning...",0,0, ERROR_MESSAGE, TRUE);
+					show_message("Error sending message (IP locked?). Returning...",0,0, ERROR_MESSAGE, true);
 					clean_ssl(sslConn);
 					return set_last_activity_error(SENDING_PACKETS_ERROR, "");
 				}
@@ -407,7 +407,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 			free(bufferHTTP);
 			return set_last_activity_error(POLLIN_ERROR, "");
 		}
-	}while(TRUE);
+	}while(true);
 	for(int i=0;i<maxSizeResponse && i<totalBytesReceived;i++) (*serverResp)[i]=bufferHTTP[i];
 	free(bufferHTTP);
 	clean_ssl(sslConn);

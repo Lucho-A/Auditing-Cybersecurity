@@ -111,7 +111,7 @@ static int get_cert_info(){
 			printf("\n\n%s  RSA(factor): %s%s",C_HWHITE,C_DEFAULT,asciiHex);
 		}
 	}else{
-		show_message("\n\n  Public Key is not RSA",0, 0, ERROR_MESSAGE, FALSE);
+		show_message("\n\n  Public Key is not RSA",0, 0, ERROR_MESSAGE, false);
 	}
 	printf("\n\n%s  Key Length: %s%d",C_HWHITE,C_DEFAULT,EVP_PKEY_bits(pkey));
 	printf("\n\n%s  Certificate: %s\n\n  ",C_HWHITE,C_DEFAULT);
@@ -213,7 +213,7 @@ static void *evaluate_response(void *arg){
 		resp=send_http_msg_to_server(target.targetIp,portUnderHacking,
 				target.ports[portUnderHacking].connectionType,msg,serverResp,BUFFER_SIZE_32B);
 		if(resp<0 && !cancelCurrentProcess){
-			cancelCurrentProcess=TRUE;
+			cancelCurrentProcess=true;
 			PRINT_RESET;
 			set_last_activity_error(resp, "");
 			pthread_exit(NULL);
@@ -260,12 +260,12 @@ int http(int type){
 				,target.ports[portUnderHacking].connectionType
 				,msg,serverResp,BUFFER_SIZE_1K);
 		if(bytesRecv<0) return RETURN_ERROR;
-		show_message(serverResp,bytesRecv, 0, RESULT_MESSAGE,FALSE);
+		show_message(serverResp,bytesRecv, 0, RESULT_MESSAGE,false);
 		PRINT_RESET;
 		return RETURN_OK;
 	case HTTP_TLS_GRABBING:
 		if(target.ports[portUnderHacking].connectionType!=SSL_CONN_TYPE){
-			show_message("SSL not supported for this port\n",0, 0, ERROR_MESSAGE, FALSE);
+			show_message("SSL not supported for this port\n",0, 0, ERROR_MESSAGE, false);
 			return RETURN_OK;
 		}
 		return get_cert_info();
@@ -277,19 +277,19 @@ int http(int type){
 		bytesRecv=send_http_msg_to_server(target.targetIp, portUnderHacking, target.ports[portUnderHacking].connectionType
 				,msg, serverResp, BUFFER_SIZE_1K);
 		if(bytesRecv>0 && (strstr(serverResp," 200 ")!=NULL || strstr(serverResp," 204 ")!=NULL)){
-			show_message(serverResp,bytesRecv,0, RESULT_MESSAGE,TRUE);
+			show_message(serverResp,bytesRecv,0, RESULT_MESSAGE,true);
 			if(strstr(serverResp," POST")!=NULL || strstr(serverResp," PUT")!=NULL || strstr(serverResp," DELETE")!=NULL)
-				show_message("POST, PUT or DELETE option(s) found",0, 0, ERROR_MESSAGE, FALSE);
+				show_message("POST, PUT or DELETE option(s) found",0, 0, ERROR_MESSAGE, false);
 			printf("\n");
 			break;
 		}
 		if(bytesRecv<0) return RETURN_ERROR;
-		show_message("No methods allowed found.",0,0, ERROR_MESSAGE,FALSE);
+		show_message("No methods allowed found.",0,0, ERROR_MESSAGE,false);
 		PRINT_RESET;
 		break;
 	case HTTP_SERVER_RESP_SPOOFED_HEADERS:
 		char **headers=NULL;
-		if((totalFiles=open_file_str(resourcesLocation, "spoofed_headers_http.txt",&f, &headers))==RETURN_ERROR) return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
+		if((totalFiles=open_file_str(resourcesLocation, "spoofed_headers_http.txt",&f, &headers))==RETURN_ERROR) return show_message("Error opening file",0,0,ERROR_MESSAGE,true);
 		fclose(f);
 		for(int i=0;i<totalFiles;i++){
 			snprintf(msg,sizeof(msg),"GET / HTTP/1.1\r\n"
@@ -305,7 +305,7 @@ int http(int type){
 			}
 			printf("  Sending '%s': ", headers[i]);
 			if((strstr(serverResp," 200 ")!=NULL || strstr(serverResp," 204 ")!=NULL)){
-				show_message("200/204",strlen("200/204"),0, CRITICAL_MESSAGE,FALSE);
+				show_message("200/204",strlen("200/204"),0, CRITICAL_MESSAGE,false);
 			}else{
 				char printResp[BUFFER_SIZE_32B]="";
 				int i=0;
@@ -330,7 +330,7 @@ int http(int type){
 		do{
 			for(int i=0;i<totalStrings;i++) printf("  %d) %s\n", i+1, stringTemplates[i]);
 			printf("\n");
-			char * queryType=get_readline("  Select the query type (;=exit | default=1): ", TRUE);
+			char * queryType=get_readline("  Select the query type (;=exit | default=1): ", true);
 			if(strcmp(queryType,";")==0){
 				free_char_double_pointer(&stringTemplates, totalStrings);
 				free(queryType);
@@ -341,17 +341,17 @@ int http(int type){
 			if(strcmp(queryType,"")==0) selectedOpt=1;
 			free(queryType);
 			if(selectedOpt<1 || selectedOpt>totalStrings){
-				show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
+				show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true);
 				continue;
 			}
 			break;
-		}while(TRUE);
+		}while(true);
 		printf("\n");
 		format_strings_from_files(stringTemplates[selectedOpt-1], stringTemplates[selectedOpt-1]);
 		if((totalFiles=open_file_str(resourcesLocation, "dirs_and_files_http.txt",&f, &files))==-1){
 			free_char_double_pointer(&files, totalFiles);
 			free_char_double_pointer(&stringTemplates, totalStrings);
-			return show_message("Error opening file",0,0,ERROR_MESSAGE,TRUE);
+			return show_message("Error opening file",0,0,ERROR_MESSAGE,true);
 		}
 		fclose(f);
 		pthread_t *getWPThread = (pthread_t *)malloc(totalThreads * sizeof(pthread_t));
@@ -374,7 +374,7 @@ int http(int type){
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 		fclose(f);
 		do{
-			char *command=get_readline("![#]=templates,;=exit)-> ", FALSE);
+			char *command=get_readline("![#]=templates,;=exit)-> ", false);
 			if(command[0]==0){
 				PRINT_RESET
 				free(command);
@@ -394,7 +394,7 @@ int http(int type){
 				for(int i=1;i<strlen(command);i++) buf[i-1]=command[i];
 				long int selectedOpt=strtol(buf,NULL,10);
 				if(selectedOpt<1 || selectedOpt>totalStrings){
-					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
+					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true);
 					continue;
 				}
 				format_strings_from_files(commands[selectedOpt-1], commands[selectedOpt-1]);
@@ -407,7 +407,7 @@ int http(int type){
 			system_call(command);
 			free(command);
 			printf("\n");
-		}while(TRUE);
+		}while(true);
 		free_char_double_pointer(&commands, totalStrings);
 		break;
 	default:

@@ -10,7 +10,7 @@ int set_last_activity_error(int errorType, char const *errorAditionalDescription
 	return RETURN_ERROR;
 }
 
-int error_handling(int errorType, Bool exitProgram){
+int error_handling(int errorType, bool exitProgram){
 	char errorMsg[BUFFER_SIZE_1K]="", errorDescription[BUFFER_SIZE_256B]="";
 	if(errorType<0) lastActivityError.errorType=errorType;
 	switch(lastActivityError.errorType){
@@ -120,7 +120,7 @@ int error_handling(int errorType, Bool exitProgram){
 		break;
 	}
 	snprintf(errorMsg, sizeof(errorMsg), "%s. %s", errorDescription, lastActivityError.errorAditionalDescription);
-	show_message(errorMsg,0, 0, ERROR_MESSAGE, TRUE);
+	show_message(errorMsg,0, 0, ERROR_MESSAGE, true);
 	if(exitProgram){
 		PRINT_RESET;
 		PRINT_RESET;

@@ -19,11 +19,11 @@ int ftp_check_user(char *username, char *password){
 	valResp=FtpLogin(username,password,ftpConn);
 	if(valResp){
 		FtpQuit(ftpConn);
-		return TRUE;
+		return true;
 	}
 	if(strstr(FtpLastResponse(ftpConn),"430")!=NULL || strstr(FtpLastResponse(ftpConn),"530")!=NULL || strstr(FtpLastResponse(ftpConn),"500")!=NULL){
 		FtpClose(ftpConn);
-		return FALSE;
+		return false;
 	}
 	FtpClose(ftpConn);
 	return set_last_activity_error(FTP_ERROR, FtpLastResponse(ftpConn));
@@ -38,8 +38,8 @@ int ftp(int type){
 		int bytesRecv=send_msg_to_server(&conn,target.targetIp, NULL,
 				portUnderHacking,target.ports[portUnderHacking].connectionType,
 				"\n", strlen("\n"), &serverResp,BUFFER_SIZE_128B,0);
-		if(bytesRecv<0) error_handling(0,FALSE);
-		if(bytesRecv>0) show_message((char *)serverResp, bytesRecv, 0, RESULT_MESSAGE, TRUE);
+		if(bytesRecv<0) error_handling(0,false);
+		if(bytesRecv>0) show_message((char *)serverResp, bytesRecv, 0, RESULT_MESSAGE, true);
 		free(serverResp);
 		close(conn);
 		break;
@@ -49,7 +49,7 @@ int ftp(int type){
 		int valResp=FtpConnect(host, &ftpConn);
 		if(!valResp) return set_last_activity_error(FTP_CONNECTION_ERROR, FtpLastResponse(ftpConn));
 		valResp=FtpLogin("anonymous","",ftpConn);
-		show_message(FtpLastResponse(ftpConn),0, 0, ERROR_MESSAGE, FALSE);
+		show_message(FtpLastResponse(ftpConn),0, 0, ERROR_MESSAGE, false);
 		if(valResp){
 			printf("\n%s",C_HRED);
 			FtpDir(NULL, "", ftpConn);

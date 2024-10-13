@@ -76,7 +76,7 @@ void show_intro_banner(){
 }
 void show_result(char *result){
 	int i=strlen(result);
-	while(TRUE){
+	while(true){
 		if(result[i-1]>=33){
 			result[i]='\0';
 			i--;
@@ -93,7 +93,7 @@ void show_result(char *result){
 	}
 }
 
-int show_message(char *msg, int msgLenght, int errNum, int level, Bool setParagraph){
+int show_message(char *msg, int msgLenght, int errNum, int level, bool setParagraph){
 	char *textColour=NULL;
 	switch(level){
 	case OK_MESSAGE:

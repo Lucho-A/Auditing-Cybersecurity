@@ -21,10 +21,10 @@ int mysql_check_user(char *username, char *password){
 			return RETURN_ERROR;
 		}
 		mysql_close(&mysqlConn);
-		return FALSE;
+		return false;
 	}
 	mysql_close(&mysqlConn);
-	return TRUE;
+	return true;
 }
 
 int mysql(int type){
@@ -44,7 +44,7 @@ int mysql(int type){
 				"\n",strlen("\n"), &serverResp, BUFFER_SIZE_128B,0);
 		close(sk);
 		if(lenght==0){
-			show_message("No server response\n", 0, 0, ERROR_MESSAGE, FALSE);
+			show_message("No server response\n", 0, 0, ERROR_MESSAGE, false);
 			free(serverResp);
 			return RETURN_OK;
 		}
@@ -62,7 +62,7 @@ int mysql(int type){
 			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
 			break;
 		default:
-			show_message("TODO: response not handled\n", 0, 0, ERROR_MESSAGE, TRUE);
+			show_message("TODO: response not handled\n", 0, 0, ERROR_MESSAGE, true);
 			for(int i=0;i<lenght;i++) printf("%02X ",serverResp[i]);
 			break;
 		}

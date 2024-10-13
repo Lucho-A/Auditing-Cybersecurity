@@ -40,7 +40,7 @@ int any(int type){
 			return OPENING_FILE_ERROR;
 		}
 		fclose(f);
-		for(int i=0;i<msgs && cancelCurrentProcess==FALSE;i++){
+		for(int i=0;i<msgs && cancelCurrentProcess==false;i++){
 			int sk=0;
 			ssize_t c=format_strings_from_files(queries[i], msg);
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,
@@ -48,11 +48,11 @@ int any(int type){
 					msg,c,&serverResp,BUFFER_SIZE_128K,0);
 			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
 			if(bytesRecv<=0){
-				error_handling(0,FALSE);
+				error_handling(0,false);
 				free(serverResp);
 				continue;
 			}
-			show_message((char *) serverResp,bytesRecv, 0, RESULT_MESSAGE, TRUE);
+			show_message((char *) serverResp,bytesRecv, 0, RESULT_MESSAGE, true);
 			printf("\n");
 			close(sk);
 			free(serverResp);
@@ -106,7 +106,7 @@ int any(int type){
 			int one=1;
 			const int *val = &one;
 			if(setsockopt(skDos, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0)
-				return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, TRUE);
+				return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, true);
 			dest.sin_family=AF_INET;
 			dest.sin_addr.s_addr=target.targetIp.s_addr;
 			tcph->dest=htons(portUnderHacking);
@@ -132,7 +132,7 @@ int any(int type){
 			break;
 		case ANY_SEARCH_MSF:
 			do{
-				char *strSearch= get_readline("  Insert string to search (;=exit): ", TRUE);
+				char *strSearch= get_readline("  Insert string to search (;=exit): ", true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -141,11 +141,11 @@ int any(int type){
 				snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'search %s; exit'",strSearch);
 				system_call(cmd);
 				free(strSearch);
-			}while(TRUE);
+			}while(true);
 			break;
 		case ANY_RUN_MSF:
 			do{
-				char *strSearch=get_readline("  Insert module to use (;=exit): ",TRUE);
+				char *strSearch=get_readline("  Insert module to use (;=exit): ",true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -154,7 +154,7 @@ int any(int type){
 				char *confirmation="";
 				printf("\n");
 				do{
-					confirmation=get_readline("  Use current port (y|default), or msf default (n): ",FALSE);
+					confirmation=get_readline("  Use current port (y|default), or msf default (n): ",false);
 				}while(strcmp(confirmation,"y")!=0 && strcmp(confirmation,"")!=0 && strcmp(confirmation,"n")!=0);
 				printf("\n");
 				char userFilePath[BUFFER_SIZE_512B]="", passFilePath[BUFFER_SIZE_512B]="";
@@ -187,11 +187,11 @@ int any(int type){
 				free(strSearch);
 				system_call(cmd);
 				PRINT_RESET;
-			}while(TRUE);
+			}while(true);
 			break;
 		case ANY_SEARCH_NMAP:
 			do{
-				char *strSearch=get_readline("  Insert string to search (;=exit): ", TRUE);
+				char *strSearch=get_readline("  Insert string to search (;=exit): ", true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -203,11 +203,11 @@ int any(int type){
 				system_call(cmd);
 				free(strSearch);
 				PRINT_RESET;
-			}while(TRUE);
+			}while(true);
 			break;
 		case ANY_RUN_NMAP:
 			do{
-				char *strSearch=get_readline("  Insert script to use (;=exit): ", TRUE);
+				char *strSearch=get_readline("  Insert script to use (;=exit): ", true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -217,7 +217,7 @@ int any(int type){
 				system_call(cmd);
 				free(strSearch);
 				PRINT_RESET;
-			}while(TRUE);
+			}while(true);
 			break;
 		case ANY_SQL_MAP:
 			char **sqlmapCommands=NULL;
@@ -225,7 +225,7 @@ int any(int type){
 			if(totalStrings==RETURN_ERROR) return OPENING_FILE_ERROR;
 			fclose(f);
 			do{
-				char *sqlCmd=get_readline("![#]=templates,;=exit)-> ", FALSE);
+				char *sqlCmd=get_readline("![#]=templates,;=exit)-> ", false);
 				if(sqlCmd[0]==0){
 					PRINT_RESET
 					free(sqlCmd);
@@ -246,20 +246,20 @@ int any(int type){
 					for(int i=1;i<strlen(sqlCmd);i++) buf[i-1]=sqlCmd[i];
 					long int selectedOpt=strtol(buf,NULL,10);
 					if(selectedOpt<1 || selectedOpt>totalStrings){
-						show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
+						show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true);
 						free(sqlCmd);
 						continue;
 					}
 					format_strings_from_files(sqlmapCommands[selectedOpt-1], sqlmapCommands[selectedOpt-1]);
 					char *userResp=NULL, url[BUFFER_SIZE_512B]="",cookie[BUFFER_SIZE_512B]="";
 					printf("\n");
-					userResp=get_readline("  Insert URL (ip:port by default): ",FALSE);
+					userResp=get_readline("  Insert URL (ip:port by default): ",false);
 					if(strcmp(userResp,"")==0){
 						snprintf(url,BUFFER_SIZE_512B,"\"%s:%d\"",target.strTargetIp,portUnderHacking);
 					}else{
 						snprintf(url,BUFFER_SIZE_512B,"\"%s\"",userResp);
 					}
-					userResp=get_readline("  Insert cookie value: ",FALSE);
+					userResp=get_readline("  Insert cookie value: ",false);
 					if(strcmp(userResp, "")!=0) snprintf(cookie, BUFFER_SIZE_128B, "--cookie=\"%s\"", userResp);
 					printf("\n");
 					snprintf(msg,BUFFER_SIZE_1K, sqlmapCommands[selectedOpt-1], url, cookie);
@@ -270,7 +270,7 @@ int any(int type){
 				printf("\n");
 				system(sqlCmd);
 				free(sqlCmd);
-			}while(TRUE);
+			}while(true);
 			free_char_double_pointer(&sqlmapCommands, totalStrings);
 			break;
 		case ANY_ARP_SNIFFING:

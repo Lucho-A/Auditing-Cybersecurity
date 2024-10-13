@@ -68,13 +68,13 @@ static int hack_port() {
 	show_options();
 	char prompt[BUFFER_SIZE_256B]="";
 	snprintf(prompt,sizeof(prompt),"%s@%s%s:%s%d%s: ",C_DEFAULT,C_HWHITE,target.strTargetIp,C_HCYAN,portUnderHacking,C_DEFAULT);
-	while(TRUE){
-		cancelCurrentProcess=FALSE;
-		canceledBySignal=FALSE;
+	while(true){
+		cancelCurrentProcess=false;
+		canceledBySignal=false;
 		int valResp=ACTIVITY_NOT_SELECTED;
 		lastActivityError.errorType=0;
 		memset(lastActivityError.errorAditionalDescription,0,sizeof(lastActivityError.errorAditionalDescription));
-		char *c=get_readline(prompt, FALSE);
+		char *c=get_readline(prompt, false);
 		printf("\n");
 		if(strcmp(c,"1.1")==0) valResp=any(ANY_BANNER_GRABBING);
 		if(strcmp(c,"1.2")==0) valResp=any(ANY_NMAP_VULNER_SCAN);
@@ -160,7 +160,7 @@ static int hack_port() {
 				switch(valResp){
 				case OCL_ERR_RESPONSE_MESSAGE_ERROR:
 					show_message(OCL_get_response_error(ocl), strlen(OCL_get_response_error(ocl)),
-							0, ERROR_MESSAGE, TRUE);
+							0, ERROR_MESSAGE, true);
 					break;
 				default:
 					if(ocl_canceled){
@@ -168,13 +168,13 @@ static int hack_port() {
 						break;
 					}
 					show_message(OCL_error_handling(valResp), strlen(OCL_error_handling(valResp)),
-							0, ERROR_MESSAGE, TRUE);
+							0, ERROR_MESSAGE, true);
 					break;
 				}
 			}
 			PRINT_RESET
 		}
-		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,FALSE);
+		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,false);
 		free(c);
 		PRINT_RESET;
 	}
@@ -184,7 +184,7 @@ int hack_port_request(){
 	do{
 		do{
 			printf("%s",C_DEFAULT);
-			char *c=get_readline("Insert port to hack (0 = exit, default): ",FALSE);
+			char *c=get_readline("Insert port to hack (0 = exit, default): ",false);
 			if(strcmp(c,"0")==0 || strcmp(c,"")==0){
 				free(c);
 				return RETURN_OK;
@@ -195,12 +195,12 @@ int hack_port_request(){
 				break;
 			}
 			show_message("Port number not valid (1-65535)\n", strlen("Port number not valid (1-65535)\n"),
-					0, ERROR_MESSAGE, TRUE);
+					0, ERROR_MESSAGE, true);
 			free(c);
-		}while(TRUE);
+		}while(true);
 		if(target.ports[portUnderHacking].connectionType==UNKNOWN_CONN_TYPE){
 			PRINT_RESET;
-			if(target.ports[portUnderHacking].portStatus==PORT_UNKNOWN) scan_ports(portUnderHacking, FALSE);
+			if(target.ports[portUnderHacking].portStatus==PORT_UNKNOWN) scan_ports(portUnderHacking, false);
 			switch (target.ports[portUnderHacking].portStatus){
 			case PORT_FILTERED:
 				printf("%sFiltered%s\n\n", C_HYELLOW, C_DEFAULT);
@@ -211,13 +211,13 @@ int hack_port_request(){
 			}
 			int resp=0;
 			if((resp=check_conn_type())<0){
-				error_handling(0,FALSE);
+				error_handling(0,false);
 				continue;
 			}
 			target.ports[portUnderHacking].connectionType=resp;
 		}
 		if(hack_port()==RETURN_CLOSE) return RETURN_OK;
-	}while(TRUE);
+	}while(true);
 }
 
 

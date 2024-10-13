@@ -32,9 +32,9 @@ int ssh_check_user(char *username, char *password){
 	close(sk);
 	switch(valResp){
 	case 0:
-		return TRUE;
+		return true;
 	case LIBSSH2_ERROR_AUTHENTICATION_FAILED:
-		return FALSE;
+		return false;
 	case LIBSSH2_ERROR_SOCKET_DISCONNECT:
 		return SSH_SOCKET_DISCONNECTION_ERROR;
 	case LIBSSH2_ERROR_TIMEOUT:
@@ -45,7 +45,7 @@ int ssh_check_user(char *username, char *password){
 
 int ssh(int type){
 	if(target.ports[portUnderHacking].connectionType!=SSH_CONN_TYPE){
-		return show_message("SSH not supported for this port (or couldn't create a connection because the IP was locked)\n",0, 0, ERROR_MESSAGE, FALSE);
+		return show_message("SSH not supported for this port (or couldn't create a connection because the IP was locked)\n",0, 0, ERROR_MESSAGE, false);
 	}
 	char cmd[BUFFER_SIZE_1K]="";
 	switch(type){
@@ -72,7 +72,7 @@ int ssh(int type){
 		if(libssh2_session_handshake(sshSessionConn, sshSocket)<0) return set_last_activity_error(SSH_HANDSHAKE_ERROR,"");
 		libssh2_hostkey_hash(sshSessionConn, LIBSSH2_HOSTKEY_HASH_SHA1);
 		printf("  Banner: ");
-		show_message((char *) libssh2_session_banner_get(sshSessionConn),strlen((char *) libssh2_session_banner_get(sshSessionConn)), 0, INFO_MESSAGE, FALSE);
+		show_message((char *) libssh2_session_banner_get(sshSessionConn),strlen((char *) libssh2_session_banner_get(sshSessionConn)), 0, INFO_MESSAGE, false);
 		size_t len;
 		int type;
 		const char *hostkey=libssh2_session_hostkey(sshSessionConn, &len, &type);
@@ -105,7 +105,7 @@ int ssh(int type){
 				break;
 			}
 			printf("\n\n  Algorithm: ");
-			show_message(hostkeyTypeMsg,strlen(hostkeyTypeMsg), 0, INFO_MESSAGE,FALSE);
+			show_message(hostkeyTypeMsg,strlen(hostkeyTypeMsg), 0, INFO_MESSAGE,false);
 		}
 		const char *fingerprint=libssh2_hostkey_hash(sshSessionConn, LIBSSH2_HOSTKEY_HASH_SHA1);
 		printf("\n\n  Hash: ");
@@ -115,7 +115,7 @@ int ssh(int type){
 		userauthlist = libssh2_userauth_list(sshSessionConn, "anyUser", strlen("anyUser"));
 		printf("\n  Authentication methods allowed: ");
 		if(userauthlist==NULL) userauthlist="Failure -no authentication methods found (!?)-";
-		show_message(userauthlist,strlen(userauthlist), 0, INFO_MESSAGE,FALSE);
+		show_message(userauthlist,strlen(userauthlist), 0, INFO_MESSAGE,false);
 		libssh2_session_free(sshSessionConn);
 		break;
 	case SSH_USER_ENUM:

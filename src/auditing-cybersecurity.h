@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <pcap.h>
+#include <stdbool.h>
 
 #include "libs/libOCL/libOllama-C-lient.h"
 
@@ -72,13 +73,6 @@
 #define C_STRIKE						"\e[0;9m"
 
 #define REMOVE_LINE						"\r\033[2K"
-
-/*
-typedef enum{
-	FALSE=0,
-	TRUE
-}Bool;
-*/
 
 enum programVersion{
 	UPDATED=1,
@@ -227,8 +221,8 @@ struct OllamaInfo{
 
 extern OCl *ocl;
 extern struct OllamaInfo oi;
-extern Bool canceledBySignal;
-extern Bool cancelCurrentProcess;
+extern bool canceledBySignal;
+extern bool cancelCurrentProcess;
 extern struct ServerTarget target;
 extern struct NetworkInfo networkInfo;
 extern int portUnderHacking;
@@ -241,12 +235,12 @@ int scan_init(char *);
 int scan_ports();
 int hack_port_request();
 
-int error_handling(int, Bool);
+int error_handling(int, bool);
 int set_last_activity_error(int, char const *);
 int open_file(char *, char *, FILE **);
 int open_file_str(char *, char *, FILE **, char ***);
-int show_message(char *, int , int , int , Bool);
-char * get_readline(char *, Bool );
+int show_message(char *, int , int , int , bool);
+char * get_readline(char *, bool );
 int format_strings_from_files(char *, char *);
 void show_intro(char *, char *);
 void show_intro_banner();

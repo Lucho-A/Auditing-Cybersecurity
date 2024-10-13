@@ -27,8 +27,8 @@ struct NetworkInfo networkInfo;
 OCl *ocl=NULL;
 struct OllamaInfo oi;
 int portUnderHacking=0;
-Bool cancelCurrentProcess=FALSE;
-Bool canceledBySignal=FALSE;
+bool cancelCurrentProcess=false;
+bool canceledBySignal=false;
 pcap_t *arpHandle=NULL;
 char *resourcesLocation=NULL;
 long int sendPacketPerPortDelayUs=SEND_PACKET_PER_PORT_DELAY_US;
@@ -39,12 +39,12 @@ static void signal_handler(int signalType){
 	case SIGTSTP:
 		printf("%s\n\n",C_DEFAULT);
 		printf("  Canceling...\n");
-		cancelCurrentProcess=TRUE;
-		canceledBySignal=TRUE;
+		cancelCurrentProcess=true;
+		canceledBySignal=true;
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
 	case SIGPIPE:
-		//show_message("'SIGPIPE' signal received: the write end of the pipe or socket is closed.", 0, 0, ERROR_MESSAGE, FALSE);
+		//show_message("'SIGPIPE' signal received: the write end of the pipe or socket is closed.", 0, 0, ERROR_MESSAGE, false);
 		break;
 	default:
 		break;
@@ -54,7 +54,7 @@ static void signal_handler(int signalType){
 static int closeMrAnderson(){
 	PRINT_RESET
 	if(resourcesLocation!=NULL) free(resourcesLocation);
-	if(ocl!=NULL) OCl_load_model(ocl, FALSE);
+	if(ocl!=NULL) OCl_load_model(ocl, false);
 	return RETURN_OK;
 }
 
@@ -84,10 +84,11 @@ static int initMrAnderson(){
 	int chars;
 	size_t len;
 	char *line=NULL;
-	oi.ip="127.0.0.1";
-	oi.port="443";
-	oi.numCtx="2048";
-	oi.temp="0.5";
+	oi.ip=OCL_OLLAMA_SERVER_ADDR;
+	oi.port=OCL_OLLAMA_SERVER_PORT;
+	oi.numCtx=OCL_NUM_CTX;
+	oi.temp=OCL_TEMP;
+	oi.maxHistoryCtx=OCL_MAX_HISTORY_CONTEXT;
 	while((chars=getline(&line, &len, f))!=-1){
 		if((strstr(line,"[OLLAMA_SERVER_ADDR]"))==line){
 			chars=getline(&line, &len, f);
@@ -137,7 +138,7 @@ static int initMrAnderson(){
 
 int main(int argc, char *argv[]){
 	show_intro(PROGRAM_NAME, PROGRAM_VERSION);
-	Bool noIntro=FALSE, discover=FALSE;
+	bool noIntro=false, discover=false;
 	char urlIp[255]="", msgError[BUFFER_SIZE_512B]="";
 	int singlePortToScan=0;
 	target.cantPortsToScan=0;
@@ -152,7 +153,7 @@ int main(int argc, char *argv[]){
 			exit(EXIT_FAILURE);
 		}
 		if(strcmp(argv[i],"-d")==0 || strcmp(argv[i],"--discover")==0){
-			discover=TRUE;
+			discover=true;
 			continue;
 		}
 		if(strcmp(argv[i],"-t")==0 || strcmp(argv[i],"--target")==0){
@@ -196,7 +197,7 @@ int main(int argc, char *argv[]){
 			exit(EXIT_SUCCESS);
 		}
 		if(strcmp(argv[i],"-n")==0 || strcmp(argv[i],"--no-intro")==0){
-			noIntro=TRUE;
+			noIntro=true;
 			continue;
 		}
 		if(strcmp(argv[i],"-r")==0 || strcmp(argv[i],"--resources-location")==0){
@@ -239,7 +240,7 @@ int main(int argc, char *argv[]){
 	}
 	if(!noIntro) show_intro_banner();
 	if(initMrAnderson()!=RETURN_OK){
-		error_handling(0,FALSE);
+		error_handling(0,false);
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
@@ -249,13 +250,13 @@ int main(int argc, char *argv[]){
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
 	printf("%s\nStarting: %s\n",C_DEFAULT,strTimeStamp);
 	if(discover){
-		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0,TRUE);
+		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0,true);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
-if(scan_init(urlIp)!=RETURN_OK) error_handling(0,TRUE);
-	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, TRUE)!=RETURN_OK) error_handling(0,TRUE);
-	if(hack_port_request()!=RETURN_OK) error_handling(0,TRUE);
+if(scan_init(urlIp)!=RETURN_OK) error_handling(0,true);
+	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, true)!=RETURN_OK) error_handling(0,true);
+	if(hack_port_request()!=RETURN_OK) error_handling(0,true);
 	closeMrAnderson();
 	exit(EXIT_SUCCESS);
 }

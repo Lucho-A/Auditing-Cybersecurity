@@ -35,14 +35,14 @@ typedef struct Response{
 typedef struct Message{
 	char *userMessage;
 	char *assistantMessage;
-	Bool isNew;
+	bool isNew;
 	struct Message *nextMessage;
 }Message;
 
 Message *rootContextMessages=NULL;
 int contContextMessages=0;
 SSL_CTX *sslCtx=NULL;
-Bool ocl_canceled=FALSE;
+bool ocl_canceled=false;
 
 typedef struct _ocl{
 	char *srvAddr;
@@ -232,7 +232,7 @@ int OCl_init(){
 	if((sslCtx=SSL_CTX_new(TLS_client_method()))==NULL) return OCL_ERR_SSL_CONTEXT_ERROR;
 	SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER, NULL);
 	SSL_CTX_set_default_verify_paths(sslCtx);
-	ocl_canceled=FALSE;
+	ocl_canceled=false;
 	return RETURN_OK;
 }
 
@@ -323,7 +323,7 @@ static void clean_ssl(SSL *ssl){
 	SSL_free(ssl);
 }
 
-static void create_new_context_message(char *userMessage, char *assistantMessage, Bool isNew, int maxHistoryContext){
+static void create_new_context_message(char *userMessage, char *assistantMessage, bool isNew, int maxHistoryContext){
 	Message *newMessage=malloc(sizeof(Message));
 	newMessage->userMessage=malloc(strlen(userMessage)+1);
 	snprintf(newMessage->userMessage,strlen(userMessage)+1,"%s",userMessage);
@@ -383,7 +383,7 @@ int OCl_import_context(OCl *ocl){
 				assistantMessage=malloc(chars+1);
 				memset(assistantMessage,0,chars+1);
 				for(i++;line[i]!='\n';i++,index++) assistantMessage[index]=line[i];
-				create_new_context_message(userMessage, assistantMessage, FALSE, ocl->maxMessageContext);
+				create_new_context_message(userMessage, assistantMessage, false, ocl->maxMessageContext);
 				free(userMessage);
 				free(assistantMessage);
 			}
@@ -698,7 +698,7 @@ static int create_connection(char *srvAddr, int srvPort, int socketConnectTimeou
 	return socketConn;
 }
 
-static int send_message(OCl *ocl,char *payload, char **fullResponse, char **content, Bool streamed){
+static int send_message(OCl *ocl,char *payload, char **fullResponse, char **content, bool streamed){
 	int socketConn=create_connection(ocl->srvAddr, ocl->srvPort, ocl->socketConnectTimeout);
 	if(socketConn<0) return socketConn;
 	if(sslCtx==NULL) return OCL_ERR_SSLCTX_NULL_ERROR;
@@ -794,7 +794,7 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 			if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) break;
 		}
 		if(!SSL_pending(sslConn)) break;
-	}while(TRUE && !ocl_canceled);
+	}while(true && !ocl_canceled);
 	close(socketConn);
 	clean_ssl(sslConn);
 	return totalBytesReceived;
@@ -876,7 +876,7 @@ int OCl_send_chat(OCl *ocl, char *message){
 			"%s",ocl->srvAddr,(int) strlen(body), body);
 	free(body);
 	char *fullResponse=NULL, *content=NULL;
-	int retVal=send_message(ocl, msg, &fullResponse, &content, TRUE);
+	int retVal=send_message(ocl, msg, &fullResponse, &content, true);
 	free(msg);
 	if(retVal<0){
 		free(messageParsed);
@@ -944,7 +944,7 @@ int OCl_send_chat(OCl *ocl, char *message){
 		}
 		if(retVal>0) ocl->ocl_resp->tokensPerSec=ocl->ocl_resp->evalCount/ocl->ocl_resp->evalDuration;
 		if(message[strlen(message)-1]!=';'){
-			create_new_context_message(messageParsed, content, TRUE, ocl->maxMessageContext);
+			create_new_context_message(messageParsed, content, true, ocl->maxMessageContext);
 			OCl_save_message(ocl, messageParsed, content);
 		}
 	}
@@ -961,7 +961,7 @@ int OCl_check_service_status(OCl *ocl){
 			"Host: %s\r\n\r\n",ocl->srvAddr);
 	char *buffer=NULL;
 	int retVal=0;
-	if((retVal=send_message(ocl, msg, &buffer,NULL, FALSE))<=0){
+	if((retVal=send_message(ocl, msg, &buffer,NULL, false))<=0){
 		free(buffer);
 		return retVal;
 	}
@@ -974,7 +974,7 @@ int OCl_check_service_status(OCl *ocl){
 }
 
 
-int OCl_load_model(OCl *ocl, Bool load){
+int OCl_load_model(OCl *ocl, bool load){
 	char body[1024]="";
 	if(load){
 		snprintf(body,1024,"{\"model\": \"%s\", \"keep_alive\": -1}",ocl->model);
@@ -990,7 +990,7 @@ int OCl_load_model(OCl *ocl, Bool load){
 			"%s",ocl->srvAddr,(int) strlen(body), body);
 	char *buffer=NULL;
 	int retVal=0;
-	if((retVal=send_message(ocl, msg, &buffer, NULL, FALSE))<=0){
+	if((retVal=send_message(ocl, msg, &buffer, NULL, false))<=0){
 		free(buffer);
 		return retVal;
 	}
@@ -1023,7 +1023,7 @@ int OCl_get_models(OCl *ocl, char ***models){
 			"%s",ocl->srvAddr,(int) strlen(body), body);
 	char *buffer=NULL;
 	int retVal=0;
-	if((retVal=send_message(ocl, msg, &buffer, NULL, FALSE))<=0){
+	if((retVal=send_message(ocl, msg, &buffer, NULL, false))<=0){
 		free(buffer);
 		return retVal;
 	}

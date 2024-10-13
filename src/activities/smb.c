@@ -41,17 +41,17 @@ static SMBCCTX* create_smbctx(void){
 
 static int validate_smb_account(SMBCCTX *ctx, char *smbURL){
 	SMBCFILE *dir=NULL;
-	if((dir=smbc_getFunctionOpendir(ctx)(ctx, smbURL))==NULL) return FALSE;
+	if((dir=smbc_getFunctionOpendir(ctx)(ctx, smbURL))==NULL) return false;
 	char fullPath[128]="";
 	struct smbc_dirent *dirent;
-	Bool found=FALSE;
+	bool found=false;
 	while((dirent = smbc_getFunctionReaddir(ctx)(ctx, dir)) != NULL){
 		snprintf(fullPath,128,"%s/%s",smbURL,dirent->name);
 		if((smbc_getFunctionOpendir(ctx)(ctx, fullPath))!=NULL){
 			printf(REMOVE_LINE);
 			printf("  %sUser found: %s%s/%s with access to %s%s",C_HWHITE,C_HRED,gUsername,gPassword, fullPath,C_DEFAULT);
 			printf("\n\n"REMOVE_LINE);
-			found=TRUE;
+			found=true;
 		}
 	}
 	smbc_getFunctionClose(ctx)(ctx, dir);
@@ -71,10 +71,10 @@ int smb_check_user(char *username, char *password){
 	if ((ctx=create_smbctx())==NULL) return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
 	if(validate_smb_account(ctx, smbURL)){
 		delete_smbctx(ctx);
-		return TRUE;
+		return true;
 	}
 	delete_smbctx(ctx);
-	return FALSE;
+	return false;
 }
 
 static int smb_list_resources(){
@@ -93,17 +93,17 @@ static int smb_list_resources(){
 		}
 		smbc_getFunctionClose(ctx)(ctx, dir);
 		delete_smbctx(ctx);
-		return TRUE;
+		return true;
 	}
 	delete_smbctx(ctx);
-	return FALSE;
+	return false;
 }
 
 static int smb_banner_grabbing(){
 	int smbConn=0, bytesReceived=0;
 	long int payloadLen=0;
 	unsigned char *serverResp=NULL;
-	Bool supported=FALSE;
+	bool supported=false;
 	char smbv1Dialects[10][BUFFER_SIZE_32B]={
 			"PC NETWORK PROGRAM 1.0",
 			"MICROSOFT NETWORKS 1.03",
@@ -136,7 +136,7 @@ static int smb_banner_grabbing(){
 	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, NULL, portUnderHacking,
 			target.ports[portUnderHacking].connectionType,
 			payloadSmbv1, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
-	//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, TRUE);
+	//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, true);
 	if(bytesReceived>0 && serverResp[5]=='S' && serverResp[6]=='M' && serverResp[7]=='B'){
 		int preferedDialectIndex=serverResp[37]+serverResp[38];
 		if(bytesReceived>0 && preferedDialectIndex!=510){
@@ -165,7 +165,7 @@ static int smb_banner_grabbing(){
 					target.ports[portUnderHacking].connectionType,
 					payload, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 			if(bytesReceived==RETURN_ERROR){
-				error_handling(0,FALSE);
+				error_handling(0,false);
 			}else{
 				int pos=9, lenght=0;
 				unsigned char buffer[4];
@@ -217,7 +217,7 @@ static int smb_banner_grabbing(){
 	close(smbConn);
 	smbConn=0;
 	//v2
-	supported=TRUE;
+	supported=true;
 	char payloadSmbv2[]={
 			0x00,0x00,0x00,0x42,
 			0xff,0x53,0x4d,0x42,0x72,0x00,0x00,0x00,0x00,0x18,0x01,0x28,0x00,0x00,0x00,0x00,
@@ -247,7 +247,7 @@ static int smb_banner_grabbing(){
 			snprintf(preferredDialect, sizeof(preferredDialect),"%s","SMB2 wildcard");
 			break;
 		default:
-			supported=FALSE;
+			supported=false;
 			printf("\n%s  SMBv2: %snot supported%s\n", C_HWHITE,C_HRED,C_DEFAULT);
 			snprintf(preferredDialect, sizeof(preferredDialect),"%s (%02X %02X)","???",serverResp[73],serverResp[72]);
 			break;
@@ -281,8 +281,8 @@ static int smb_banner_grabbing(){
 			//bytesReceived=send_payloaded_msg_to_server(&smbConn, payload, serverResp, payloadLen);
 			//bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking, target.portsToScan[portUnderHacking].connectionType,
 			//payload, &serverResp, BUFFER_SIZE_16K, 0, payloadLen);
-			//if(bytesReceived==RETURN_ERROR) error_handling(FALSE);
-			//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, TRUE);
+			//if(bytesReceived==RETURN_ERROR) error_handling(false);
+			//show_message(serverResp, bytesReceived, 0, INFO_MESSAGE, true);
 		}
 	}else{
 		printf("\n%s  SMBv2: %snot supported%s\n", C_HWHITE,C_HRED,C_DEFAULT);
@@ -292,7 +292,7 @@ static int smb_banner_grabbing(){
 	free(serverResp);
 	/*
 	//v3
-	supported=TRUE;
+	supported=true;
 	char payloadSmbv3[]={
 			0x00,0x00,0x00,0xd0,
 			0xfe,0x53,0x4d,0x42,0x40,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -317,7 +317,7 @@ static int smb_banner_grabbing(){
 	payloadLen=212;
 	memset(serverResp,0,sizeof(serverResp));
 	bytesReceived=send_payloaded_msg_to_server(&smbConn, payloadSmbv3, serverResp, payloadLen);
-	//if(bytesReceived==RETURN_ERROR) return error_handling(FALSE);
+	//if(bytesReceived==RETURN_ERROR) return error_handling(false);
 	if(bytesReceived>0) {
 		char preferredDialect[BUFFER_SIZE_256B]="";
 		printf("\n\n");
@@ -332,7 +332,7 @@ static int smb_banner_grabbing(){
 			//snprintf(preferredDialect, sizeof(preferredDialect),"%s","SMB2 wildcard");
 			break;
 		default:
-			supported=FALSE;
+			supported=false;
 			printf("\n%s  SMBv3: %s supported%s\n", C_HWHITE,C_HGREEN,C_DEFAULT);
 			//snprintf(preferredDialect, sizeof(preferredDialect),"%s (%02X %02X)","???",serverResp[73],serverResp[72]);
 			break;

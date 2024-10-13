@@ -19,9 +19,9 @@ int oracle_check_user(char *username, char *password){
 	if(dpiContext_create(DPI_MAJOR_VERSION, DPI_MINOR_VERSION, &gContext, &gErrorInfo)<0){
 		if(gContext) dpiContext_getError(gContext, &gErrorInfo);
 		snprintf(errorDesc,sizeof(errorDesc),"%.*s", (int) gErrorInfo.messageLength,gErrorInfo.message);
-		return show_message(errorDesc,0, 0, ERROR_MESSAGE, TRUE);
+		return show_message(errorDesc,0, 0, ERROR_MESSAGE, true);
 	}
-	if(gContext==NULL) return show_message("",0, errno, ERROR_MESSAGE, TRUE);
+	if(gContext==NULL) return show_message("",0, errno, ERROR_MESSAGE, true);
 	//dpiConn_addRef(&oracleConn);
 	//dpiVersionInfo *versionInfo=NULL;
 	//dpiConn_getServerVersion(oracleConn, NULL, NULL, versionInfo);
@@ -31,7 +31,7 @@ int oracle_check_user(char *username, char *password){
 			NULL, NULL, &oracleConn) == DPI_SUCCESS){
 		dpiConn_release(oracleConn);
 		dpiConn_close(oracleConn, DPI_MODE_CONN_CLOSE_DEFAULT, NULL, 0);
-		return TRUE;
+		return true;
 	}
 	dpiConn_release(oracleConn);
 	dpiConn_close(oracleConn, DPI_MODE_CONN_CLOSE_DEFAULT, NULL, 0);
@@ -40,7 +40,7 @@ int oracle_check_user(char *username, char *password){
 		printf("\n\n%sExisting account (but blocked): %s",C_HRED,username);
 		PRINT_RESET;
 	}
-	return FALSE;
+	return false;
 }
 
 int oracle(int type){

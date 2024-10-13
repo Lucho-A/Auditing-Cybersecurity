@@ -11,10 +11,10 @@ int postgres_check_user(char *username, char *password){
 	//printf("\n%s\n", PQerrorMessage(postgresConn));
 	if(PQstatus(postgresConn)==CONNECTION_OK){
 		PQfinish(postgresConn);
-		return TRUE;
+		return true;
 	}
 	if(postgresConn!=NULL) PQfinish(postgresConn);
-	return FALSE;
+	return false;
 }
 
 int postgres(int type){

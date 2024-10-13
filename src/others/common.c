@@ -15,7 +15,7 @@ void free_char_double_pointer(char ***p, size_t size){
 	return;
 }
 
-char * get_readline(char *prompt, Bool addHistory){
+char * get_readline(char *prompt, bool addHistory){
 	char *lineRead=(char *)NULL;
 	if(lineRead){
 		free(lineRead);
@@ -30,11 +30,11 @@ int request_quantity_threads(int threadsDefault){
 	char prompt[BUFFER_SIZE_512B]="";
 	snprintf(prompt, BUFFER_SIZE_512B,"  Insert quantity of thread (%d by default): ", threadsDefault);
 	do{
-		char *cantThreadsRequest=get_readline(prompt, FALSE);
+		char *cantThreadsRequest=get_readline(prompt, false);
 		if(strcmp(cantThreadsRequest, "")!=0){
 			int tt=strtol(cantThreadsRequest,NULL,10);
 			if(tt<=0 || tt>MAX_THREADS){
-				show_message("  Entered value not valid (1-5000).\n",0, 0, ERROR_MESSAGE, TRUE);
+				show_message("  Entered value not valid (1-5000).\n",0, 0, ERROR_MESSAGE, true);
 				free(cantThreadsRequest);
 				continue;
 			}
@@ -43,5 +43,5 @@ int request_quantity_threads(int threadsDefault){
 		}
 		free(cantThreadsRequest);
 		return threadsDefault;
-	}while(TRUE);
+	}while(true);
 }

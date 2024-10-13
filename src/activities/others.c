@@ -26,7 +26,7 @@ int others(int type){
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 		fclose(f);
 		do{
-			msg=get_readline("![#]=templates,;=exit)-> ", TRUE);
+			msg=get_readline("![#]=templates,;=exit)-> ", true);
 			if(strcmp(msg,"")==0){
 				PRINT_RESET;
 				continue;
@@ -43,7 +43,7 @@ int others(int type){
 				for(int i=1;i<strlen(msg);i++) buf[i-1]=msg[i];
 				long int selectedOpt=strtol(buf,NULL,10);
 				if(selectedOpt<1 || selectedOpt>totalStrings){
-					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, TRUE);
+					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true);
 					free(msg);
 					continue;
 				}
@@ -62,13 +62,13 @@ int others(int type){
 			free(msg);
 			close(sk);
 			if(bytesRecv<0){
-				error_handling(0,FALSE);
+				error_handling(0,false);
 				continue;
 			}
-			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0) show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, TRUE);
+			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0) show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, true);
 			printf("\n\n");
 			free(serverResp);
-		}while(TRUE);
+		}while(true);
 		free_char_double_pointer(&stringTemplates, totalStrings);
 		break;
 	case OTHERS_SYSTEM_CALL:
@@ -101,9 +101,9 @@ int others(int type){
 		struct in_addr ip;
 		ip.s_addr=inet_addr(nistIP);
 		do{
-			cancelCurrentProcess=FALSE;
+			cancelCurrentProcess=false;
 			unsigned char *serverResp=NULL;
-			char *msg=get_readline("  Insert string to search (;=exit): ", TRUE);
+			char *msg=get_readline("  Insert string to search (;=exit): ", true);
 			if(strcmp(msg,";")==0){
 				free(msg);
 				break;
@@ -128,7 +128,7 @@ int others(int type){
 			char *json=strstr((char *)serverResp,token);
 			if(json==NULL){
 				free(serverResp);
-				show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, TRUE);
+				show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, true);
 				PRINT_RESET;
 				continue;
 			}
@@ -165,14 +165,14 @@ int others(int type){
 				printf("\"\n  ");
 				json=strstr(json,token);
 				if(cveId==10){
-					show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, TRUE);
+					show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, true);
 					break;
 				}
 				cveId++;
 			}
 			free(serverResp);
 			PRINT_RESET;
-		}while(TRUE);
+		}while(true);
 		break;
 	case OTHERS_EXIT:
 		printf("%s",C_DEFAULT);
