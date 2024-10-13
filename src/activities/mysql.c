@@ -62,10 +62,9 @@ int mysql(int type){
 			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
 			break;
 		default:
-			show_message("No recognized response:\n", 0, 0, ERROR_MESSAGE, false, false, false);
+			show_message("No recognized response:", 0, 0, ERROR_MESSAGE, false, false, false);
 			break;
 		}
-		printf("\n");
 		show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, true, true);
 		show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, false, true);
 		PRINT_RESET;

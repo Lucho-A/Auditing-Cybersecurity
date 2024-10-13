@@ -131,7 +131,10 @@ int show_message(char *msg, int msgLenght, int errNum, int level, bool setParagr
 	}
 	(setParagraph)?(printf("%s\n",textColour)):(printf("%s",textColour));
 	if(hexaFormat){
-		for(int i=0;i<msgLenght;i++) printf("%02X ",msg[i]);
+		for(int i=0;i<msgLenght;i++){
+			if(i%16==0) printf("\n");
+			printf("%02X ",(unsigned char) msg[i]);
+		}
 	}else{
 		if(oneLine){
 			for(int i=0;i<msgLenght;i++)(isprint(msg[i]))?(printf("%c",msg[i])):(printf("·"));
