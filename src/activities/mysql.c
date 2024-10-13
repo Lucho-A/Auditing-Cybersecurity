@@ -53,21 +53,21 @@ int mysql(int type){
 		case 'I':
 		case 'J':
 			i=5;
-			printf("  Version found: %s",C_HWHITE);
+			printf("Version found: %s",C_HWHITE);
 			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
 			break;
 		case 'E':
 			i=7;
-			printf("%s  ",C_HRED);
+			printf("%s",C_HRED);
 			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
 			break;
 		default:
-			show_message("No recognized response:\n", 0, 0, ERROR_MESSAGE, true, false, false);
-			show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, true, true);
-			printf("\n");
-			show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, false, true);
+			show_message("No recognized response:\n", 0, 0, ERROR_MESSAGE, false, false, false);
 			break;
 		}
+		printf("\n");
+		show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, true, true);
+		show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, false, true);
 		PRINT_RESET;
 		free(serverResp);
 		break;
