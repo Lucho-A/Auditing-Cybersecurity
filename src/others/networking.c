@@ -153,7 +153,7 @@ int init_networking(){
 	}
 	free(publicIp);
 	if (pcap_lookupnet(networkInfo.interfaceName, &networkInfo.net, &networkInfo.mask, errbuf)==-1) {
-		show_message("Unable to getting the netmask.",0, 0, ERROR_MESSAGE, true);
+		show_message("Unable to getting the netmask.",0, 0, ERROR_MESSAGE, true, false, false);
 		networkInfo.net=networkInfo.mask=0;
 	}
 	networkInfo.netMask.s_addr=networkInfo.net&networkInfo.mask;
@@ -192,7 +192,7 @@ int init_networking(){
 			OCL_SOCKET_RECV_TIMEOUT_S,OCL_RESPONSE_SPEED, NULL, oi.model,
 			"IT Auditor and IT Security expert", oi.maxHistoryCtx, oi.temp,oi.numCtx,
 			oi.numCtx,NULL))!=RETURN_OK)
-		show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , true);
+		show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , true, false, false);
 	int ollamaStatus=OCl_check_service_status(ocl);
 	if(ollamaStatus==RETURN_ERROR){
 		printf("%s%s",C_HRED,"connection error");
@@ -317,11 +317,12 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 		numEvents=poll(pfds,1,SOCKET_SEND_TIMEOUT_MS);
 		if(numEvents==0){
 			if(contSendingAttemps==0){
-				show_message("\n  Timeout sending message. Trying to re-connect and sending the message again...",0, errno, ERROR_MESSAGE, true);
+				show_message("\n  Timeout sending message. Trying to re-connect and sending the message again...",0,
+						errno, ERROR_MESSAGE, true, false, false);
 				contSendingAttemps++;
 				continue;
 			}
-			show_message("  Second timeout (IP locked?). Returning...",0, errno, ERROR_MESSAGE, true);
+			show_message("  Second timeout (IP locked?). Returning...",0, errno, ERROR_MESSAGE, true, false,false);
 			return SENDING_PACKETS_ERROR;
 		}
 		pollinHappened=pfds[0].revents & POLLOUT;
@@ -339,11 +340,13 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 			}
 			if(bytesSent<=0){
 				if(contSendingAttemps==0){
-					show_message("\n  Error sending message. Trying to re-connect and sending the message again...",0, 0, ERROR_MESSAGE, true);
+					show_message("\nError sending message. Trying to re-connect and sending the message again...",0, 0,
+							ERROR_MESSAGE, true, false, false);
 					contSendingAttemps++;
 					continue;
 				}else{
-					show_message("Error sending message (IP locked?). Returning...",0,0, ERROR_MESSAGE, true);
+					show_message("Error sending message (IP locked?). Returning...",0,0,
+							ERROR_MESSAGE, true, false, false);
 					clean_ssl(sslConn);
 					return set_last_activity_error(SENDING_PACKETS_ERROR, "");
 				}

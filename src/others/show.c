@@ -21,7 +21,7 @@ void show_intro(char *programName, char *version){
 
 void show_help(char *msgError){
 	show_intro(PROGRAM_NAME, PROGRAM_VERSION);
-	if(strcmp(msgError,"")!=0) show_message(msgError,0,0, ERROR_MESSAGE,1);
+	if(strcmp(msgError,"")!=0) show_message(msgError,0,0, ERROR_MESSAGE,true, false, false);
 	printf("%s",C_WHITE);
 	printf("\nUsage: auditing-cybersecurity OPTIONS\n");
 	printf("\nOptions:\n\n");
@@ -93,8 +93,10 @@ void show_result(char *result){
 	}
 }
 
-int show_message(char *msg, int msgLenght, int errNum, int level, bool setParagraph){
+int show_message(char *msg, int msgLenght, int errNum, int level, bool setParagraph, bool hexaFormat,
+		bool oneLine){
 	char *textColour=NULL;
+	if(msgLenght==0) msgLenght=strlen(msg);
 	switch(level){
 	case OK_MESSAGE:
 		textColour=C_HGREEN;
@@ -127,15 +129,17 @@ int show_message(char *msg, int msgLenght, int errNum, int level, bool setParagr
 	default:
 		break;
 	}
-	if(setParagraph){
-		printf("%s\n",textColour);
-		for(int i=0;i<msgLenght;i++)(isprint(msg[i]) || msg[i]=='\n' || msg[i]=='\t')?(printf("%c",msg[i])):(printf("·"));
-		PRINT_RESET;
+	(setParagraph)?(printf("%s\n",textColour)):(printf("%s",textColour));
+	if(hexaFormat){
+		for(int i=0;i<msgLenght;i++) printf("%02X ",msg[i]);
 	}else{
-		printf("%s",textColour);
-		for(int i=0;i<msgLenght;i++)(isprint(msg[i]) || msg[i]=='\n' || msg[i]=='\t')?(printf("%c",msg[i])):(printf("·"));
-		printf("%s",C_DEFAULT);
+		if(oneLine){
+			for(int i=0;i<msgLenght;i++)(isprint(msg[i]))?(printf("%c",msg[i])):(printf("·"));
+		}else{
+			for(int i=0;i<msgLenght;i++)(isprint(msg[i]) || msg[i]=='\n' || msg[i]=='\t')?(printf("%c",msg[i])):(printf("·"));
+		}
 	}
+	(setParagraph)?(printf("\n%s",C_DEFAULT)):(printf("%s",C_DEFAULT));
 	return RETURN_OK;
 }
 

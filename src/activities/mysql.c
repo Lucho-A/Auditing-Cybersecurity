@@ -44,7 +44,7 @@ int mysql(int type){
 				"\n",strlen("\n"), &serverResp, BUFFER_SIZE_128B,0);
 		close(sk);
 		if(lenght==0){
-			show_message("No server response\n", 0, 0, ERROR_MESSAGE, false);
+			show_message("No server response\n", 0, 0, ERROR_MESSAGE, false, false, false);
 			free(serverResp);
 			return RETURN_OK;
 		}
@@ -62,8 +62,10 @@ int mysql(int type){
 			while(serverResp[i++]!=0) printf("%c", serverResp[i-1]);
 			break;
 		default:
-			show_message("TODO: response not handled\n", 0, 0, ERROR_MESSAGE, true);
-			for(int i=0;i<lenght;i++) printf("%02X ",serverResp[i]);
+			show_message("No recognized response:\n", 0, 0, ERROR_MESSAGE, true, false, false);
+			show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, true, true);
+			printf("\n");
+			show_message((char *)serverResp, lenght, 0, RESULT_MESSAGE, true, false, true);
 			break;
 		}
 		PRINT_RESET;

@@ -120,7 +120,7 @@ int error_handling(int errorType, bool exitProgram){
 		break;
 	}
 	snprintf(errorMsg, sizeof(errorMsg), "%s. %s", errorDescription, lastActivityError.errorAditionalDescription);
-	show_message(errorMsg,0, 0, ERROR_MESSAGE, true);
+	show_message(errorMsg,0, 0, ERROR_MESSAGE, true, false, false);
 	if(exitProgram){
 		PRINT_RESET;
 		PRINT_RESET;

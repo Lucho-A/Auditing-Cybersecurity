@@ -43,7 +43,7 @@ int others(int type){
 				for(int i=1;i<strlen(msg);i++) buf[i-1]=msg[i];
 				long int selectedOpt=strtol(buf,NULL,10);
 				if(selectedOpt<1 || selectedOpt>totalStrings){
-					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true);
+					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true, false, false);
 					free(msg);
 					continue;
 				}
@@ -65,7 +65,8 @@ int others(int type){
 				error_handling(0,false);
 				continue;
 			}
-			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0) show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, true);
+			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0)
+				show_message((char *)serverResp,bytesRecv,0, RESULT_MESSAGE, true, false, false);
 			printf("\n\n");
 			free(serverResp);
 		}while(true);
@@ -128,7 +129,7 @@ int others(int type){
 			char *json=strstr((char *)serverResp,token);
 			if(json==NULL){
 				free(serverResp);
-				show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, true);
+				show_message("No results found.", strlen("No results found."), 0, INFO_MESSAGE, true, false, false);
 				PRINT_RESET;
 				continue;
 			}
@@ -165,7 +166,7 @@ int others(int type){
 				printf("\"\n  ");
 				json=strstr(json,token);
 				if(cveId==10){
-					show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, true);
+					show_message("Max. size per page achieved.", 0, 0, ERROR_MESSAGE, true, false, false);
 					break;
 				}
 				cveId++;

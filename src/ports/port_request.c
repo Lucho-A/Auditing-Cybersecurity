@@ -160,7 +160,7 @@ static int hack_port() {
 				switch(valResp){
 				case OCL_ERR_RESPONSE_MESSAGE_ERROR:
 					show_message(OCL_get_response_error(ocl), strlen(OCL_get_response_error(ocl)),
-							0, ERROR_MESSAGE, true);
+							0, ERROR_MESSAGE, true,false,false);
 					break;
 				default:
 					if(ocl_canceled){
@@ -168,7 +168,7 @@ static int hack_port() {
 						break;
 					}
 					show_message(OCL_error_handling(valResp), strlen(OCL_error_handling(valResp)),
-							0, ERROR_MESSAGE, true);
+							0, ERROR_MESSAGE, true, false, false);
 					break;
 				}
 			}
@@ -195,7 +195,7 @@ int hack_port_request(){
 				break;
 			}
 			show_message("Port number not valid (1-65535)\n", strlen("Port number not valid (1-65535)\n"),
-					0, ERROR_MESSAGE, true);
+					0, ERROR_MESSAGE, true, false,false);
 			free(c);
 		}while(true);
 		if(target.ports[portUnderHacking].connectionType==UNKNOWN_CONN_TYPE){

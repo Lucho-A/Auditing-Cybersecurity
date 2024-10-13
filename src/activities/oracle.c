@@ -19,9 +19,9 @@ int oracle_check_user(char *username, char *password){
 	if(dpiContext_create(DPI_MAJOR_VERSION, DPI_MINOR_VERSION, &gContext, &gErrorInfo)<0){
 		if(gContext) dpiContext_getError(gContext, &gErrorInfo);
 		snprintf(errorDesc,sizeof(errorDesc),"%.*s", (int) gErrorInfo.messageLength,gErrorInfo.message);
-		return show_message(errorDesc,0, 0, ERROR_MESSAGE, true);
+		return show_message(errorDesc,0, 0, ERROR_MESSAGE, true, false, false);
 	}
-	if(gContext==NULL) return show_message("",0, errno, ERROR_MESSAGE, true);
+	if(gContext==NULL) return show_message("",0, errno, ERROR_MESSAGE, true, false, false);
 	//dpiConn_addRef(&oracleConn);
 	//dpiVersionInfo *versionInfo=NULL;
 	//dpiConn_getServerVersion(oracleConn, NULL, NULL, versionInfo);

@@ -16,7 +16,7 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 	size_t realsize = size * nmemb;
 	struct memory *mem = (struct memory *)userp;
 	char *ptr = realloc(mem->response, mem->size + realsize + 1);
-	if(ptr == NULL) return show_message("Out of Memory",0,0, ERROR_MESSAGE, true);
+	if(ptr == NULL) return show_message("Out of Memory",0,0, ERROR_MESSAGE, true, false, false);
 	mem->response = ptr;
 	memcpy(&(mem->response[mem->size]), data, realsize);
 	mem->size += realsize;
@@ -99,7 +99,7 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 					default:
 						char errMsg[BUFFER_SIZE_1K]="";
 						snprintf(errMsg,sizeof(errMsg),"libcurl error: %d (%s)",res,curl_easy_strerror(res));
-						show_message(errMsg,0, 0, ERROR_MESSAGE, true);
+						show_message(errMsg,0, 0, ERROR_MESSAGE, true, false, false);
 						cancelCurrentProcess=true;
 						break;
 					}
@@ -114,7 +114,7 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 		free_char_double_pointer(&bfaInfo.passwords, bfaInfo.totalPasswords);
 		curl_easy_cleanup(mCurl);
 		curl_global_cleanup();
-		return show_message("Error curl initialization",0,0, ERROR_MESSAGE, true);
+		return show_message("Error curl initialization",0,0, ERROR_MESSAGE, true, false, false);
 	}
 	if(timeouts==BRUTE_FORCE_TIMEOUT) printf("\n\n  %d timeouts. Aborting", BRUTE_FORCE_TIMEOUT);
 	curl_easy_cleanup(mCurl);

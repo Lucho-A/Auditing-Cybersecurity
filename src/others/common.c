@@ -34,7 +34,7 @@ int request_quantity_threads(int threadsDefault){
 		if(strcmp(cantThreadsRequest, "")!=0){
 			int tt=strtol(cantThreadsRequest,NULL,10);
 			if(tt<=0 || tt>MAX_THREADS){
-				show_message("  Entered value not valid (1-5000).\n",0, 0, ERROR_MESSAGE, true);
+				show_message("Entered value not valid (1-5000).\n",0, 0, ERROR_MESSAGE, true, false, false);
 				free(cantThreadsRequest);
 				continue;
 			}

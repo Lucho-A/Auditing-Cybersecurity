@@ -9,9 +9,9 @@ int mssql_check_user(char *username, char *password){
 	SQLHENV henv=SQL_NULL_HENV;
 	SQLHDBC hdbc=SQL_NULL_HDBC;
 	SQLHSTMT hstmt=SQL_NULL_HSTMT;
-	if(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv)<0) return show_message("Error during SQLAllocHandle()",0, 0, ERROR_MESSAGE, true);
-	if(SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0)<0) return show_message("Error during SQLSetEnvAttr()",0, 0, ERROR_MESSAGE, true);
-	if(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc)<0) return show_message("Error during SQLAllocHandle()",0, 0, ERROR_MESSAGE, true);
+	if(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv)<0) return show_message("Error during SQLAllocHandle()",0, 0, ERROR_MESSAGE, true, false, false);
+	if(SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0)<0) return show_message("Error during SQLSetEnvAttr()",0, 0, ERROR_MESSAGE, true, false, false);
+	if(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc)<0) return show_message("Error during SQLAllocHandle()",0, 0, ERROR_MESSAGE, true, false, false);
 	SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 	unsigned char odbcDriver[BUFFER_SIZE_1K]="";
 	SQLRETURN retcode=0;

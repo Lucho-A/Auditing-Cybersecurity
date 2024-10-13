@@ -20,14 +20,14 @@ int smtp(int type){
 					target.ports[portUnderHacking].connectionType,
 					msgs[i], strlen(msgs[i]), &serverResp, BUFFER_SIZE_1K, 0);
 			if(bytesRecv==0){
-				show_message("(Zero bytes received)",bytesRecv, 0, ERROR_MESSAGE, false);
+				show_message("(Zero bytes received)",bytesRecv, 0, ERROR_MESSAGE, false, false, false);
 				continue;
 			}
 			if(bytesRecv<0){
 				close(sk);
 				return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
 			}
-			show_message((char *)serverResp,bytesRecv, 0, RESULT_MESSAGE, false);
+			show_message((char *)serverResp,bytesRecv, 0, RESULT_MESSAGE, false, false, false);
 			printf("\n");
 		}
 		break;

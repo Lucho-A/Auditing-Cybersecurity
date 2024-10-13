@@ -39,7 +39,7 @@ int ftp(int type){
 				portUnderHacking,target.ports[portUnderHacking].connectionType,
 				"\n", strlen("\n"), &serverResp,BUFFER_SIZE_128B,0);
 		if(bytesRecv<0) error_handling(0,false);
-		if(bytesRecv>0) show_message((char *)serverResp, bytesRecv, 0, RESULT_MESSAGE, true);
+		if(bytesRecv>0) show_message((char *)serverResp, bytesRecv, 0, RESULT_MESSAGE, true, false, false);
 		free(serverResp);
 		close(conn);
 		break;
@@ -49,7 +49,7 @@ int ftp(int type){
 		int valResp=FtpConnect(host, &ftpConn);
 		if(!valResp) return set_last_activity_error(FTP_CONNECTION_ERROR, FtpLastResponse(ftpConn));
 		valResp=FtpLogin("anonymous","",ftpConn);
-		show_message(FtpLastResponse(ftpConn),0, 0, ERROR_MESSAGE, false);
+		show_message(FtpLastResponse(ftpConn),0, 0, ERROR_MESSAGE, false, false, false);
 		if(valResp){
 			printf("\n%s",C_HRED);
 			FtpDir(NULL, "", ftpConn);

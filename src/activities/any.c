@@ -52,7 +52,7 @@ int any(int type){
 				free(serverResp);
 				continue;
 			}
-			show_message((char *) serverResp,bytesRecv, 0, RESULT_MESSAGE, true);
+			show_message((char *) serverResp,bytesRecv, 0, RESULT_MESSAGE, true, false, false);
 			printf("\n");
 			close(sk);
 			free(serverResp);
@@ -106,7 +106,7 @@ int any(int type){
 			int one=1;
 			const int *val = &one;
 			if(setsockopt(skDos, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0)
-				return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, true);
+				return show_message("setsockopt() error. ",0, errno, ERROR_MESSAGE, true, false, false);
 			dest.sin_family=AF_INET;
 			dest.sin_addr.s_addr=target.targetIp.s_addr;
 			tcph->dest=htons(portUnderHacking);
@@ -246,7 +246,7 @@ int any(int type){
 					for(int i=1;i<strlen(sqlCmd);i++) buf[i-1]=sqlCmd[i];
 					long int selectedOpt=strtol(buf,NULL,10);
 					if(selectedOpt<1 || selectedOpt>totalStrings){
-						show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true);
+						show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true, false, false);
 						free(sqlCmd);
 						continue;
 					}
