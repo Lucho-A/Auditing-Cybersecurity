@@ -4,6 +4,7 @@
 #include "../auditing-cybersecurity.h"
 
 int open_file(char *pathToResource, char *filename, FILE **f){
+	if(pathToResource==NULL) return set_last_activity_error(OPENING_FILE_ERROR,"");
 	char *fullPath=malloc(strlen(pathToResource)+strlen(filename)+1);
 	memset(fullPath,0,strlen(pathToResource)+strlen(filename)+1);
 	snprintf(fullPath, strlen(pathToResource)+strlen(filename)+1,"%s%s", pathToResource, filename);

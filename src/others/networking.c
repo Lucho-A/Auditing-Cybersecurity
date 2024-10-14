@@ -184,27 +184,29 @@ int init_networking(){
 		printf("%s%s",C_HRED,"Unable to check updates");
 	}
 	PRINT_RESET;
-	printf("\nChecking Ollama server status: ");
-	fflush(stdout);
-	OCl_init();
-	int retVal=0;
-	if((retVal=OCl_get_instance(&ocl, oi.ip, oi.port, OCL_SOCKET_CONNECT_TIMEOUT_S, OCL_SOCKET_SEND_TIMEOUT_S,
-			OCL_SOCKET_RECV_TIMEOUT_S,OCL_RESPONSE_SPEED, NULL, oi.model,
-			"IT Auditor and IT Security expert", oi.maxHistoryCtx, oi.temp,oi.numCtx,
-			oi.numCtx,NULL))!=RETURN_OK)
-		show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , true, false, false);
-	int ollamaStatus=OCl_check_service_status(ocl);
-	if(ollamaStatus==RETURN_ERROR){
-		printf("%s%s",C_HRED,"connection error");
-		PRINT_RESET;
-	}else{
-		if(ollamaStatus==RETURN_OK){
-			printf("%srunning",C_HGREEN);
+	if(!discover){
+		printf("\nChecking Ollama server status: ");
+		fflush(stdout);
+		OCl_init();
+		int retVal=0;
+		if((retVal=OCl_get_instance(&ocl, oi.ip, oi.port, OCL_SOCKET_CONNECT_TIMEOUT_S, OCL_SOCKET_SEND_TIMEOUT_S,
+				OCL_SOCKET_RECV_TIMEOUT_S,OCL_RESPONSE_SPEED, NULL, oi.model,
+				"IT Auditor and IT Security expert", oi.maxHistoryCtx, oi.temp,oi.numCtx,
+				oi.numCtx,NULL))!=RETURN_OK)
+			show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , true, false, false);
+		int ollamaStatus=OCl_check_service_status(ocl);
+		if(ollamaStatus==RETURN_ERROR){
+			printf("%s%s",C_HRED,"connection error");
+			PRINT_RESET;
 		}else{
-			printf("%snot available: %s",C_HRED, OCL_error_handling(retVal));
+			if(ollamaStatus==RETURN_OK){
+				printf("%srunning",C_HGREEN);
+			}else{
+				printf("%snot available: %s",C_HRED, OCL_error_handling(retVal));
+			}
 		}
+		PRINT_RESET;
 	}
-	PRINT_RESET;
 	return RETURN_OK;
 }
 

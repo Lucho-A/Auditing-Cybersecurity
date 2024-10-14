@@ -146,7 +146,7 @@ int arp(int type){
 	char errbuf[PCAP_ERRBUF_SIZE]="", pcapFilter[BUFFER_SIZE_128B]="";
 	struct bpf_program fp;
 	arpHandle=pcap_open_live(networkInfo.interfaceName,SNAP_LEN,true,100,errbuf);
-	if(arpHandle==NULL) return set_last_activity_error(DEVICE_OPENING_ERROR,"");;
+	if(arpHandle==NULL) return set_last_activity_error(DEVICE_OPENING_ERROR,"");
 	pcap_setnonblock(arpHandle, true, errbuf);
 	if(pcap_datalink(arpHandle)!=DLT_EN10MB){
 		pcap_close(arpHandle);

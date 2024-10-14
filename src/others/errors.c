@@ -60,7 +60,7 @@ int error_handling(int errorType, bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Device is not Ethernet");
 		break;
 	case DEVICE_OPENING_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Device opening error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Device opening error", strerror(errno));
 		break;
 	case SSL_FD_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "SSL setting fd error");
@@ -121,6 +121,7 @@ int error_handling(int errorType, bool exitProgram){
 	}
 	snprintf(errorMsg, sizeof(errorMsg), "%s. %s", errorDescription, lastActivityError.errorAditionalDescription);
 	show_message(errorMsg,0, 0, ERROR_MESSAGE, true, false, false);
+	if(errno==1) show_message("Are you root?", 0, 0, ERROR_MESSAGE, true, false, true);
 	if(exitProgram){
 		PRINT_RESET;
 		PRINT_RESET;

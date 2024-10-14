@@ -24,6 +24,7 @@
 #define PROGRAM_MINOR_VERSION			"2"
 #define PROGRAM_MICRO_VERSION			"9"
 #define PROGRAM_VERSION					PROGRAM_MAJOR_VERSION"."PROGRAM_MINOR_VERSION"."PROGRAM_MICRO_VERSION
+
 #define ALL_PORTS						65536
 #define MAX_PORTS_TO_SCAN	 			5001
 //#define MAX_VIEW_PORTS					15
@@ -223,6 +224,7 @@ extern OCl *ocl;
 extern struct OllamaInfo oi;
 extern bool canceledBySignal;
 extern bool cancelCurrentProcess;
+extern bool discover;
 extern struct ServerTarget target;
 extern struct NetworkInfo networkInfo;
 extern int portUnderHacking;
