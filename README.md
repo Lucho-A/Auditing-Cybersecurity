@@ -6,6 +6,9 @@ Intended for auditing/security assessment, the program scan by using a TCP Steal
 The main objective of the program is provide a framework with the essentials commands/tools for ensuring, by their use, a well-knowledge of the effectiveness and efficiency of the implemented controls, in order to evaluate the residual risk of an assessment.
 
 Finally, just mention that, since v1.2.4, I started to incorporate AI into the program in order to support a revision and conclusions.
+
+Note (v1.2.8: 20240414): due to personal goals & scoping, the development of the program will begin to slow down.
+
 <!-- ### BTW
 For those folks who ask me if I will release the source code: yes, I will. Two reasons stop me right now: in first place, I'm not fully comfortable with the code. I've been re-organizing it, I have a lot of ideas, etc.. In second place (first?), I've been looking for a job since 2 years ago, I've had more than 40 interviews, and I didn't getting hire!, so, I’m not sure why I should give my work to the society for free if this shameless society is incapable to give a job to me! hhahah... anyway, as I said: take me patience, I will ;)
 -->
@@ -70,6 +73,8 @@ BTW, into the user's home, there is an script for setting up the network in case
 -->
 <!-- ### Documentation about activity descriptions -->
 <!-- You can find a brief description [here](https://github.com/Lucho-A/Auditing-Cybersecurity/blob/master/Auditing-Cybersecurity-README_v1.0.3.txt). -->
+#### Bugs known/unknown
+Arising all the time.
 ### Documentation
 _(Under development)_
 ### Feedback
