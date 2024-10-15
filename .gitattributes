@@ -1,5 +1,3 @@
-.settings export-ignore
 changelog/ export-ignore
 default_resources_files export-ignore
 README.md export-ignore
-.* export-ignore
