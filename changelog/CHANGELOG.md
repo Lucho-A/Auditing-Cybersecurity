@@ -1,6 +1,6 @@
-### auditing-cybersecurity-v1.2.9 - Under dev./testing
+### auditing-cybersecurity-v1.2.9
 
-Updated:
+Updated: 2024-10-15
 Criticality: medium
 
 BUG_FIXED:
