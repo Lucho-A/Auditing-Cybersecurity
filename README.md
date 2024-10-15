@@ -73,7 +73,7 @@ BTW, into the user's home, there is an script for setting up the network in case
 -->
 <!-- ### Documentation about activity descriptions -->
 <!-- You can find a brief description [here](https://github.com/Lucho-A/Auditing-Cybersecurity/blob/master/Auditing-Cybersecurity-README_v1.0.3.txt). -->
-#### Bugs known/unknown
+### Bugs known/unknown
 Arising all the time.
 ### Documentation
 _(Under development)_
