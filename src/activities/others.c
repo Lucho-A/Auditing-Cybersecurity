@@ -83,9 +83,6 @@ int others(int type){
 		return arp(OTHERS_ARP_DISCOVER);
 	case OTHERS_ARP_DISCOVER_D:
 		return arp(OTHERS_ARP_DISCOVER_D);
-	case OTHERS_MONITOR_IF:
-		//monitor(OTHERS_MONITOR_IF);
-		break;
 	case OTHERS_SHOW_ACTIVIIES:
 		show_options();
 		break;

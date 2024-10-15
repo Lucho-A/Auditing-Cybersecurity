@@ -224,15 +224,9 @@ static void *evaluate_response(void *arg){
 				|| strstr(serverResp," 302 ")!=NULL
 				|| strstr(serverResp," 304 ")!=NULL)){
 			if(strstr(serverResp," 301 " )!=NULL || strstr(serverResp," 302 " )!=NULL){
-				//resp=send_http_msg_to_server(target.targetIp,443, SSL_CONN_TYPE, msg, serverResp, BUFFER_SIZE_32B);
-				//if(resp>0 && (strstr(serverResp," 200 ")!=NULL
-				//		|| strstr(serverResp," 204 " )!=NULL
-				//		|| strstr(serverResp," 302 " )!=NULL
-				//		|| strstr(serverResp," 301 " )!=NULL)){
 				printf(REMOVE_LINE);
 				printf("  File found: %s/%s%s (%sredirected%s)",C_HRED, files[i],C_DEFAULT, C_HWHITE,C_DEFAULT);
 				printf("\n\n"REMOVE_LINE);
-				//}
 				continue;
 			}
 			printf(REMOVE_LINE);

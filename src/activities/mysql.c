@@ -11,9 +11,6 @@ int mysql_check_user(char *username, char *password){
 	mysql_init(&mysqlConn);
 	int n=5;
 	mysql_options(&mysqlConn, MYSQL_OPT_CONNECT_TIMEOUT,&n);
-	//mysql_ssl_set(&mysqlConn, NULL, NULL, NULL, NULL, NULL);
-	//int opt=1;
-	//mysql_options(&mysqlConn, MYSQL_OPT_SSL_MODE, &opt);
 	if(!mysql_real_connect(&mysqlConn, target.strTargetIp, username,password, "", portUnderHacking, NULL, 0)){
 		if(mysql_errno(&mysqlConn)!=1045){
 			set_last_activity_error(MYSQL_CONNECTION_ERROR, mysql_error(&mysqlConn));
@@ -30,14 +27,6 @@ int mysql_check_user(char *username, char *password){
 int mysql(int type){
 	switch(type){
 	case MYSQL_BANNER_GRABBING:
-		/*
-		MYSQL mysqlConn;
-		mysql_init(&mysqlConn);
-		int mysqlTimeout=5;
-		mysql_options(&mysqlConn, MYSQL_OPT_CONNECT_TIMEOUT,&mysqlTimeout);
-		if(!mysql_real_connect(&mysqlConn, target.strTargetIp, "usuario??", "", NULL, portUnderHacking, NULL, 0)) return set_last_activity_error(MYSQL_CONNECTION_ERROR,mysql_error(&mysqlConn));
-		const char *version=mysql_get_server_info(&mysqlConn);
-		 */
 		unsigned char *serverResp=NULL;
 		int sk=0;
 		int lenght=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,SOCKET_CONN_TYPE,

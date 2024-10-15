@@ -152,9 +152,6 @@ static int hack_port() {
 			free(c);
 			return RETURN_CLOSE;
 		}
-		//TODO create notes
-		//if(strcmp(c,"noted;")){
-		//}
 		if(valResp==ACTIVITY_NOT_SELECTED){
 			if((valResp=OCl_send_chat(ocl,c))!=RETURN_OK){
 				switch(valResp){

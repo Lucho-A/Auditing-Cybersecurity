@@ -45,7 +45,6 @@ static void signal_handler(int signalType){
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
 	case SIGPIPE:
-		//show_message("'SIGPIPE' signal received: the write end of the pipe or socket is closed.", 0, 0, ERROR_MESSAGE, false);
 		break;
 	default:
 		break;

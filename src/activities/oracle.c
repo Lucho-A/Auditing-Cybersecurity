@@ -22,10 +22,6 @@ int oracle_check_user(char *username, char *password){
 		return show_message(errorDesc,0, 0, ERROR_MESSAGE, true, false, false);
 	}
 	if(gContext==NULL) return show_message("",0, errno, ERROR_MESSAGE, true, false, false);
-	//dpiConn_addRef(&oracleConn);
-	//dpiVersionInfo *versionInfo=NULL;
-	//dpiConn_getServerVersion(oracleConn, NULL, NULL, versionInfo);
-	//printf("\n%d\n",versionInfo->releaseNum);
 	dpiConn *oracleConn=NULL;
 	if(dpiConn_create(gContext, username, strlen(username),password, strlen(password), dbURL, strlen(dbURL),
 			NULL, NULL, &oracleConn) == DPI_SUCCESS){
