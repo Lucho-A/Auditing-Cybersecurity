@@ -19,7 +19,7 @@ OTHERS:
 - g) activity (ChatGPT) removed.
 - CVE searching moved to Others) -> v)
 - 1.3) in order to avoid using 'locate'/'updatedb', the searching is just performed into '/usr/share/nmap/scripts'
-- the resource file called chatgpt.txt was replaced by settings.txt. Also, this file will be used for setting global parameters
+- the resource file called 'chatgpt.txt' was replaced by 'settings.txt'. Also, this file will/could be used for setting global parameters.
 - minor changes, code optimized & code cleaned-up
 
 ------------------------------------------------------------------------------------------------------
