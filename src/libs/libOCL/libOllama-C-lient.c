@@ -682,7 +682,7 @@ static int create_connection(char *srvAddr, int srvPort, int socketConnectTimeou
 		if(retVal==0) return OCL_ERR_SOCKET_CONNECTION_TIMEOUT_ERROR;
 		return retVal;
 	}
-	fcntl(socketConn, F_GETFL, socketFlags & ~O_NONBLOCK);
+	fcntl(socketConn, F_SETFL, socketFlags & ~O_NONBLOCK);
 	return socketConn;
 }
 

@@ -22,7 +22,7 @@ static int compare_dates(struct tm tm1,struct tm tm2){
 	char strTm1[BUFFER_SIZE_32B]="", strTm2[BUFFER_SIZE_32B]="";
 	snprintf(strTm1,BUFFER_SIZE_32B,"%d%02d%02d",tm1.tm_year,tm1.tm_mon,tm1.tm_mday);
 	snprintf(strTm2,BUFFER_SIZE_32B,"%d%02d%02d",tm2.tm_year,tm2.tm_mon,tm2.tm_mday);
-	for(int i=0;i<strlen(strTm1);i++){
+	for(size_t i=0;i<strlen(strTm1);i++){
 		if(strTm1[i]<strTm2[i]) return -1;
 		if(strTm1[i]>strTm2[i]) return 1;
 	}
@@ -67,10 +67,10 @@ static int get_cert_info(){
 	OpenSSL_add_all_algorithms();
 	char *subj = X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0);
 	printf("%s  Subject: %s",C_HWHITE,C_DEFAULT);
-	for(int i=1;i<strlen(subj);i++) (subj[i]=='/')?(printf(", ")):(printf("%c", subj[i]));
+	for(size_t i=1;i<strlen(subj);i++) (subj[i]=='/')?(printf(", ")):(printf("%c", subj[i]));
 	char *issuer = X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0);
 	printf("\n\n%s  Issuer:  %s",C_HWHITE,C_DEFAULT);
-	for(int i=1;i<strlen(issuer);i++) (issuer[i]=='/')?(printf(", ")):(printf("%c", issuer[i]));
+	for(size_t i=1;i<strlen(issuer);i++) (issuer[i]=='/')?(printf(", ")):(printf("%c", issuer[i]));
 	int version = ((int) X509_get_version(cert)) + 1;
 	printf("\n\n%s  Version: %sv%d",C_HWHITE,C_DEFAULT, version);
 	ASN1_INTEGER *serial = X509_get_serialNumber(cert);
@@ -410,7 +410,7 @@ int http(int type){
 			}
 			if(command[0]=='!' && strlen(command)>1){
 				char buf[BUFFER_SIZE_32B]="";
-				for(int i=1;i<strlen(command);i++) buf[i-1]=command[i];
+				for(size_t i=1;i<strlen(command);i++) buf[i-1]=command[i];
 				long int selectedOpt=strtol(buf,NULL,10);
 				if(selectedOpt<1 || selectedOpt>totalStrings){
 					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true, false, false);
