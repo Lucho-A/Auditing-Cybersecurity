@@ -122,7 +122,7 @@ enum errors{
 };
 
 enum msgLevels{
-	ERROR_MESSAGE=-1,
+	ERROR_MESSAGE=-5,
 	INFO_MESSAGE,
 	WARNING_MESSAGE,
 	CRITICAL_MESSAGE,
