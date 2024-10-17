@@ -86,9 +86,8 @@ static int initMrAnderson(){
 		char *line=NULL;
 		oi.ip=OCL_OLLAMA_SERVER_ADDR;
 		oi.port=OCL_OLLAMA_SERVER_PORT;
-		oi.numCtx=OCL_NUM_CTX;
 		oi.temp=OCL_TEMP;
-		oi.maxHistoryCtx=OCL_MAX_HISTORY_CONTEXT;
+		oi.maxHistoryCtx=OCL_MAX_HISTORY_CTX;
 		while((chars=getline(&line, &len, f))!=-1){
 			if((strstr(line,"[OLLAMA_SERVER_ADDR]"))==line){
 				chars=getline(&line, &len, f);

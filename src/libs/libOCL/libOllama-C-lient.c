@@ -53,9 +53,8 @@ typedef struct _ocl{
 	char *model;
 	char *systemRole;
 	double temp;
-	int maxMessageContext;
-	int maxTokensContext;
-	int maxTokens;
+	int maxHistoryCtx;
+	int maxTokensCtx;
 	char *contextFile;
 	struct _ocl_response *ocl_resp;
 }OCl;
@@ -104,7 +103,7 @@ int OCl_set_model(OCl *ocl, char *model){
 	memset(ocl->model,0,strlen(model)+1);
 	if(model!=NULL && strcmp(model,"")!=0){
 		int cont=0;
-		for(int i=0;i<strlen(model);i++){
+		for(size_t i=0;i<strlen(model);i++){
 			if(model[i]!=' ') ocl->model[cont++]=model[i];
 		}
 	}
@@ -170,15 +169,6 @@ static int OCl_set_response_font(OCl *ocl, char *responseFont){
 	return OCL_RETURN_OK;
 }
 
-static int OCl_set_max_context_msg(OCl *ocl, char *maxContextMsg){
-	if(maxContextMsg!=NULL && strcmp(maxContextMsg,"")!=0){
-		char *tail=NULL;
-		ocl->maxMessageContext=strtol(maxContextMsg,&tail,10);
-		if(ocl->maxMessageContext<0 || tail[0]!=0) return OCL_ERR_MAX_MSG_CTX;
-	}
-	return OCL_RETURN_OK;
-}
-
 static int OCl_set_temp(OCl *ocl, char *temp){
 	if(temp!=NULL && strcmp(temp,"")!=0){
 		char *tail=NULL;
@@ -188,20 +178,20 @@ static int OCl_set_temp(OCl *ocl, char *temp){
 	return OCL_RETURN_OK;
 }
 
-static int OCl_set_max_tokens(OCl *ocl, char *maxTokens){
-	if(maxTokens!=NULL && strcmp(maxTokens,"")!=0){
+static int OCl_set_max_history_ctx(OCl *ocl, char *maxHistoryCtx){
+	if(maxHistoryCtx!=NULL && strcmp(maxHistoryCtx,"")!=0){
 		char *tail=NULL;
-		ocl->maxTokens=strtol(maxTokens,&tail,10);
-		if(ocl->maxTokens<0 || tail[0]!=0) return OCL_ERR_MAX_TOKENS;
+		ocl->maxHistoryCtx=strtol(maxHistoryCtx,&tail,10);
+		if(ocl->maxHistoryCtx<0 || tail[0]!=0) return OCL_ERR_MAX_HISTORY_CTX;
 	}
 	return OCL_RETURN_OK;
 }
 
-static int OCl_set_max_tokens_ctx(OCl *ocl, char *maxContextCtx){
-	if(maxContextCtx!=NULL && strcmp(maxContextCtx,"")!=0){
+static int OCl_set_max_tokens_ctx(OCl *ocl, char *maxTokensCtx){
+	if(maxTokensCtx!=NULL && strcmp(maxTokensCtx,"")!=0){
 		char *tail=NULL;
-		ocl->maxTokensContext=strtol(maxContextCtx,&tail,10);
-		if(ocl->maxTokensContext<0 || tail[0]!=0) return OCL_ERR_MAX_TOKENS_CTX;
+		ocl->maxTokensCtx=strtol(maxTokensCtx,&tail,10);
+		if(ocl->maxTokensCtx<0 || tail[0]!=0) return OCL_ERR_MAX_TOKENS_CTX;
 	}
 	return OCL_RETURN_OK;
 }
@@ -270,7 +260,7 @@ int OCl_free(OCl *ocl){
 
 int OCl_get_instance(OCl **ocl, char *serverAddr, char *serverPort, char *socketConnTo, char *socketSendTo
 		,char *socketRecvTo, char *responseSpeed, char *responseFont, char *model, char *systemRole
-		,char *maxContextMsg, char *temp, char *maxTokens, char *maxTokensCtx, char *contextFile){
+		,char *maxContextMsg, char *temp, char *maxTokensCtx, char *contextFile){
 	*ocl=malloc(sizeof(OCl));
 	int retVal=0;
 	OCl_set_server_addr(*ocl, OCL_OLLAMA_SERVER_ADDR);
@@ -290,14 +280,12 @@ int OCl_get_instance(OCl **ocl, char *serverAddr, char *serverPort, char *socket
 	OCl_set_model(*ocl, model);
 	(*ocl)->systemRole=NULL;
 	OCl_set_role(*ocl, systemRole);
-	OCl_set_max_context_msg(*ocl, OCL_MAX_HISTORY_CONTEXT);
-	if((retVal=OCl_set_max_context_msg(*ocl, maxContextMsg))!=OCL_RETURN_OK) return retVal;
+	OCl_set_max_history_ctx(*ocl, OCL_MAX_HISTORY_CTX);
+	if((retVal=OCl_set_max_history_ctx(*ocl, maxContextMsg))!=OCL_RETURN_OK) return retVal;
 	OCl_set_temp(*ocl, OCL_TEMP);
-	if((retVal=OCl_set_temp(*ocl, maxContextMsg))!=OCL_RETURN_OK) return retVal;
-	OCl_set_max_tokens(*ocl, OCL_MAX_TOKENS);
-	if((retVal=OCl_set_max_tokens(*ocl, maxContextMsg))!=OCL_RETURN_OK) return retVal;
-	OCl_set_max_tokens_ctx(*ocl, OCL_NUM_CTX);
-	if((retVal=OCl_set_max_tokens_ctx(*ocl, maxContextMsg))!=OCL_RETURN_OK) return retVal;
+	if((retVal=OCl_set_temp(*ocl, temp))!=OCL_RETURN_OK) return retVal;
+	OCl_set_max_tokens_ctx(*ocl, OCL_MAX_TOKENS_CTX);
+	if((retVal=OCl_set_max_tokens_ctx(*ocl, maxTokensCtx))!=OCL_RETURN_OK) return retVal;
 	(*ocl)->contextFile=NULL;
 	if((retVal=OCl_set_context_file(*ocl,contextFile))!=OCL_RETURN_OK) return retVal;
 	(*ocl)->ocl_resp=malloc(sizeof(struct _ocl_response));
@@ -365,11 +353,12 @@ int OCl_import_context(OCl *ocl){
 	if(ocl->contextFile!=NULL){
 		FILE *f=fopen(ocl->contextFile,"r");
 		if(f==NULL) return OCL_ERR_OPENING_FILE_ERROR;
-		size_t len=0, i=0, rows=0, initPos=0;
+		size_t len=0, i=0;
+		int rows=0, initPos=0;
 		ssize_t chars=0;
 		char *line=NULL, *userMessage=NULL,*assistantMessage=NULL;;
 		while((getline(&line, &len, f))!=-1) rows++;
-		if(rows>ocl->maxMessageContext) initPos=rows-ocl->maxMessageContext;
+		if(rows>ocl->maxHistoryCtx) initPos=rows-ocl->maxHistoryCtx;
 		rewind(f);
 		int contRows=0;
 		while((chars=getline(&line, &len, f))!=-1){
@@ -381,7 +370,7 @@ int OCl_import_context(OCl *ocl){
 				assistantMessage=malloc(chars+1);
 				memset(assistantMessage,0,chars+1);
 				for(i++;line[i]!='\n';i++,index++) assistantMessage[index]=line[i];
-				create_new_context_message(userMessage, assistantMessage, false, ocl->maxMessageContext);
+				create_new_context_message(userMessage, assistantMessage, false, ocl->maxHistoryCtx);
 				free(userMessage);
 				free(assistantMessage);
 			}
@@ -436,17 +425,14 @@ char * OCL_error_handling(int error){
 	case OCL_ERR_SENDING_PACKETS_ERROR:
 		snprintf(error_hndl, 1024,"Sending packet error. SSL Error: %s", ERR_error_string(sslErr, NULL));
 		break;
-	case OCL_ERR_POLLIN_ERROR:
-		snprintf(error_hndl, 1024,"Pollin error. ");
-		break;
 	case OCL_ERR_SOCKET_RECV_TIMEOUT_ERROR:
-		snprintf(error_hndl, 1024,"Receiving packet time out. ");
+		snprintf(error_hndl, 1024,"Receiving packet time out: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
 		break;
 	case OCL_ERR_RECV_TIMEOUT_ERROR:
 		snprintf(error_hndl, 1024,"Time out value not valid. ");
 		break;
 	case OCL_ERR_RECEIVING_PACKETS_ERROR:
-		snprintf(error_hndl, 1024,"Receiving packet error. SSL Error: %s",ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"Receiving packet error: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
 		break;
 	case OCL_ERR_RESPONSE_MESSAGE_ERROR:
 		snprintf(error_hndl, 1024,"Error message into JSON. ");
@@ -508,14 +494,11 @@ char * OCL_error_handling(int error){
 	case OCL_ERR_TEMP:
 		snprintf(error_hndl, 1024,"Temperature value not valid. Check modfile.");
 		break;
-	case OCL_ERR_MAX_MSG_CTX:
+	case OCL_ERR_MAX_HISTORY_CTX:
 		snprintf(error_hndl, 1024,"Max. message context value not valid. Check modfile.");
 		break;
 	case OCL_ERR_MAX_TOKENS_CTX:
 		snprintf(error_hndl, 1024,"Max. tokens context value not valid. Check modfile.");
-		break;
-	case OCL_ERR_MAX_TOKENS:
-		snprintf(error_hndl, 1024,"Max. tokens value not valid. Check modfile.");
 		break;
 	case OCL_ERR_SOCKET_CONNECTION_TIMEOUT_NOT_VALID:
 		snprintf(error_hndl, 1024,"Connection Timeout value not valid.");
@@ -549,7 +532,7 @@ static int get_string_from_token(char *text, char *token, char ***result, char e
 		for(int i=strlen(token);(message[i-1]=='\\' || message[i]!=endChar);i++) buffer[i-strlen(token)]=message[i];
 		(*result)[entriesFound-1]=malloc(strlen(buffer)+1);
 		memset((*result)[entriesFound-1],0,strlen(buffer)+1);
-		for(int i=0;i<strlen(buffer);i++,cont++){
+		for(size_t i=0;i<strlen(buffer);i++,cont++){
 			if(buffer[i]=='\\' && buffer[i+1]=='\"' && buffer[i+2]=='}' && buffer[i+3]==','){
 				(*result)[entriesFound-1][cont]='\\';
 				i+=4;
@@ -565,7 +548,7 @@ static int get_string_from_token(char *text, char *token, char ***result, char e
 
 static int parse_input(char **stringTo, char *stringFrom){
 	int cont=0, contEsc=0;
-	for(int i=0;i<strlen(stringFrom);i++){
+	for(size_t i=0;i<strlen(stringFrom);i++){
 		switch(stringFrom[i]){
 		case '\"':
 		case '\n':
@@ -580,7 +563,7 @@ static int parse_input(char **stringTo, char *stringFrom){
 	}
 	*stringTo=malloc(strlen(stringFrom)+contEsc+1);
 	memset(*stringTo,0,strlen(stringFrom)+contEsc+1);
-	for(int i=0;i<strlen(stringFrom);i++,cont++){
+	for(size_t i=0;i<strlen(stringFrom);i++,cont++){
 		switch(stringFrom[i]){
 		case '\"':
 			(*stringTo)[cont]='\\';
@@ -699,6 +682,7 @@ static int create_connection(char *srvAddr, int srvPort, int socketConnectTimeou
 		if(retVal==0) return OCL_ERR_SOCKET_CONNECTION_TIMEOUT_ERROR;
 		return retVal;
 	}
+	fcntl(socketConn, F_GETFL, socketFlags & ~O_NONBLOCK);
 	return socketConn;
 }
 
@@ -722,7 +706,7 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 		return OCL_ERR_SSL_CONNECT_ERROR;
 	}
 	fd_set rFdset, wFdset;
-	int bytesSent=0, totalBytesSent=0;
+	size_t bytesSent=0, totalBytesSent=0;
 	struct timeval tvSendTo;
 	tvSendTo.tv_sec=ocl->socketSendTimeout;
 	tvSendTo.tv_usec=0;
@@ -764,7 +748,6 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 		FD_SET(socketConn, &rFdset);
 		if((retVal=select(socketConn+1,&rFdset,NULL,NULL,&tvRecvTo))<=0){
 			if(retVal==0) return OCL_ERR_SOCKET_RECV_TIMEOUT_ERROR;
-			printf("\n%s\n",strerror(errno));
 			return OCL_ERR_RECEIVING_PACKETS_ERROR;
 		}
 		char buffer[BUFFER_SIZE_16K]="";
@@ -845,8 +828,7 @@ int OCl_send_chat(OCl *ocl, char *message){
 	ssize_t len=
 			strlen(ocl->model)
 			+sizeof(ocl->temp)
-			+sizeof(ocl->maxTokens)
-			+sizeof(ocl->maxTokensContext)
+			+sizeof(ocl->maxTokensCtx)
 			+strlen(roleParsed)
 			+strlen(context)
 			+strlen(messageParsed)
@@ -856,7 +838,6 @@ int OCl_send_chat(OCl *ocl, char *message){
 	snprintf(body,len,
 			"{\"model\":\"%s\","
 			"\"temperature\": %f,"
-			"\"max_tokens\": %d,"
 			"\"num_ctx\": %d,"
 			"\"stream\": true,"
 			"\"keep_alive\": -1,"
@@ -866,8 +847,7 @@ int OCl_send_chat(OCl *ocl, char *message){
 			"%s""{\"role\": \"user\",\"content\": \"%s\"}]}",
 			ocl->model,
 			ocl->temp,
-			ocl->maxTokens,
-			ocl->maxTokensContext,
+			ocl->maxTokensCtx,
 			roleParsed,context,
 			messageParsed);
 	free(context);
@@ -953,7 +933,7 @@ int OCl_send_chat(OCl *ocl, char *message){
 		}
 		if(retVal>0) ocl->ocl_resp->tokensPerSec=ocl->ocl_resp->evalCount/ocl->ocl_resp->evalDuration;
 		if(message[strlen(message)-1]!=';'){
-			create_new_context_message(messageParsed, content, true, ocl->maxMessageContext);
+			create_new_context_message(messageParsed, content, true, ocl->maxHistoryCtx);
 			OCl_save_message(ocl, messageParsed, content);
 		}
 	}

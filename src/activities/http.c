@@ -9,6 +9,7 @@
 #include "../activities/activities.h"
 #include <errno.h>
 #include <openssl/err.h>
+#include <fcntl.h>
 
 char **files=NULL;
 double totalFiles=0;
@@ -140,7 +141,19 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	setsockopt(localSocketCon, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
 	setsockopt(localSocketCon, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
 	setsockopt(localSocketCon, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
-	if(connect(localSocketCon, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0) return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
+	int socketFlags=fcntl(localSocketCon, F_GETFL, 0);
+	fcntl(localSocketCon, F_SETFL, socketFlags | O_NONBLOCK);
+	int retVal=connect(localSocketCon, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
+	if(retVal<0 && errno!=EINPROGRESS) return SOCKET_CONNECTION_ERROR;
+	fd_set rFdset, wFdset;
+	FD_ZERO(&rFdset);
+	FD_SET(localSocketCon, &rFdset);
+	wFdset=rFdset;
+	if((retVal=select(localSocketCon+1,&rFdset,&wFdset,NULL,&timeout))<=0){
+		if(retVal==0) return SOCKET_CONNECTION_TIMEOUT_ERROR;
+		return retVal;
+	}
+	fcntl(localSocketCon, F_SETFL, socketFlags & ~O_NONBLOCK);
 	SSL *sslConn=NULL;
 	SSL_CTX *sslCtx=NULL;
 	if(connType==SSL_CONN_TYPE){
@@ -175,14 +188,14 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 		bytesSent=SSL_write(sslConn,msg,strlen(msg));
 	}
 	if(bytesSent<=0){
-		clean_ssl(sslConn);
-		SSL_CTX_free(sslCtx);
 		if(!lastActivityError.blocked){
 			lastActivityError.blocked=true;
 			lastActivityError.err= errno;
 			lastActivityError.sslErr= ERR_get_error();
-			return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+			set_last_activity_error(SENDING_PACKETS_ERROR, "");
 		}
+		clean_ssl(sslConn);
+		SSL_CTX_free(sslCtx);
 		return RETURN_ERROR;
 	}
 	int bytesReceived=0,contI=0;
@@ -194,15 +207,15 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
 	}
 	if(bytesReceived<=0){
-		close(localSocketCon);
-		clean_ssl(sslConn);
-		SSL_CTX_free(sslCtx);
 		if(!lastActivityError.blocked){
 			lastActivityError.blocked=true;
 			lastActivityError.err= errno;
 			lastActivityError.sslErr= ERR_get_error();
-			return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+			set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
 		}
+		close(localSocketCon);
+		clean_ssl(sslConn);
+		SSL_CTX_free(sslCtx);
 		return RETURN_ERROR;
 	}
 	for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];

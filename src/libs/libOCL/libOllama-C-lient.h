@@ -35,13 +35,12 @@
 #define OCL_SOCKET_SEND_TIMEOUT_S				"5"
 #define OCL_SOCKET_RECV_TIMEOUT_S				"15"
 
-#define OCL_MAX_HISTORY_CONTEXT					"3"
 #define OCL_TEMP								"0.5"
-#define OCL_MAX_TOKENS							"2048"
-#define OCL_NUM_CTX								"2048"
+#define OCL_MAX_HISTORY_CTX						"3"
+#define OCL_MAX_TOKENS_CTX						"2048"
 
 enum ocl_errors{
-	OCL_ERR_INIT_ERROR=-50,
+	OCL_ERR_INIT_ERROR=-100,
 	OCL_ERR_MALLOC_ERROR,
 	OCL_ERR_REALLOC_ERROR,
 	OCL_ERR_GETTING_HOST_INFO_ERROR,
@@ -51,17 +50,16 @@ enum ocl_errors{
 	OCL_ERR_SSLCTX_NULL_ERROR,
 	OCL_ERR_SSL_CONTEXT_ERROR,
 	OCL_ERR_SSL_CERT_NOT_FOUND,
-	OCL_ERR_SSL_FD_ERROR,							//-40
+	OCL_ERR_SSL_FD_ERROR,
 	OCL_ERR_SSL_CONNECT_ERROR,
 	OCL_ERR_SOCKET_SEND_TIMEOUT_ERROR,
 	OCL_ERR_SENDING_PACKETS_ERROR,
-	OCL_ERR_POLLIN_ERROR,
 	OCL_ERR_SOCKET_RECV_TIMEOUT_ERROR,
 	OCL_ERR_RECV_TIMEOUT_ERROR,
 	OCL_ERR_RECEIVING_PACKETS_ERROR,
 	OCL_ERR_RESPONSE_MESSAGE_ERROR,
 	OCL_ERR_PARTIAL_RESPONSE_RECV,
-	OCL_ERR_ZEROBYTESSENT_ERROR,					//-30
+	OCL_ERR_ZEROBYTESSENT_ERROR,
 	OCL_ERR_ZEROBYTESRECV_ERROR,
 	OCL_ERR_MODEL_FILE_NOT_FOUND,
 	OCL_ERR_CONTEXT_FILE_NOT_FOUND,
@@ -79,9 +77,8 @@ enum ocl_errors{
 	OCL_ERR_SERVER_ADDR,
 	OCL_ERR_PORT,
 	OCL_ERR_TEMP,
-	OCL_ERR_MAX_MSG_CTX,
+	OCL_ERR_MAX_HISTORY_CTX,
 	OCL_ERR_MAX_TOKENS_CTX,
-	OCL_ERR_MAX_TOKENS,
 	OCL_ERR_SOCKET_CONNECTION_TIMEOUT_NOT_VALID,
 	OCL_ERR_SOCKET_SEND_TIMEOUT_NOT_VALID,
 	OCL_ERR_SOCKET_RECV_TIMEOUT_NOT_VALID,
@@ -93,8 +90,7 @@ typedef struct _ocl OCl;
 extern bool ocl_canceled;
 
 int OCl_init();
-int OCl_get_instance(OCl **, char *, char *, char *, char *, char *, char *, char *, char *,
-		char *,char *, char *, char *, char *, char *);
+int OCl_get_instance(OCl **, char *, char *, char *, char *, char *, char *, char *, char *,char *,char *, char *, char *, char *);
 int OCl_free(OCl *);
 
 int OCl_flush_context();

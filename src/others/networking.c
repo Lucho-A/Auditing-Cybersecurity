@@ -191,8 +191,7 @@ int init_networking(){
 		int retVal=0;
 		if((retVal=OCl_get_instance(&ocl, oi.ip, oi.port, OCL_SOCKET_CONNECT_TIMEOUT_S, OCL_SOCKET_SEND_TIMEOUT_S,
 				OCL_SOCKET_RECV_TIMEOUT_S,OCL_RESPONSE_SPEED, NULL, oi.model,
-				"IT Auditor and IT Security expert", oi.maxHistoryCtx, oi.temp,oi.numCtx,
-				oi.numCtx,NULL))!=RETURN_OK)
+				"IT Auditor and IT Security expert", oi.maxHistoryCtx, oi.temp,oi.numCtx,NULL))!=RETURN_OK)
 			show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , true, false, false);
 		int ollamaStatus=OCl_check_service_status(ocl);
 		if(ollamaStatus==RETURN_ERROR){
