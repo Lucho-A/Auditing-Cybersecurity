@@ -190,7 +190,7 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 		close(localSocketCon);
 		clean_ssl(sslConn);
 		SSL_CTX_free(sslCtx);
-		return set_last_activity_error(RECEIVING_PACKETS_ERROR, strerror(errno));
+		return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
 	}
 	for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];
 	serverResp[contI]='\0';
@@ -215,7 +215,6 @@ static void *evaluate_response(void *arg){
 		if(resp<0 && !cancelCurrentProcess){
 			cancelCurrentProcess=true;
 			PRINT_RESET;
-			set_last_activity_error(resp, "");
 			pthread_exit(NULL);
 		}
 		if(resp>0 && (strstr(serverResp," 200 ")!=NULL

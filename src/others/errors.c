@@ -1,5 +1,6 @@
 
 #include <errno.h>
+#include <openssl/err.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../auditing-cybersecurity.h"
@@ -11,7 +12,7 @@ int set_last_activity_error(int errorType, char const *errorAditionalDescription
 }
 
 int error_handling(int errorType, bool exitProgram){
-	char errorMsg[BUFFER_SIZE_1K]="", errorDescription[BUFFER_SIZE_256B]="";
+	char errorMsg[BUFFER_SIZE_1K]="", errorDescription[BUFFER_SIZE_512B]="";
 	if(errorType<0) lastActivityError.errorType=errorType;
 	switch(lastActivityError.errorType){
 	case RETURN_OK:
@@ -35,17 +36,17 @@ int error_handling(int errorType, bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error socket select",strerror(errno));
 		break;
 	case SENDING_PACKETS_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error sending packets");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Error sending packets",strerror(errno),ERR_error_string(ERR_get_error(), NULL));
 		break;
 	case GETADDRINFO_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error getting address info");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error getting address info",strerror(errno));
 		break;
 	case MALLOC_ERROR:
 	case REALLOC_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Malloc/Realloc error", strerror(errno));
 		break;
 	case RECEIVING_PACKETS_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error receiving packets");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Error receiving packets",strerror(errno),ERR_error_string(ERR_get_error(), NULL));
 		break;
 	case ZERO_BYTES_RECV_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "(Zero bytes received)");
@@ -63,10 +64,10 @@ int error_handling(int errorType, bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Device opening error", strerror(errno));
 		break;
 	case SSL_FD_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "SSL setting fd error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "SSL setting fd error", ERR_error_string(ERR_get_error(), NULL));
 		break;
 	case SSL_CONNECT_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "SSL connecting error");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "SSL connecting error", ERR_error_string(ERR_get_error(), NULL));
 		break;
 	case UNKNOW_CONNECTION_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Unknown connection");
@@ -81,7 +82,7 @@ int error_handling(int errorType, bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "INET_ntop error", strerror(errno));
 		break;
 	case HOSTNAME_TO_IP_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s", "Unable to resolve hostname");
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Unable to resolve hostname", strerror(errno));
 		break;
 	case OPENING_PORT_FILE_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error opening port file");

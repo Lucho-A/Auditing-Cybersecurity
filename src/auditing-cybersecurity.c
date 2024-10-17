@@ -2,7 +2,7 @@
  ============================================================================
  Name        : main.c
  Author      : L.
- Version     : 1.2.9
+ Version     : 1.3.0
  Copyright   : GNU General Public License v3.0
  Description : Main file
  ============================================================================
@@ -42,6 +42,7 @@ static void signal_handler(int signalType){
 		printf("  Canceling...\n");
 		cancelCurrentProcess=true;
 		canceledBySignal=true;
+		ocl_canceled=true;
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
 	case SIGPIPE:
@@ -60,13 +61,9 @@ static int closeMrAnderson(){
 
 static int readline_input(FILE *stream){
 	int c=fgetc(stream);
-	switch(c){
-	case -1:
-	case 4:
+	if(c==-1 || c==4){
+		rl_delete_text(0,strlen(rl_line_buffer));
 		return 13;
-		break;
-	default:
-		break;
 	}
 	return c;
 }

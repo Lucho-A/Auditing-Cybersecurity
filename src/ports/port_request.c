@@ -71,6 +71,7 @@ static int hack_port() {
 	while(true){
 		cancelCurrentProcess=false;
 		canceledBySignal=false;
+		ocl_canceled=false;
 		int valResp=ACTIVITY_NOT_SELECTED;
 		lastActivityError.errorType=0;
 		memset(lastActivityError.errorAditionalDescription,0,sizeof(lastActivityError.errorAditionalDescription));

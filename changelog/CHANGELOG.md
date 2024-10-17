@@ -1,3 +1,17 @@
+### auditing-cybersecurity-v1.3.0 - Under Dev./Testing
+
+Updated:
+Criticality: medium
+
+BUG_FIXED:
+- crl-c doesn't stop Ollama responses fixed
+- 2.5    -> not showing send/recv errors fixed
+
+OTHERS:
+- error handling changes
+- minor changes, code optimized & code cleaned-up
+
+------------------------------------------------------------------------------------------------------
 ### auditing-cybersecurity-v1.2.9
 
 Updated: 2024-10-15
