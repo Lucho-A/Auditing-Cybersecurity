@@ -13,8 +13,11 @@ int mysql_check_user(char *username, char *password){
 	mysql_options(&mysqlConn, MYSQL_OPT_CONNECT_TIMEOUT,&n);
 	if(!mysql_real_connect(&mysqlConn, target.strTargetIp, username,password, "", portUnderHacking, NULL, 0)){
 		if(mysql_errno(&mysqlConn)!=1045){
-			set_last_activity_error(MYSQL_CONNECTION_ERROR, mysql_error(&mysqlConn));
-			mysql_close(&mysqlConn);
+			if(!lastActivityError.blocked){
+				lastActivityError.blocked=true;
+				set_last_activity_error(MYSQL_CONNECTION_ERROR, mysql_error(&mysqlConn));
+				mysql_close(&mysqlConn);
+			}
 			return RETURN_ERROR;
 		}
 		mysql_close(&mysqlConn);

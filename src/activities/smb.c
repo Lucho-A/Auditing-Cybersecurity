@@ -68,7 +68,13 @@ int smb_check_user(char *username, char *password){
 	gPassword=password;
 	char smbURL[BUFFER_SIZE_1K]="";
 	snprintf(smbURL, sizeof(smbURL), "smb://%s:%d", target.strTargetIp,portUnderHacking);
-	if ((ctx=create_smbctx())==NULL) return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
+	if ((ctx=create_smbctx())==NULL){
+		if(!lastActivityError.blocked){
+			lastActivityError.blocked=true;
+			return set_last_activity_error(SMB_CONTEXT_CREATION_ERROR,"");
+		}
+		return RETURN_ERROR;
+	}
 	if(validate_smb_account(ctx, smbURL)){
 		delete_smbctx(ctx);
 		return true;

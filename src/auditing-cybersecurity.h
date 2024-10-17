@@ -206,7 +206,10 @@ struct ThreadInfo{
 
 struct LastestError{
 	int errorType;
+	int err;
+	int sslErr;
 	char errorAditionalDescription[BUFFER_SIZE_256B];
+	bool blocked;
 };
 
 struct OllamaInfo{

@@ -8,7 +8,7 @@ BUG_FIXED:
 - 2.5    -> not showing send/recv errors fixed
 
 OTHERS:
-- error handling changes
+- error handling changes (threading safer)
 - minor changes, code optimized & code cleaned-up
 
 ------------------------------------------------------------------------------------------------------

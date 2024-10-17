@@ -72,6 +72,8 @@ static int initMrAnderson(){
 	signal(SIGINT, signal_handler);
 	signal(SIGTSTP, signal_handler);
 	signal(SIGPIPE, signal_handler);
+	lastActivityError.errorType=0;
+	lastActivityError.blocked=false;
 	if(!discover){
 		SSL_library_init();
 		libssh2_init(0);

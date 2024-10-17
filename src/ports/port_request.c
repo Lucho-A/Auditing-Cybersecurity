@@ -73,7 +73,10 @@ static int hack_port() {
 		canceledBySignal=false;
 		ocl_canceled=false;
 		int valResp=ACTIVITY_NOT_SELECTED;
+		lastActivityError.blocked=false;
 		lastActivityError.errorType=0;
+		lastActivityError.err=0;
+		lastActivityError.sslErr=0;
 		memset(lastActivityError.errorAditionalDescription,0,sizeof(lastActivityError.errorAditionalDescription));
 		char *c=get_readline(prompt, false);
 		printf("\n");

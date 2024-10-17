@@ -14,7 +14,11 @@ int ftp_check_user(char *username, char *password){
 	int valResp=FtpConnect(host, &ftpConn);
 	if(!valResp){
 		if(ftpConn!=NULL) FtpClose(ftpConn);
-		return set_last_activity_error(FTP_CONNECTION_ERROR, FtpLastResponse(ftpConn));
+		if(!lastActivityError.blocked){
+			lastActivityError.blocked=true;
+			return set_last_activity_error(FTP_CONNECTION_ERROR, FtpLastResponse(ftpConn));
+		}
+		return RETURN_ERROR;
 	}
 	valResp=FtpLogin(username,password,ftpConn);
 	if(valResp){
@@ -26,7 +30,11 @@ int ftp_check_user(char *username, char *password){
 		return false;
 	}
 	FtpClose(ftpConn);
-	return set_last_activity_error(FTP_ERROR, FtpLastResponse(ftpConn));
+	if(!lastActivityError.blocked){
+		lastActivityError.blocked=true;
+		return set_last_activity_error(FTP_CONNECTION_ERROR, FtpLastResponse(ftpConn));
+	}
+	return RETURN_ERROR;
 }
 
 int ftp(int type){

@@ -20,11 +20,23 @@ static int create_ssh_connection(LIBSSH2_SESSION **sshConn, int *socketConn){
 int ssh_check_user(char *username, char *password){
 	LIBSSH2_SESSION *sshSessionConn=NULL;
 	int sk=0;
-	if((create_socket_conn(&sk))<0) return set_last_activity_error(SOCKET_CREATION_ERROR,"");
+	if((create_socket_conn(&sk))<0){
+		if(!lastActivityError.blocked){
+			lastActivityError.blocked=true;
+			lastActivityError.err=errno;
+			return set_last_activity_error(SOCKET_CREATION_ERROR,"");
+		}
+		return RETURN_ERROR;
+	}
 	int valResp=0;
 	if((valResp=create_ssh_connection(&sshSessionConn,&sk))<0){
 		libssh2_session_free(sshSessionConn);
-		return set_last_activity_error(valResp,"");
+		if(!lastActivityError.blocked){
+			lastActivityError.blocked=true;
+			lastActivityError.err=errno;
+			return set_last_activity_error(valResp,"");
+		}
+		return RETURN_ERROR;
 	}
 	valResp=libssh2_userauth_password(sshSessionConn, username, password);
 	libssh2_session_disconnect(sshSessionConn,"");
