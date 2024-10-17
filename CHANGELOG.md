@@ -6,8 +6,10 @@ Criticality: medium
 BUG_FIXED:
 - crl-c doesn't stop Ollama responses fixed
 - 2.5    -> not showing send/recv errors fixed
+- 2.5    -> timeout added
 
 OTHERS:
+- Ollama lib updated
 - error handling changes (threading safer)
 - minor changes, code optimized & code cleaned-up
 
