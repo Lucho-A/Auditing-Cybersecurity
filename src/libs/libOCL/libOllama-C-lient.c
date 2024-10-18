@@ -40,7 +40,8 @@ typedef struct Message{
 Message *rootContextMessages=NULL;
 int contContextMessages=0;
 SSL_CTX *oclSslCtx=NULL;
-bool ocl_canceled=false;
+int oclSslError=0;
+bool oclCanceled=false;
 
 typedef struct _ocl{
 	char *srvAddr;
@@ -155,7 +156,7 @@ static int OCl_set_response_speed(OCl *ocl, char *respSpeed){
 	if(respSpeed!=NULL && strcmp(respSpeed,"")!=0){
 		char *tail=NULL;
 		ocl->responseSpeed=strtol(respSpeed, &tail, 10);
-		if(ocl->responseSpeed<1||tail[0]!=0) return OCL_ERR_RESPONSE_SPEED_NOT_VALID;
+		if(ocl->responseSpeed<0||tail[0]!=0) return OCL_ERR_RESPONSE_SPEED_NOT_VALID;
 	}
 	return OCL_RETURN_OK;
 }
@@ -220,7 +221,8 @@ int OCl_init(){
 	if((oclSslCtx=SSL_CTX_new(TLS_client_method()))==NULL) return OCL_ERR_SSL_CONTEXT_ERROR;
 	SSL_CTX_set_verify(oclSslCtx, SSL_VERIFY_PEER, NULL);
 	SSL_CTX_set_default_verify_paths(oclSslCtx);
-	ocl_canceled=false;
+	oclCanceled=false;
+	oclSslError=0;
 	return OCL_RETURN_OK;
 }
 
@@ -384,7 +386,6 @@ int OCl_import_context(OCl *ocl){
 
 char * OCL_error_handling(int error){
 	static char error_hndl[1024]="";
-	int sslErr=ERR_get_error();
 	switch(error){
 	case OCL_ERR_MALLOC_ERROR:
 		snprintf(error_hndl, 1024,"Malloc() error: %s", strerror(errno));
@@ -405,34 +406,34 @@ char * OCL_error_handling(int error){
 		snprintf(error_hndl, 1024,"Socket connection time out. ");
 		break;
 	case OCL_ERR_SSLCTX_NULL_ERROR:
-		snprintf(error_hndl, 1024,"SSL context null: %s (Did you call OCL_init()?). SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"SSL context null: %s (Did you call OCL_init()?). SSL Error: %s", strerror(errno),ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_SSL_CONTEXT_ERROR:
-		snprintf(error_hndl, 1024,"Error creating SSL context: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"Error creating SSL context: %s. SSL Error: %s", strerror(errno),ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_SSL_CERT_NOT_FOUND:
-		snprintf(error_hndl, 1024,"SSL cert. not found: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"SSL cert. not found: %s. SSL Error: %s", strerror(errno),ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_SSL_FD_ERROR:
-		snprintf(error_hndl, 1024,"SSL fd error: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"SSL fd error: %s. SSL Error: %s", strerror(errno),ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_SSL_CONNECT_ERROR:
-		snprintf(error_hndl, 1024,"SSL Connection error: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"SSL Connection error: %s. SSL Error: %s", strerror(errno),ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_SOCKET_SEND_TIMEOUT_ERROR:
 		snprintf(error_hndl, 1024,"Sending packet time out. ");
 		break;
 	case OCL_ERR_SENDING_PACKETS_ERROR:
-		snprintf(error_hndl, 1024,"Sending packet error. SSL Error: %s", ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"Sending packet error. SSL Error: %s", ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_SOCKET_RECV_TIMEOUT_ERROR:
-		snprintf(error_hndl, 1024,"Receiving packet time out: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"Receiving packet time out: %s. SSL Error: %s", strerror(errno),ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_RECV_TIMEOUT_ERROR:
 		snprintf(error_hndl, 1024,"Time out value not valid. ");
 		break;
 	case OCL_ERR_RECEIVING_PACKETS_ERROR:
-		snprintf(error_hndl, 1024,"Receiving packet error: %s. SSL Error: %s", strerror(errno),ERR_error_string(sslErr, NULL));
+		snprintf(error_hndl, 1024,"Receiving packet error: %s. SSL Error: %s", strerror(errno),ERR_error_string(oclSslError, NULL));
 		break;
 	case OCL_ERR_RESPONSE_MESSAGE_ERROR:
 		snprintf(error_hndl, 1024,"Error message into JSON. ");
@@ -640,8 +641,9 @@ static void print_response(char *response, OCl *ocl){
 	parse_output(&buffer, response);
 	if(ocl->responseSpeed==0){
 		printf("%s",buffer);
+		fflush(stdout);
 	}else{
-		for(int i=0;buffer[i]!=0 && !ocl_canceled;i++){
+		for(int i=0;buffer[i]!=0 && !oclCanceled;i++){
 			usleep(ocl->responseSpeed);
 			printf("%c",buffer[i]);
 			fflush(stdout);
@@ -687,6 +689,7 @@ static int create_connection(char *srvAddr, int srvPort, int socketConnectTimeou
 }
 
 static int send_message(OCl *ocl,char *payload, char **fullResponse, char **content, bool streamed){
+	oclSslError=0;
 	int socketConn=create_connection(ocl->srvAddr, ocl->srvPort, ocl->socketConnectTimeout);
 	if(socketConn<=0) return socketConn;
 	if(oclSslCtx==NULL) return OCL_ERR_SSLCTX_NULL_ERROR;
@@ -715,8 +718,9 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 		FD_ZERO(&wFdset);
 		FD_SET(socketConn, &wFdset);
 		if((retVal=select(socketConn+1,NULL,&wFdset,NULL,&tvSendTo))<=0){
-			if(retVal==0) return OCL_ERR_SOCKET_SEND_TIMEOUT_ERROR;
-			return OCL_ERR_SENDING_PACKETS_ERROR;
+			oclSslError=SSL_get_error(sslConn, retVal);
+			if(retVal<0) return OCL_ERR_SENDING_PACKETS_ERROR;
+			return OCL_ERR_SOCKET_SEND_TIMEOUT_ERROR;
 		}
 		totalBytesSent+=SSL_write(sslConn, payload + totalBytesSent, strlen(payload) - totalBytesSent);
 	}
@@ -731,11 +735,20 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 	tvRecvTo.tv_sec=ocl->socketRecvTimeout;
 	tvRecvTo.tv_usec=0;
 	do{
+		retVal=-1;
 		FD_ZERO(&rFdset);
 		FD_SET(socketConn, &rFdset);
 		if((retVal=select(socketConn+1,&rFdset,NULL,NULL,&tvRecvTo))<=0){
-			if(retVal==0) return OCL_ERR_SOCKET_RECV_TIMEOUT_ERROR;
-			return OCL_ERR_RECEIVING_PACKETS_ERROR;
+			if(retVal<0) return OCL_ERR_RECEIVING_PACKETS_ERROR;
+			oclSslError=SSL_get_error(sslConn, retVal);
+			switch(oclSslError){
+			case 5: //SSL_ERROR_SYSCALL?? PROXY/VPN issues??
+				continue;
+			default:
+				close(socketConn);
+				clean_ssl(sslConn);
+				return OCL_ERR_SOCKET_RECV_TIMEOUT_ERROR;
+			}
 		}
 		char buffer[BUFFER_SIZE_16K]="";
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
@@ -761,7 +774,7 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 			if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) break;
 		}
 		if(!SSL_pending(sslConn)) break;
-	}while(true && !ocl_canceled);
+	}while(true && !oclCanceled);
 	close(socketConn);
 	clean_ssl(sslConn);
 	return totalBytesReceived;
@@ -867,7 +880,7 @@ int OCl_send_chat(OCl *ocl, char *message){
 		free(content);
 		return OCL_ERR_PARTIAL_RESPONSE_RECV;
 	}
-	if(!ocl_canceled && retVal>0){
+	if(!oclCanceled && retVal>0){
 		char **result=NULL;
 		int retVal=0;
 		retVal=get_string_from_token(fullResponse, "\"load_duration\":", &result, ',');

@@ -87,7 +87,8 @@ enum ocl_errors{
 
 typedef struct _ocl OCl;
 
-extern bool ocl_canceled;
+extern int oclSslError;
+extern bool oclCanceled;
 
 int OCl_init();
 int OCl_get_instance(OCl **, char *, char *, char *, char *, char *, char *, char *, char *,char *,char *, char *, char *, char *);

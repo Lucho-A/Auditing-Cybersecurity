@@ -7,10 +7,10 @@ BUG_FIXED:
 - crl-c doesn't stop Ollama responses fixed
 - 2.5    -> not showing send/recv errors fixed
 - 2.5    -> timeout added
-- 2.5    -> (under evaluation) handling threading SSL errors
+- 2.5    -> (under evaluation) handling SSL errors that arise with high quantity of threads is selected.
 
 IMPROVEMENT:
-- 2.5    -> TODO redirection improvements
+- 2.5    -> shows location redirected (for performance, it doesn't check if the file exist in the redirected location).
 
 OTHERS:
 - Ollama lib updated
