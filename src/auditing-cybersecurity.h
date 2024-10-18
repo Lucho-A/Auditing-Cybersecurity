@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <pcap.h>
 #include <stdbool.h>
+#include <openssl/ssl.h>
 
 #include "libs/libOCL/libOllama-C-lient.h"
 
@@ -233,6 +234,7 @@ extern struct LastestError lastActivityError;
 extern pcap_t *arpHandle;
 extern char *resourcesLocation;
 extern long int sendPacketPerPortDelayUs;
+extern 	SSL_CTX *sslCtx;
 
 int scan_init(char *);
 int scan_ports();

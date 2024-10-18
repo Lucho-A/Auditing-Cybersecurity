@@ -243,7 +243,7 @@ int any(int type){
 				}
 				if(sqlCmd[0]=='!' && strlen(sqlCmd)>1){
 					char buf[BUFFER_SIZE_32B]="";
-					for(int i=1;i<strlen(sqlCmd);i++) buf[i-1]=sqlCmd[i];
+					for(size_t i=1;i<strlen(sqlCmd);i++) buf[i-1]=sqlCmd[i];
 					long int selectedOpt=strtol(buf,NULL,10);
 					if(selectedOpt<1 || selectedOpt>totalStrings){
 						show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true, false, false);

@@ -39,7 +39,7 @@ static int check_conn_type(){
 	SSL_CTX *sslCtx = NULL;
 	sslCtx=SSL_CTX_new(SSLv23_method());
 	SSL *sslConn = SSL_new(sslCtx);
-	SSL_CTX_free(sslCtx);
+	//SSL_CTX_free(sslCtx);
 	if(sslConn==NULL) return set_last_activity_error(SSL_CONNECT_ERROR,"");
 	if(!SSL_set_fd(sslConn, sk)) return set_last_activity_error(SSL_FD_ERROR, "");
 	int respSSLConn=0, errSSLConn=0;

@@ -33,6 +33,7 @@ bool discover=false;
 pcap_t *arpHandle=NULL;
 char *resourcesLocation=NULL;
 long int sendPacketPerPortDelayUs=SEND_PACKET_PER_PORT_DELAY_US;
+SSL_CTX *sslCtx=NULL;
 
 static void signal_handler(int signalType){
 	switch(signalType){
@@ -54,6 +55,7 @@ static void signal_handler(int signalType){
 
 static int closeMrAnderson(){
 	PRINT_RESET
+	SSL_CTX_free(sslCtx);
 	if(resourcesLocation!=NULL) free(resourcesLocation);
 	if(ocl!=NULL) OCl_load_model(ocl, false);
 	return RETURN_OK;
@@ -76,6 +78,10 @@ static int initMrAnderson(){
 	lastActivityError.blocked=false;
 	if(!discover){
 		SSL_library_init();
+		if((sslCtx=SSL_CTX_new(TLS_method()))==NULL){
+			//SSL_CTX_free(sslCtx);
+			return set_last_activity_error(SSL_CONTEXT_ERROR, "");
+		}
 		libssh2_init(0);
 		rl_getc_function=readline_input;
 		FILE *f=NULL;

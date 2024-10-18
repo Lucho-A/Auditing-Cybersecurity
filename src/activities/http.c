@@ -2,7 +2,7 @@
 #include <math.h>
 #include <unistd.h>
 #include <string.h>
-#include <openssl/ssl.h>
+//#include <openssl/ssl.h>
 #include <readline/history.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
@@ -40,27 +40,19 @@ static int get_cert_info(){
 	int valResp=0;
 	if((valResp=connect(socketConn, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0))
 		return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
-	SSL_CTX *sslCtx=NULL;
-	if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){
-		SSL_CTX_free(sslCtx);
-		return set_last_activity_error(SSL_CONTEXT_ERROR, "");
-	}
 	SSL *sslConn = SSL_new(sslCtx);
 	if(sslConn==NULL){
 		clean_ssl(sslConn);
-		SSL_CTX_free(sslCtx);
 		return set_last_activity_error(SSL_CONNECTION_ERROR, "");
 	}
 	if(!SSL_set_fd(sslConn, socketConn)){
 		clean_ssl(sslConn);
-		SSL_CTX_free(sslCtx);
 		return set_last_activity_error(SSL_FD_ERROR, "");
 	}
 	SSL_set_connect_state(sslConn);
 	SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
 	if(!SSL_connect(sslConn)){
 		clean_ssl(sslConn);
-		SSL_CTX_free(sslCtx);
 		return set_last_activity_error(SSL_CONNECT_ERROR, "");
 	}
 	X509 *cert = SSL_get_peer_certificate(sslConn);
@@ -124,7 +116,6 @@ static int get_cert_info(){
 	free(issuer);
 	free(asciiHex);
 	clean_ssl(sslConn);
-	SSL_CTX_free(sslCtx);
 	return RETURN_OK;
 }
 
@@ -155,30 +146,20 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	}
 	fcntl(localSocketCon, F_SETFL, socketFlags & ~O_NONBLOCK);
 	SSL *sslConn=NULL;
-	SSL_CTX *sslCtx=NULL;
 	if(connType==SSL_CONN_TYPE){
-		sslCtx = SSL_CTX_new(SSLv23_method());
-		if(sslCtx==NULL){
-			clean_ssl(sslConn);
-			SSL_CTX_free(sslCtx);
-			return set_last_activity_error(SSL_CONTEXT_ERROR, "");
-		}
 		sslConn = SSL_new(sslCtx);
 		if(sslConn==NULL){
 			clean_ssl(sslConn);
-			SSL_CTX_free(sslCtx);
 			return set_last_activity_error(SSL_CONNECTION_ERROR, "");
 		}
 		if(!SSL_set_fd(sslConn, localSocketCon)){
 			clean_ssl(sslConn);
-			SSL_CTX_free(sslCtx);
 			return set_last_activity_error(SSL_FD_ERROR, "");
 		}
 		SSL_set_connect_state(sslConn);
 		SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
 		if(!SSL_connect(sslConn)){
 			clean_ssl(sslConn);
-			SSL_CTX_free(sslCtx);
 			return set_last_activity_error(SSL_CONNECT_ERROR, "");
 		}
 	}
@@ -188,15 +169,11 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 		bytesSent=SSL_write(sslConn,msg,strlen(msg));
 	}
 	if(bytesSent<=0){
-		if(!lastActivityError.blocked){
-			lastActivityError.blocked=true;
-			lastActivityError.err= errno;
-			lastActivityError.sslErr= ERR_get_error();
-			set_last_activity_error(SENDING_PACKETS_ERROR, "");
+		if(connType==SSL_CONN_TYPE){
+			clean_ssl(sslConn);
+			return SSL_get_error(sslConn, bytesSent);
 		}
-		clean_ssl(sslConn);
-		SSL_CTX_free(sslCtx);
-		return RETURN_ERROR;
+		return bytesSent;
 	}
 	int bytesReceived=0,contI=0;
 	char buffer[BUFFER_SIZE_8K]={'\0'};
@@ -207,22 +184,16 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
 	}
 	if(bytesReceived<=0){
-		if(!lastActivityError.blocked){
-			lastActivityError.blocked=true;
-			lastActivityError.err= errno;
-			lastActivityError.sslErr= ERR_get_error();
-			set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+		if(connType==SSL_CONN_TYPE){
+			clean_ssl(sslConn);
+			return SSL_get_error(sslConn, bytesReceived);
 		}
-		close(localSocketCon);
-		clean_ssl(sslConn);
-		SSL_CTX_free(sslCtx);
-		return RETURN_ERROR;
+		return bytesReceived;
 	}
 	for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];
 	serverResp[contI]='\0';
 	close(localSocketCon);
 	clean_ssl(sslConn);
-	SSL_CTX_free(sslCtx);
 	return bytesReceived;
 }
 
@@ -239,7 +210,21 @@ static void *evaluate_response(void *arg){
 		resp=send_http_msg_to_server(target.targetIp,portUnderHacking,
 				target.ports[portUnderHacking].connectionType,msg,serverResp,BUFFER_SIZE_32B);
 		if(resp<0 && !cancelCurrentProcess){
+			if(target.ports[portUnderHacking].connectionType==SSL_CONN_TYPE){
+				if(resp==SSL_AD_UNEXPECTED_MESSAGE || resp==SSL_AD_BAD_RECORD_MAC){
+					i--;
+					cont--;
+					contProcesedFiles--;
+					continue;
+				}
+			}
 			cancelCurrentProcess=true;
+			if(!lastActivityError.blocked){
+				lastActivityError.blocked=true;
+				lastActivityError.err= errno;
+				lastActivityError.sslErr= resp;
+				set_last_activity_error(SENDING_PACKETS_ERROR, "");
+			}
 			PRINT_RESET;
 			pthread_exit(NULL);
 		}
@@ -250,7 +235,8 @@ static void *evaluate_response(void *arg){
 				|| strstr(serverResp," 304 ")!=NULL)){
 			if(strstr(serverResp," 301 " )!=NULL || strstr(serverResp," 302 " )!=NULL){
 				printf(REMOVE_LINE);
-				printf("  File found: %s/%s%s (%sredirected%s)",C_HRED, files[i],C_DEFAULT, C_HWHITE,C_DEFAULT);
+				//TODO
+				printf("  Redirection found: %s/%s%s (%sredirected%s)",C_HRED, files[i],C_DEFAULT, C_HWHITE,C_DEFAULT);
 				printf("\n\n"REMOVE_LINE);
 				continue;
 			}

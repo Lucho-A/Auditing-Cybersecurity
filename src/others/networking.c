@@ -288,29 +288,24 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 		if(type==SSL_CONN_TYPE){
 			fcntl(*sk, F_SETFL, socketFlags);
 			if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){
-				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 			}
 			//SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER, NULL);
 			//SSL_CTX_set_default_verify_paths(sslCtx);
 			if((sslConn=SSL_new(sslCtx))==NULL){
 				clean_ssl(sslConn);
-				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 			}
 			if(!SSL_set_fd(sslConn,*sk)){
 				clean_ssl(sslConn);
-				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_FD_ERROR, "");
 			}
 			SSL_set_connect_state(sslConn);
 			SSL_set_tlsext_host_name(sslConn, url);
 			if(!SSL_connect(sslConn)){
 				clean_ssl(sslConn);
-				SSL_CTX_free(sslCtx);
 				return set_last_activity_error(SSL_CONNECT_ERROR, "");
 			}
-			SSL_CTX_free(sslCtx);
 		}
 		fcntl(*sk, F_SETFL, O_NONBLOCK);
 		pfds[0].fd=*sk;

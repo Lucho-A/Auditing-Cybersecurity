@@ -39,7 +39,7 @@ typedef struct Message{
 
 Message *rootContextMessages=NULL;
 int contContextMessages=0;
-SSL_CTX *sslCtx=NULL;
+SSL_CTX *oclSslCtx=NULL;
 bool ocl_canceled=false;
 
 typedef struct _ocl{
@@ -217,9 +217,9 @@ static int OCl_set_error(OCl *ocl, char *err){
 
 int OCl_init(){
 	SSL_library_init();
-	if((sslCtx=SSL_CTX_new(TLS_client_method()))==NULL) return OCL_ERR_SSL_CONTEXT_ERROR;
-	SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER, NULL);
-	SSL_CTX_set_default_verify_paths(sslCtx);
+	if((oclSslCtx=SSL_CTX_new(TLS_client_method()))==NULL) return OCL_ERR_SSL_CONTEXT_ERROR;
+	SSL_CTX_set_verify(oclSslCtx, SSL_VERIFY_PEER, NULL);
+	SSL_CTX_set_default_verify_paths(oclSslCtx);
 	ocl_canceled=false;
 	return OCL_RETURN_OK;
 }
@@ -689,9 +689,9 @@ static int create_connection(char *srvAddr, int srvPort, int socketConnectTimeou
 static int send_message(OCl *ocl,char *payload, char **fullResponse, char **content, bool streamed){
 	int socketConn=create_connection(ocl->srvAddr, ocl->srvPort, ocl->socketConnectTimeout);
 	if(socketConn<=0) return socketConn;
-	if(sslCtx==NULL) return OCL_ERR_SSLCTX_NULL_ERROR;
+	if(oclSslCtx==NULL) return OCL_ERR_SSLCTX_NULL_ERROR;
 	SSL *sslConn=NULL;
-	if((sslConn=SSL_new(sslCtx))==NULL){
+	if((sslConn=SSL_new(oclSslCtx))==NULL){
 		clean_ssl(sslConn);
 		return OCL_ERR_SSL_CONTEXT_ERROR;
 	}
@@ -706,7 +706,7 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 		return OCL_ERR_SSL_CONNECT_ERROR;
 	}
 	fd_set rFdset, wFdset;
-	size_t bytesSent=0, totalBytesSent=0;
+	size_t totalBytesSent=0;
 	struct timeval tvSendTo;
 	tvSendTo.tv_sec=ocl->socketSendTimeout;
 	tvSendTo.tv_usec=0;
@@ -718,20 +718,7 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 			if(retVal==0) return OCL_ERR_SOCKET_SEND_TIMEOUT_ERROR;
 			return OCL_ERR_SENDING_PACKETS_ERROR;
 		}
-		bytesSent=SSL_write(sslConn, payload + totalBytesSent, strlen(payload) - totalBytesSent);
-		int sslError=SSL_get_error(sslConn, bytesSent);
-		switch(sslError){
-		case SSL_ERROR_NONE:
-			totalBytesSent+=bytesSent;
-			continue;
-		case SSL_ERROR_WANT_READ:
-		case SSL_ERROR_WANT_X509_LOOKUP:
-			continue;
-		default:
-			close(socketConn);
-			clean_ssl(sslConn);
-			return OCL_ERR_SENDING_PACKETS_ERROR;
-		}
+		totalBytesSent+=SSL_write(sslConn, payload + totalBytesSent, strlen(payload) - totalBytesSent);
 	}
 	ssize_t bytesReceived=0,totalBytesReceived=0;
 	*fullResponse=malloc(1);
@@ -752,18 +739,6 @@ static int send_message(OCl *ocl,char *payload, char **fullResponse, char **cont
 		}
 		char buffer[BUFFER_SIZE_16K]="";
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
-		int sslError=SSL_get_error(sslConn, bytesReceived);
-		switch(sslError){
-		case SSL_ERROR_NONE:
-			break;
-		case SSL_ERROR_WANT_READ:
-		case SSL_ERROR_WANT_X509_LOOKUP:
-			continue;
-		default:
-			close(socketConn);
-			clean_ssl(sslConn);
-			return OCL_ERR_RECEIVING_PACKETS_ERROR;
-		}
 		if(bytesReceived==0) break;
 		if(bytesReceived>0){
 			totalBytesReceived+=bytesReceived;
