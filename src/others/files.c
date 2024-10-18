@@ -71,7 +71,7 @@ int read_usernames_and_password_files(struct BfaInfo *bfaInfo, char *usernamesFi
 
 int format_strings_from_files(char *from, char *dest){
 	int contChars=0;
-	for(int i=0;i<strlen(from);i++, contChars++){
+	for(size_t i=0;i<strlen(from);i++, contChars++){
 		if(from[i]=='\\'){
 			switch(from[i+1]){
 			case 'x':

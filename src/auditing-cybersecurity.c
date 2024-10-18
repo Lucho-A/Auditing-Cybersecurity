@@ -43,7 +43,7 @@ static void signal_handler(int signalType){
 		printf("  Canceling...\n");
 		cancelCurrentProcess=true;
 		canceledBySignal=true;
-		ocl_canceled=true;
+		oclCanceled=true;
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		break;
 	case SIGPIPE:

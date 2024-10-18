@@ -71,7 +71,7 @@ static int hack_port() {
 	while(true){
 		cancelCurrentProcess=false;
 		canceledBySignal=false;
-		ocl_canceled=false;
+		oclCanceled=false;
 		int valResp=ACTIVITY_NOT_SELECTED;
 		lastActivityError.blocked=false;
 		lastActivityError.errorType=0;
@@ -164,7 +164,7 @@ static int hack_port() {
 							0, ERROR_MESSAGE, true,false,false);
 					break;
 				default:
-					if(ocl_canceled){
+					if(oclCanceled){
 						printf("\n");
 						break;
 					}

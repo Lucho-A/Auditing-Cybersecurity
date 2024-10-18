@@ -31,7 +31,7 @@ int system_call(char *cmdArg){
 		}
 		if(cmd[0]=='!' && strlen(cmd)>1){
 			char buf[BUFFER_SIZE_32B]="";
-			for(int i=1;i<strlen(cmd);i++) buf[i-1]=cmd[i];
+			for(size_t i=1;i<strlen(cmd);i++) buf[i-1]=cmd[i];
 			long int selectedOpt=strtol(buf,NULL,10);
 			if(selectedOpt<1 || selectedOpt>totalStrings){
 				show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true,false,false);

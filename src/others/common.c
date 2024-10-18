@@ -10,7 +10,7 @@
 #include "../activities/activities.h"
 
 void free_char_double_pointer(char ***p, size_t size){
-	for(int i=0;i<size;i++) free((*p)[i]);
+	for(size_t i=0;i<size;i++) free((*p)[i]);
 	free(*p);
 	return;
 }

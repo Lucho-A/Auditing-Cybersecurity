@@ -147,7 +147,7 @@ int init_networking(){
 		char *buffer="";
 		buffer=strstr((char *) publicIp,"\n\r\n");
 		printf("\nPublic IP: %s", C_HWHITE);
-		for(int i=3;i<strlen(buffer);i++) printf("%c", buffer[i]);
+		for(size_t i=3;i<strlen(buffer);i++) printf("%c", buffer[i]);
 		networkInfo.internetAccess=true;
 		PRINT_RESET
 	}

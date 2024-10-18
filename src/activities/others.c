@@ -40,7 +40,7 @@ int others(int type){
 			}
 			if(msg[0]=='!' && strlen(msg)>1){
 				char buf[BUFFER_SIZE_32B]="";
-				for(int i=1;i<strlen(msg);i++) buf[i-1]=msg[i];
+				for(size_t i=1;i<strlen(msg);i++) buf[i-1]=msg[i];
 				long int selectedOpt=strtol(buf,NULL,10);
 				if(selectedOpt<1 || selectedOpt>totalStrings){
 					show_message("Option not valid\n",0, 0, ERROR_MESSAGE, true, false, false);
@@ -106,7 +106,7 @@ int others(int type){
 				free(msg);
 				break;
 			}
-			for(int i=0;i<strlen(msg);i++){
+			for(size_t i=0;i<strlen(msg);i++){
 				if(msg[i]==' ' || msg[i]=='\"') msg[i]='+';
 			}
 			snprintf(httpMsg,BUFFER_SIZE_512B,
