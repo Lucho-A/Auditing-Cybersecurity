@@ -9,7 +9,7 @@
 
 char *ipToCheat=NULL,*logFilePath=NULL;
 u_char macBroadcastToCheat[6]={0};
-long unsigned int delay=SNIFFING_THREAD_DELAY_US;
+long int delay=SNIFFING_THREAD_DELAY_US;
 int numHosts=0;
 bool arpDiscoD=true;
 
