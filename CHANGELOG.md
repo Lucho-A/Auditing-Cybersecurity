@@ -14,6 +14,7 @@ IMPROVEMENT:
 
 OTHERS:
 - Ollama lib updated
+- allowing multiline in prompt (alt+enter)
 - error handling changes (threading safer)
 - minor changes, code optimized & code cleaned-up
 

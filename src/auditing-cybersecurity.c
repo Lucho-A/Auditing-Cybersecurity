@@ -34,6 +34,7 @@ pcap_t *arpHandle=NULL;
 char *resourcesLocation=NULL;
 long int sendPacketPerPortDelayUs=SEND_PACKET_PER_PORT_DELAY_US;
 SSL_CTX *sslCtx=NULL;
+int prevInput=0;
 
 static void signal_handler(int signalType){
 	switch(signalType){
@@ -63,10 +64,21 @@ static int closeMrAnderson(){
 
 static int readline_input(FILE *stream){
 	int c=fgetc(stream);
+	if(c==13 && prevInput==27){
+		if(strlen(rl_line_buffer)==0){
+			rl_done=true;
+			return 13;
+		}
+		rl_insert_text("\n");
+		prevInput=0;
+		return 0;
+	}
+	if(c==9) rl_insert_text("\t");
 	if(c==-1 || c==4){
 		rl_delete_text(0,strlen(rl_line_buffer));
 		return 13;
 	}
+	prevInput=c;
 	return c;
 }
 
