@@ -2,7 +2,6 @@
 #include <math.h>
 #include <unistd.h>
 #include <string.h>
-//#include <openssl/ssl.h>
 #include <readline/history.h>
 #include "../auditing-cybersecurity.h"
 #include "../others/networking.h"
@@ -119,7 +118,8 @@ static int get_cert_info(){
 	return RETURN_OK;
 }
 
-static int send_http_msg_to_server(struct in_addr ip,int port, int connType, char *msg, char *serverResp, long int sizeResponse){
+static int send_http_msg_to_server(struct in_addr ip,int port, int connType, char *msg, char *serverResp,
+		long int sizeResponse){
 	int bytesSent=0, localSocketCon=0;
 	struct timeval timeout;
 	timeout.tv_sec = 10;
@@ -198,7 +198,7 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 }
 
 static void *evaluate_response(void *arg){
-	char serverResp[BUFFER_SIZE_256B]="", msg[BUFFER_SIZE_512B]="";
+	char serverResp[BUFFER_SIZE_512B]="", msg[BUFFER_SIZE_512B]="";
 	struct ThreadInfo *tinfo=arg;
 	int resp=0, posF=ceil(totalFiles/totalThreads),cont=0,posI=tinfo->threadID*posF;
 	if(tinfo->threadID==totalThreads-1) posF=totalFiles;
@@ -208,7 +208,7 @@ static void *evaluate_response(void *arg){
 		usleep(rand()%1000 + 500);
 		snprintf(msg,sizeof(msg), stringTemplates[selectedOpt-1],files[i],target.strTargetURL);
 		resp=send_http_msg_to_server(target.targetIp,portUnderHacking,
-				target.ports[portUnderHacking].connectionType,msg,serverResp,BUFFER_SIZE_256B);
+				target.ports[portUnderHacking].connectionType,msg,serverResp,BUFFER_SIZE_512B);
 		if(resp<0 && !cancelCurrentProcess){
 			if(target.ports[portUnderHacking].connectionType==SSL_CONN_TYPE){
 				if(resp==SSL_AD_UNEXPECTED_MESSAGE || resp==SSL_AD_BAD_RECORD_MAC){
@@ -239,6 +239,7 @@ static void *evaluate_response(void *arg){
 				size_t len=strlen("Location: ");
 				char *redir=strstr(serverResp,"Location: ");
 				if(redir==NULL) redir=strstr(serverResp,"location: ");
+				if(redir==NULL) continue; //TODO No location??
 				for(size_t i=0; redir[len+i]!='\n';i++) loc[i]=redir[len+i];
 				loc[strlen(loc)-1]=0;
 				printf("  Redirection found: %s/%s%s (%sredirected: %s%s)",C_HRED, files[i],C_DEFAULT, C_HWHITE,loc,C_DEFAULT);
