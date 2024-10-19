@@ -73,6 +73,7 @@ static int readline_input(FILE *stream){
 		prevInput=0;
 		return 0;
 	}
+	if(c==8 && rl_point==0) return 0;
 	if(c==9) rl_insert_text("\t");
 	if(c==-1 || c==4){
 		rl_delete_text(0,strlen(rl_line_buffer));
@@ -90,10 +91,7 @@ static int initMrAnderson(){
 	lastActivityError.blocked=false;
 	if(!discover){
 		SSL_library_init();
-		if((sslCtx=SSL_CTX_new(TLS_method()))==NULL){
-			//SSL_CTX_free(sslCtx);
-			return set_last_activity_error(SSL_CONTEXT_ERROR, "");
-		}
+		if((sslCtx=SSL_CTX_new(TLS_method()))==NULL) return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 		libssh2_init(0);
 		rl_getc_function=readline_input;
 		FILE *f=NULL;

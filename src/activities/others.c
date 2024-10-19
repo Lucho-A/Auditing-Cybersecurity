@@ -26,7 +26,7 @@ int others(int type){
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 		fclose(f);
 		do{
-			msg=get_readline("![#]=templates,;=exit)-> ", true);
+			msg=get_readline("![#]=templates,;=exit)->", true);
 			if(strcmp(msg,"")==0){
 				PRINT_RESET;
 				continue;
@@ -101,7 +101,7 @@ int others(int type){
 		do{
 			cancelCurrentProcess=false;
 			unsigned char *serverResp=NULL;
-			char *msg=get_readline("  Insert string to search (;=exit): ", true);
+			char *msg=get_readline("Insert string to search (;=exit):", true);
 			if(strcmp(msg,";")==0){
 				free(msg);
 				break;

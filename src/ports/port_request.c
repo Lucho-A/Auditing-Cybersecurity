@@ -67,7 +67,7 @@ static int check_conn_type(){
 static int hack_port() {
 	show_options();
 	char prompt[BUFFER_SIZE_256B]="";
-	snprintf(prompt,sizeof(prompt),"%s@%s%s:%s%d%s: ",C_DEFAULT,C_HWHITE,target.strTargetIp,C_HCYAN,portUnderHacking,C_DEFAULT);
+	snprintf(prompt,sizeof(prompt),"%s@%s%s:%s%d%s:",C_DEFAULT,C_HWHITE,target.strTargetIp,C_HCYAN,portUnderHacking,C_DEFAULT);
 	while(true){
 		cancelCurrentProcess=false;
 		canceledBySignal=false;
@@ -185,7 +185,7 @@ int hack_port_request(){
 	do{
 		do{
 			printf("%s",C_DEFAULT);
-			char *c=get_readline("Insert port to hack (0 = exit, default): ",false);
+			char *c=get_readline("Insert port to hack (0 = exit, default):",false);
 			if(strcmp(c,"0")==0 || strcmp(c,"")==0){
 				free(c);
 				return RETURN_OK;

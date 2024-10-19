@@ -27,7 +27,7 @@ static size_t callback(void *data, size_t size, size_t nmemb, void *userp){
 int bfa_imap_ldap_pop3_smtp_ftp(int type){
 	curl_global_init(CURL_GLOBAL_ALL);
 	char url[255]="", protocol[10]="", usernamesFile[255]="", passwordsFile[255]="";
-	char *domain=get_readline("  Insert domain -without @-: ", false);
+	char *domain=get_readline("Insert domain -without @-:", false);
 	printf("\n");
 	switch(type){
 	case IMAP_BFA:

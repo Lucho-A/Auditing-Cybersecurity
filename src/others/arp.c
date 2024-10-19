@@ -155,7 +155,7 @@ int arp(int type){
 	switch(type){
 	case ANY_ARP_SNIFFING:
 		do{
-			ipToCheat=get_readline("  Insert IP to cheat/hack (broadcast by default): ", false);
+			ipToCheat=get_readline("Insert IP to cheat/hack (broadcast by default):", false);
 			if(strcmp(ipToCheat,"")==0){
 				free(ipToCheat);
 				ipToCheat=inet_ntoa(networkInfo.netBroadcast);
@@ -164,7 +164,7 @@ int arp(int type){
 			}else{
 				struct in_addr auxAddr;
 				if(inet_pton(AF_INET, ipToCheat, &auxAddr) == 0){
-					show_message("  Entered IP not valid",0, 0, ERROR_MESSAGE, true, false, false);
+					show_message("Entered IP not valid",0, 0, ERROR_MESSAGE, true, false, false);
 					PRINT_RESET;
 					free(ipToCheat);
 					continue;
@@ -182,7 +182,7 @@ int arp(int type){
 		printf("\n  MAC found: %02X:%02X:%02X:%02X:%02X:%02X\n", macBroadcastToCheat[0],macBroadcastToCheat[1], macBroadcastToCheat[2],
 				macBroadcastToCheat[3],macBroadcastToCheat[4], macBroadcastToCheat[5]);
 		delay=SNIFFING_THREAD_DELAY_US;
-		char *userDelay=get_readline("\n  Insert thread sending packet delay in us -default value: 10000000 (10\")-: ", false);
+		char *userDelay=get_readline("\nInsert thread sending packet delay in us -default value: 10000000 (10\")-:", false);
 		if(strcmp(userDelay, "")!=0){
 			char *endPtr=NULL;
 			delay=strtol(userDelay,&endPtr,10);
@@ -193,7 +193,7 @@ int arp(int type){
 		}
 		free(userDelay);
 		do{
-			logFilePath=get_readline("\n  Insert log file path -empty no logging-: ", false);
+			logFilePath=get_readline("\nInsert log file path -empty no logging-:", false);
 			if(strcmp(logFilePath,"")==0) break;
 			FILE *f=NULL;
 			if((f=fopen(logFilePath, "a"))==NULL){

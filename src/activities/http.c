@@ -341,7 +341,7 @@ int http(int type){
 		do{
 			for(int i=0;i<totalStrings;i++) printf("  %d) %s\n", i+1, stringTemplates[i]);
 			printf("\n");
-			char * queryType=get_readline("  Select the query type (;=exit | default=1): ", true);
+			char * queryType=get_readline("Select the query type (;=exit | default=1):", true);
 			if(strcmp(queryType,";")==0){
 				free_char_double_pointer(&stringTemplates, totalStrings);
 				free(queryType);
@@ -385,7 +385,7 @@ int http(int type){
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 		fclose(f);
 		do{
-			char *command=get_readline("![#]=templates,;=exit)-> ", false);
+			char *command=get_readline("![#]=templates,;=exit)->", false);
 			if(command[0]==0){
 				PRINT_RESET
 				free(command);

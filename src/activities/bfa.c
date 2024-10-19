@@ -13,7 +13,7 @@ bool onlyUserCheck=false;
 
 bool ask_user_check_only(){
 	char prompt[BUFFER_SIZE_512B]="";
-	snprintf(prompt, BUFFER_SIZE_512B,"  User checking, only?? [y|Y] (default: no): ");
+	snprintf(prompt, BUFFER_SIZE_512B,"User checking, only?? [y|Y] (default: no):");
 	do{
 		char *userCheckOnly=get_readline(prompt, false);
 		if(strcmp(userCheckOnly, "")==0){

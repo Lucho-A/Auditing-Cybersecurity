@@ -17,7 +17,7 @@ int system_call(char *cmdArg){
 	if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR, "");
 	fclose(f);
 	do{
-		char *cmd=get_readline("![#]=templates,;=exit)-> ", true);
+		char *cmd=get_readline("![#]=templates,;=exit)->", true);
 		if(cmd[0]==0){
 			PRINT_RESET
 			free(cmd);

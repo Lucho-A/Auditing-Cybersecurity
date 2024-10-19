@@ -109,7 +109,7 @@ int init_networking(){
 			}
 		}
 		do{
-			char *c=get_readline("\nSelect device number: ",false);
+			char *c=get_readline("\nSelect device number:",false);
 			selectedOpt=strtol(c,NULL,10);
 			free(c);
 			if(selectedOpt<1 || selectedOpt>cantDevs) continue;

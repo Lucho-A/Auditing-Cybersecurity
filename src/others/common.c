@@ -21,14 +21,15 @@ char * get_readline(char *prompt, bool addHistory){
 		free(lineRead);
 		lineRead=(char *)NULL;
 	}
-	lineRead=readline(prompt);
+	printf("%s",prompt);
+	lineRead=readline(" ");
 	if(lineRead && *lineRead && addHistory) add_history (lineRead);
 	return (lineRead);
 }
 
 int request_quantity_threads(int threadsDefault){
 	char prompt[BUFFER_SIZE_512B]="";
-	snprintf(prompt, BUFFER_SIZE_512B,"  Insert quantity of thread (%d by default): ", threadsDefault);
+	snprintf(prompt, BUFFER_SIZE_512B,"Insert quantity of thread (%d by default):", threadsDefault);
 	do{
 		char *cantThreadsRequest=get_readline(prompt, false);
 		if(strcmp(cantThreadsRequest, "")!=0){

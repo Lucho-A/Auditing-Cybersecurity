@@ -18,17 +18,17 @@ int any(int type){
 	unsigned char *serverResp=NULL;
 	switch(type){
 	case ANY_BANNER_GRABBING:
-		printf("  Probable OS (TTL Fingerprinting): %s%s%s\n\n", C_HWHITE, target.ports[portUnderHacking].operatingSystem, C_DEFAULT);
-		printf("  Probable Service (IANA spec): %s%s%s\n\n", C_HWHITE,target.ports[portUnderHacking].serviceName, C_DEFAULT);
+		printf("Probable OS (TTL Fingerprinting): %s%s%s\n\n", C_HWHITE, target.ports[portUnderHacking].operatingSystem, C_DEFAULT);
+		printf("Probable Service (IANA spec): %s%s%s\n\n", C_HWHITE,target.ports[portUnderHacking].serviceName, C_DEFAULT);
 		switch(target.ports[portUnderHacking].connectionType){
 		case SOCKET_CONN_TYPE:
-			printf("  Connection supported: %sSocket%s\n\n", C_HWHITE, C_DEFAULT);
+			printf("Connection supported: %sSocket%s\n\n", C_HWHITE, C_DEFAULT);
 			break;
 		case SSL_CONN_TYPE:
-			printf("  Connection supported: %sSSL%s\n\n", C_HWHITE, C_DEFAULT);
+			printf("Connection supported: %sSSL%s\n\n", C_HWHITE, C_DEFAULT);
 			break;
 		case SSH_CONN_TYPE:
-			printf("  Connection supported: %sSSH%s\n\n", C_HWHITE, C_DEFAULT);
+			printf("Connection supported: %sSSH%s\n\n", C_HWHITE, C_DEFAULT);
 			break;
 		default:
 			break;
@@ -60,7 +60,7 @@ int any(int type){
 		free_char_double_pointer(&queries,msgs);
 		break;
 		case ANY_DOS_SYN_FLOOD_ATTACK:
-			printf("  DOS SYN Flood running...\n");
+			printf("DOS SYN Flood running...\n");
 			srand(time(0));
 			int skDos=socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
 			setsockopt(skDos, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
@@ -132,7 +132,7 @@ int any(int type){
 			break;
 		case ANY_SEARCH_MSF:
 			do{
-				char *strSearch= get_readline("  Insert string to search (;=exit): ", true);
+				char *strSearch= get_readline("Insert string to search (;=exit):", true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -145,7 +145,7 @@ int any(int type){
 			break;
 		case ANY_RUN_MSF:
 			do{
-				char *strSearch=get_readline("  Insert module to use (;=exit): ",true);
+				char *strSearch=get_readline("Insert module to use (;=exit):",true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -154,7 +154,7 @@ int any(int type){
 				char *confirmation="";
 				printf("\n");
 				do{
-					confirmation=get_readline("  Use current port (y|default), or msf default (n): ",false);
+					confirmation=get_readline("Use current port (y|default), or msf default (n):",false);
 				}while(strcmp(confirmation,"y")!=0 && strcmp(confirmation,"")!=0 && strcmp(confirmation,"n")!=0);
 				printf("\n");
 				char userFilePath[BUFFER_SIZE_512B]="", passFilePath[BUFFER_SIZE_512B]="";
@@ -191,14 +191,13 @@ int any(int type){
 			break;
 		case ANY_SEARCH_NMAP:
 			do{
-				char *strSearch=get_readline("  Insert string to search (;=exit): ", true);
+				char *strSearch=get_readline("Insert string to search (;=exit):", true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
 					break;
 				}
 				printf("\n");
-				//snprintf(cmd,sizeof(cmd),"locate *.nse | grep %s",strSearch);
 				snprintf(cmd,sizeof(cmd),"ls /usr/share/nmap/scripts | grep %s",strSearch);
 				system_call(cmd);
 				free(strSearch);
@@ -207,7 +206,7 @@ int any(int type){
 			break;
 		case ANY_RUN_NMAP:
 			do{
-				char *strSearch=get_readline("  Insert script to use (;=exit): ", true);
+				char *strSearch=get_readline("Insert script to use (;=exit):", true);
 				if(strcmp(strSearch,";")==0){
 					printf("\n");
 					free(strSearch);
@@ -225,7 +224,7 @@ int any(int type){
 			if(totalStrings==RETURN_ERROR) return OPENING_FILE_ERROR;
 			fclose(f);
 			do{
-				char *sqlCmd=get_readline("![#]=templates,;=exit)-> ", false);
+				char *sqlCmd=get_readline("![#]=templates,;=exit)->", false);
 				if(sqlCmd[0]==0){
 					PRINT_RESET
 					free(sqlCmd);
@@ -253,13 +252,13 @@ int any(int type){
 					format_strings_from_files(sqlmapCommands[selectedOpt-1], sqlmapCommands[selectedOpt-1]);
 					char *userResp=NULL, url[BUFFER_SIZE_512B]="",cookie[BUFFER_SIZE_512B]="";
 					printf("\n");
-					userResp=get_readline("  Insert URL (ip:port by default): ",false);
+					userResp=get_readline("Insert URL (ip:port by default):",false);
 					if(strcmp(userResp,"")==0){
 						snprintf(url,BUFFER_SIZE_512B,"\"%s:%d\"",target.strTargetIp,portUnderHacking);
 					}else{
 						snprintf(url,BUFFER_SIZE_512B,"\"%s\"",userResp);
 					}
-					userResp=get_readline("  Insert cookie value: ",false);
+					userResp=get_readline("Insert cookie value:",false);
 					if(strcmp(userResp, "")!=0) snprintf(cookie, BUFFER_SIZE_128B, "--cookie=\"%s\"", userResp);
 					printf("\n");
 					snprintf(msg,BUFFER_SIZE_1K, sqlmapCommands[selectedOpt-1], url, cookie);
