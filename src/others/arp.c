@@ -13,8 +13,6 @@ long int delay=SNIFFING_THREAD_DELAY_US;
 int numHosts=0;
 bool arpDiscoD=true;
 
-extern pcap_t *arpHandle;
-
 //SNIFFING
 static void sending_arp_sniffing_packets(){
 	u_long srcIP=inet_addr(target.strTargetIp), dstIP=inet_addr(ipToCheat);
