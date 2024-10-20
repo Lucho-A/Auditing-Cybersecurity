@@ -283,15 +283,9 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 		FD_SET(*sk,&writefds);
 		tv.tv_sec=SOCKET_CONNECT_TIMEOUT_S;
 		tv.tv_usec=0;
-		SSL_CTX *sslCtx=NULL;
 		if(select(*sk+1,NULL,&writefds,NULL,&tv)<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
 		if(type==SSL_CONN_TYPE){
 			fcntl(*sk, F_SETFL, socketFlags);
-			if((sslCtx=SSL_CTX_new(SSLv23_method()))==NULL){
-				return set_last_activity_error(SSL_CONTEXT_ERROR, "");
-			}
-			//SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER, NULL);
-			//SSL_CTX_set_default_verify_paths(sslCtx);
 			if((sslConn=SSL_new(sslCtx))==NULL){
 				clean_ssl(sslConn);
 				return set_last_activity_error(SSL_CONTEXT_ERROR, "");

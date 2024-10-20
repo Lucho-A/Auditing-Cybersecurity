@@ -36,8 +36,6 @@ static int check_conn_type(){
 	if(connect(sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress))<0) return set_last_activity_error(SOCKET_CONNECTION_ERROR,"");
 	// check SSL
 	fcntl(sk, F_SETFL, O_NONBLOCK);
-	SSL_CTX *sslCtx = NULL;
-	sslCtx=SSL_CTX_new(SSLv23_method());
 	SSL *sslConn = SSL_new(sslCtx);
 	if(sslConn==NULL) return set_last_activity_error(SSL_CONNECT_ERROR,"");
 	if(!SSL_set_fd(sslConn, sk)) return set_last_activity_error(SSL_FD_ERROR, "");

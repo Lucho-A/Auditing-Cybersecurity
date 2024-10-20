@@ -40,7 +40,7 @@ int open_file_str(char *pathToResource, char *filename, FILE **f, char ***s){
 	return entries;
 }
 
-int read_usernames_and_password_files(struct BfaInfo *bfaInfo, char *usernamesFilename, char * passwordsFilename){
+int read_usernames_and_password_files(struct BfaInfo *bfaInfo, char *usernamesFilename, char *passwordsFilename){
 	int i=0;
 	FILE *f=NULL;
 	if((bfaInfo->totalUsernames=open_file(resourcesLocation, usernamesFilename,&f))==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");

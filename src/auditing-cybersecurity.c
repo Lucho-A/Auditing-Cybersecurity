@@ -89,9 +89,9 @@ static int initMrAnderson(){
 	signal(SIGPIPE, signal_handler);
 	lastActivityError.errorType=0;
 	lastActivityError.blocked=false;
+	SSL_library_init();
+	if((sslCtx=SSL_CTX_new(TLS_method()))==NULL) return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 	if(!discover){
-		SSL_library_init();
-		if((sslCtx=SSL_CTX_new(TLS_method()))==NULL) return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 		libssh2_init(0);
 		rl_getc_function=readline_input;
 		FILE *f=NULL;

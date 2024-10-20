@@ -85,6 +85,9 @@ static void process_sniffed_packet(u_char *args, const struct pcap_pkthdr *heade
 	}
 	return;
 }
+
+char **strIpMac=NULL;
+
 //ARP DISCOVER
 static void process_monitoring_arp_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 	arphdr_t *arpheader=(struct arphdr *)(packet+14);
@@ -92,9 +95,15 @@ static void process_monitoring_arp_packet(u_char *args, const struct pcap_pkthdr
 	snprintf(ip, sizeof(ip),"%d.%d.%d.%d", arpheader->spa[0], arpheader->spa[1], arpheader->spa[2], arpheader->spa[3]);
 	struct in_addr auxAddr;
 	if(inet_pton(AF_INET, ip, &auxAddr)==0) return;
-	char strMac[18]="";
-	sprintf(strMac, "%02X:%02X:%02X:%02X:%02X:%02X",arpheader->sha[0], arpheader->sha[1], arpheader->sha[2],arpheader->sha[3], arpheader->sha[4], arpheader->sha[5]);
-	printf("    - %s:\t%s\n", ip, strMac);
+	char buff[BUFFER_SIZE_128B]="";
+	snprintf(buff, BUFFER_SIZE_128B, "%s ->\t %02X:%02X:%02X:%02X:%02X:%02X", ip,arpheader->sha[0], arpheader->sha[1],
+			arpheader->sha[2],arpheader->sha[3], arpheader->sha[4], arpheader->sha[5]);
+	int i=0;
+	for(i=0;strIpMac[i][0]!=0;i++){
+		if(strcmp(buff,strIpMac[i])==0) return;
+	}
+	snprintf(strIpMac[i],BUFFER_SIZE_128B,"%s", buff);
+	printf("    - %s\n",strIpMac[i]);
 	return;
 }
 
@@ -119,12 +128,14 @@ static void send_arp_discover_packets_thread(){
 			if(valResp==-1) show_message("Error building ETHERNET: ", 0, errno, ERROR_MESSAGE, true, false, false);
 			valResp=libnet_write(libnetHandle);
 			if(valResp==-1) show_message(libnet_geterror(libnetHandle),0,0, ERROR_MESSAGE,true, false, false);
-	        libnet_clear_packet(libnetHandle);
-	        usleep(1000);
+			libnet_clear_packet(libnetHandle);
+			usleep(1000);
 		}
 		libnet_destroy(libnetHandle);
 		usleep(ARP_DISCOVER_DELAY_US);
+		for(int i=0;i<numHosts && strIpMac[i][0]!=0;i++) memset(strIpMac[i],0,BUFFER_SIZE_128B);
 	}while(!cancelCurrentProcess);
+	free_char_double_pointer(&strIpMac, numHosts);
 }
 
 static void * start_send_arp_discover_packets_thread(void *ptr){
@@ -241,11 +252,13 @@ int arp(int type){
 		if(type==OTHERS_ARP_DISCOVER_D){
 			printf("\nNumber of hosts supported by the network: %s%d%s\n\n", C_HWHITE, numHosts, C_DEFAULT);
 			printf("Hosts discovered: \n");
-			pcap_loop(arpHandle, -1, process_monitoring_arp_packet, NULL);
 		}else{
 			arpDiscoD=false;
-			pcap_loop(arpHandle, -1, process_monitoring_arp_packet, NULL);
 		}
+		strIpMac=(char **)malloc(numHosts * sizeof(char *));
+		for(int i=0;i<numHosts;i++) strIpMac[i]=malloc(BUFFER_SIZE_128B);
+		for(int i=0;i<numHosts;i++) memset(strIpMac[i],0,BUFFER_SIZE_128B);
+		pcap_loop(arpHandle, -1, process_monitoring_arp_packet, NULL);
 		pthread_cancel(sendArpDiscoverPacketsThread);
 		pthread_join(sendArpDiscoverPacketsThread,NULL);
 		pcap_close(arpHandle);
