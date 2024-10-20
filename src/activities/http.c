@@ -203,7 +203,7 @@ static void *evaluate_response(void *arg){
 	int resp=0, posF=ceil(totalFiles/totalThreads),cont=0,posI=tinfo->threadID*posF;
 	if(tinfo->threadID==totalThreads-1) posF=totalFiles;
 	for(int i=posI;i<totalFiles && cont<posF && !cancelCurrentProcess;i++,contProcesedFiles++, cont++){
-		printf("\r  Percentage completed: %.4lf%% (%d/%.0f)",(double)((contProcesedFiles/totalFiles)*100.0), contProcesedFiles, totalFiles);
+		printf("\rPercentage completed: %.4lf%% (%d/%.0f)",(double)((contProcesedFiles/totalFiles)*100.0), contProcesedFiles, totalFiles);
 		fflush(stdout);
 		usleep(rand()%1000 + 500);
 		snprintf(msg,sizeof(msg), stringTemplates[selectedOpt-1],files[i],target.strTargetURL);

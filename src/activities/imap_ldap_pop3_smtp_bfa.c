@@ -63,7 +63,7 @@ int bfa_imap_ldap_pop3_smtp_ftp(int type){
 		for(int i=0;i<bfaInfo.totalUsernames && timeouts<BRUTE_FORCE_TIMEOUT && cancelCurrentProcess==false;i++){
 			for(int j=0;j<bfaInfo.totalPasswords && timeouts<BRUTE_FORCE_TIMEOUT && cancelCurrentProcess==false;j++,cont++){
 				struct memory chunk={0};
-				printf("\r  Percentage completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),bfaInfo.usernames[i], bfaInfo.passwords[j]);
+				printf("\rPercentage completed: %.4lf%% (%s/%s)               ",(double)((cont/totalComb)*100.0),bfaInfo.usernames[i], bfaInfo.passwords[j]);
 				fflush(stdout);
 				curl_easy_setopt(mCurl, CURLOPT_URL, url);
 				curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, callback);

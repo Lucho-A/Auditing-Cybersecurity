@@ -44,10 +44,10 @@ void *bfa_check_users(void *arg){
 				contUsersAndPasswords++;
 				usleep(rand()%1000 + 1000);
 				if(!onlyUserCheck){
-					printf("\r  Percentage completed: %.4lf%% (%d/%.0f)",(double)((contUsersAndPasswords/(bfaInfo.totalUsernames*bfaInfo.totalPasswords))*100.0),
+					printf("\rPercentage completed: %.4lf%% (%d/%.0f)",(double)((contUsersAndPasswords/(bfaInfo.totalUsernames*bfaInfo.totalPasswords))*100.0),
 							contUsersAndPasswords, (bfaInfo.totalUsernames*bfaInfo.totalPasswords));
 				}else{
-					printf("\r  Percentage completed: %.4lf%% (%d/%.0f) (%.6f%%/%.6f/%.6f)",(double)((bfaInfo.totalUsernames/(bfaInfo.totalUsernames))*100.0),
+					printf("\rPercentage completed: %.4lf%% (%d/%.0f) (%.6f%%/%.6f/%.6f)",(double)((bfaInfo.totalUsernames/(bfaInfo.totalUsernames))*100.0),
 							++contLogins, bfaInfo.totalUsernames, cv, time, avg);
 				}
 				fflush(stdout);
