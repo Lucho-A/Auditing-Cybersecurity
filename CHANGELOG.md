@@ -1,6 +1,6 @@
-### auditing-cybersecurity-v1.3.0 - Under Dev./Testing
+### auditing-cybersecurity-v1.3.0
 
-Updated: <br>
+Updated: 2024-10-20 <br>
 Criticality: medium
 
 BUG_FIXED:
