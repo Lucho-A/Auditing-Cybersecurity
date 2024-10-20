@@ -7,7 +7,7 @@ BUG_FIXED:
 - crl-c doesn't stop Ollama responses fixed
 - 2.5    -> not showing send/recv errors fixed
 - 2.5    -> timeout added
-- 2.5    -> (under evaluation) handling SSL errors that arise with high quantity of threads is selected.
+- 2.5    -> (under evaluation) handling SSL errors that arise when high quantity of threads is selected.
 - -d     -> cancelling issues solved
 
 IMPROVEMENT:
@@ -16,7 +16,7 @@ IMPROVEMENT:
 
 OTHERS:
 - Ollama lib updated
-- allowing multiline in prompt (alt+enter)
+- multiline in prompt allowed (alt+enter)
 - error handling changes (threading safer)
 - minor changes, code optimized & code cleaned-up
 
