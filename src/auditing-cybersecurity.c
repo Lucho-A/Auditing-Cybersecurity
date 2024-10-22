@@ -36,30 +36,36 @@ long int sendPacketPerPortDelayUs=SEND_PACKET_PER_PORT_DELAY_US;
 SSL_CTX *sslCtx=NULL;
 int prevInput=0;
 
-static void signal_handler(int signalType){
-	switch(signalType){
-	case SIGINT:
-	case SIGTSTP:
-		printf("%s\n\n",C_DEFAULT);
-		printf("  Canceling...\n");
-		cancelCurrentProcess=true;
-		canceledBySignal=true;
-		oclCanceled=true;
-		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
-		break;
-	case SIGPIPE:
-		break;
-	default:
-		break;
-	}
-}
-
 static int closeMrAnderson(){
 	PRINT_RESET
 	SSL_CTX_free(sslCtx);
 	if(resourcesLocation!=NULL) free(resourcesLocation);
 	if(ocl!=NULL) OCl_load_model(ocl, false);
 	return RETURN_OK;
+}
+
+static void signal_handler(int signalType){
+	switch(signalType){
+	case SIGINT:
+	case SIGTSTP:
+	case SIGHUP:
+	case SIGQUIT:
+		cancelCurrentProcess=true;
+		canceledBySignal=true;
+		oclCanceled=true;
+		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
+		if(signalType==SIGHUP || signalType==SIGQUIT){
+			closeMrAnderson();
+			exit(EXIT_SUCCESS);
+		}
+		printf("%s\n\n",C_DEFAULT);
+		printf("  Canceling...\n");
+		break;
+	case SIGPIPE:
+		break;
+	default:
+		break;
+	}
 }
 
 static int readline_input(FILE *stream){
@@ -77,6 +83,7 @@ static int readline_input(FILE *stream){
 	if(c==9) rl_insert_text("\t");
 	if(c==-1 || c==4){
 		rl_delete_text(0,strlen(rl_line_buffer));
+		rl_redisplay();
 		return 13;
 	}
 	prevInput=c;
@@ -87,6 +94,8 @@ static int initMrAnderson(){
 	signal(SIGINT, signal_handler);
 	signal(SIGTSTP, signal_handler);
 	signal(SIGPIPE, signal_handler);
+	signal(SIGHUP, signal_handler);
+	signal(SIGQUIT, signal_handler);
 	lastActivityError.errorType=0;
 	lastActivityError.blocked=false;
 	SSL_library_init();

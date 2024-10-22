@@ -1,3 +1,21 @@
+### auditing-cybersecurity-v1.3.1 - Under Dev./Testing
+
+Updated:  <br>
+Criticality: low
+
+BUG_FIXED:
+-
+
+IMPROVEMENT:
+- cancelling & cleaning procedures optimized
+- -d     -> (experimental) threading optimized and safer
+- 1.9    -> (experimental) threading optimized and safer
+- SIGHUP & SIGQUIT handled
+
+OTHERS:
+- minor changes, code optimized & code cleaned-up
+
+------------------------------------------------------------------------------------------------------
 ### auditing-cybersecurity-v1.3.0
 
 Updated: 2024-10-20 <br>
