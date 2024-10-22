@@ -3,9 +3,6 @@
 Updated:  <br>
 Criticality: low
 
-BUG_FIXED:
--
-
 IMPROVEMENT:
 - cancelling & cleaning procedures optimized
 - -d     -> (experimental) threading optimized and safer
