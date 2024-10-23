@@ -264,12 +264,12 @@ int arp(int type){
 		for(int i=0;i<numHosts;i++) strIpMac[i]=malloc(BUFFER_SIZE_128B);
 		for(int i=0;i<numHosts;i++) memset(strIpMac[i],0,BUFFER_SIZE_128B);
 		pthread_t sendArpDiscoverPacketsThread, startMonitoringPacketsThread;
-		pthread_detach(startMonitoringPacketsThread);
 		if(pthread_create(&startMonitoringPacketsThread,NULL,&start_monitoring_arp_packets,NULL)<0){
 			pcap_close(arpHandle);
 			pcap_freecode(&fp);
 			return set_last_activity_error(THREAD_CREATION_ERROR,"");
 		}
+		pthread_detach(startMonitoringPacketsThread);
 		if(pthread_create(&sendArpDiscoverPacketsThread,NULL,&send_arp_discover_packets_thread,NULL)<0){
 			pcap_close(arpHandle);
 			pcap_freecode(&fp);
