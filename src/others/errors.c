@@ -126,7 +126,7 @@ int error_handling(int errorType, bool exitProgram){
 	}
 	snprintf(errorMsg, sizeof(errorMsg), "%s. %s", errorDescription, lastActivityError.errorAditionalDescription);
 	show_message(errorMsg,0, 0, ERROR_MESSAGE, true, false, false);
-	if(lastActivityError.err==1) show_message("Are you root?", 0, 0, ERROR_MESSAGE, true, false, true);
+	if(lastActivityError.err==1) show_message("Are you root and/or any firewall restriction?", 0, 0, ERROR_MESSAGE, true, false, true);
 	if(exitProgram){
 		PRINT_RESET;
 		PRINT_RESET;

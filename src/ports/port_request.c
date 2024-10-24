@@ -76,6 +76,7 @@ static int hack_port() {
 		lastActivityError.sslErr=0;
 		memset(lastActivityError.errorAditionalDescription,0,sizeof(lastActivityError.errorAditionalDescription));
 		char *c=get_readline(prompt, false);
+		if(strcmp(c,"")==0) continue;
 		printf("\n");
 		if(strcmp(c,"1.1")==0) valResp=any(ANY_BANNER_GRABBING);
 		if(strcmp(c,"1.2")==0) valResp=any(ANY_NMAP_VULNER_SCAN);

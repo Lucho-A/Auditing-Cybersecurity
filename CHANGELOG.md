@@ -3,10 +3,14 @@
 Updated:  <br>
 Criticality: low
 
+BUG_FIXED:
+- 1.9    -> fixed return when the ip is not found into network
+
 IMPROVEMENT:
 - cancelling & cleaning procedures optimized
 - -d     -> (experimental) threading optimized and safer
 - 1.9    -> (experimental) threading optimized and safer
+- 1.9    -> (experimental) broadcasting improvement
 - SIGHUP & SIGQUIT handled
 
 OTHERS:
