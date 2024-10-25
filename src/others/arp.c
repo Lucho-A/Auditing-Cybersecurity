@@ -18,7 +18,7 @@ static void *sending_arp_sniffing_packets(){
 	char errbuf[BUFFER_SIZE_128B]="";
 	libnet_t *libnetHandle=libnet_init(LIBNET_LINK,networkInfo.interfaceName,errbuf);
 	while(!cancelCurrentProcess){
-		if(ipToCheat[0]!=0){
+		if(strcmp(ipToCheat,inet_ntoa(networkInfo.netBroadcast))!=0){
 			libnet_build_arp(1,0x0800,6,4,ARP_REPLY,(u_char *) networkInfo.interfaceMacHex,(u_char *) &srcIP,
 					(u_char *)macBroadcastToCheat,(u_char *) &dstIP,NULL,0,libnetHandle,0);
 			libnet_build_ethernet((u_char *)macBroadcastToCheat,(u_char *) networkInfo.interfaceMacHex,0x0806,NULL
