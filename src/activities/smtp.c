@@ -16,7 +16,7 @@ int smtp(int type){
 				"HELP\r\n",
 				"VRFY\r\n"};
 		for(int i=0;i<3;i++){
-			bytesRecv=send_msg_to_server(&sk, target.targetIp, target.strHostname, portUnderHacking,
+			bytesRecv=send_msg_to_server(&sk, target.targetIp, target.strTargetURL, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
 					msgs[i], strlen(msgs[i]), &serverResp, BUFFER_SIZE_1K, 0);
 			if(bytesRecv==0){

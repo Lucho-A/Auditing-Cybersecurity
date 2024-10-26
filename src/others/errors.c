@@ -41,6 +41,10 @@ int error_handling(int errorType, bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Error sending packets",
 				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr, NULL));
 		break;
+	case SENDING_PACKETS_TO_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Receiving packets timeout",
+				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr,NULL));
+		break;
 	case GETADDRINFO_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error getting address info",strerror(lastActivityError.err));
 		break;
@@ -50,6 +54,10 @@ int error_handling(int errorType, bool exitProgram){
 		break;
 	case RECEIVING_PACKETS_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Error receiving packets",
+				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr,NULL));
+		break;
+	case RECEIVING_PACKETS_TO_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Receiving packets timeout",
 				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr,NULL));
 		break;
 	case ZERO_BYTES_RECV_ERROR:
@@ -122,6 +130,7 @@ int error_handling(int errorType, bool exitProgram){
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Ollama server unavailable");
 		break;
 	default:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error not handled");
 		break;
 	}
 	snprintf(errorMsg, sizeof(errorMsg), "%s. %s", errorDescription, lastActivityError.errorAditionalDescription);

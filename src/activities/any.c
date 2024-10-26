@@ -43,7 +43,7 @@ int any(int type){
 		for(int i=0;i<msgs && cancelCurrentProcess==false;i++){
 			int sk=0;
 			ssize_t c=format_strings_from_files(queries[i], msg);
-			int bytesRecv=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strTargetURL, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
 					msg,c,&serverResp,BUFFER_SIZE_128K,0);
 			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);

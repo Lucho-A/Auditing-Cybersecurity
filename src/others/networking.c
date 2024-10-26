@@ -223,7 +223,7 @@ void show_filtered_ports(){
 	printf("%s",C_DEFAULT);
 }
 
-int create_socket_conn(int *sk){
+int create_socket_conn(int *sk, struct in_addr ip, int port){
 	struct timeval timeout;
 	timeout.tv_sec=SOCKET_CONNECT_TIMEOUT_S;
 	timeout.tv_usec=0;
@@ -233,26 +233,18 @@ int create_socket_conn(int *sk){
 	setsockopt(*sk, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family=AF_INET;
-	serverAddress.sin_port=htons(portUnderHacking);
-	serverAddress.sin_addr.s_addr=target.targetIp.s_addr;
+	serverAddress.sin_port=htons(port);
+	serverAddress.sin_addr.s_addr=ip.s_addr;
 	int flags = fcntl(*sk, F_GETFL, 0);
 	fcntl(*sk, F_SETFL, flags | O_NONBLOCK);
-	int resp=0;
-	resp=connect(*sk,(struct sockaddr *)&serverAddress,sizeof(serverAddress));
-	if(resp==0){
-		fcntl(*sk, F_SETFL, flags);
-		return RETURN_OK;
-	}
-	if(errno!=EINPROGRESS){
-		fcntl(*sk,F_SETFL,flags);
-		return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
-	}
+	int resp=connect(*sk,(struct sockaddr *)&serverAddress,sizeof(serverAddress));
+	if(resp<0 && errno!=EINPROGRESS) return set_last_activity_error(SOCKET_CONNECTION_ERROR, "");
 	fd_set writefds;
 	FD_ZERO(&writefds);
 	FD_SET(*sk,&writefds);
 	resp=select(*sk+1,NULL,&writefds,NULL,&timeout);
-	fcntl(*sk,F_SETFL,flags);
 	if (resp<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
+	fcntl(*sk, F_SETFL, flags & ~O_NONBLOCK);
 	return RETURN_OK;
 }
 
@@ -260,96 +252,52 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 		long int msgSize, unsigned char **serverResp, long int maxSizeResponse, long int extraTimeOut){
 	*serverResp=malloc(maxSizeResponse);
 	memset(*serverResp,0,maxSizeResponse);
-	struct pollfd pfds[1];
-	int numEvents=0,pollinHappened=0,bytesSent=0,contSendingAttemps=0;
+	int bytesSent=0;
 	SSL *sslConn=NULL;
-	do{
-		if(type==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
-		struct sockaddr_in serverAddress;
-		serverAddress.sin_family=AF_INET;
-		serverAddress.sin_port=htons(port);
-		serverAddress.sin_addr.s_addr=ip.s_addr;
-		if(*sk==0){
-			if((*sk=socket(AF_INET, SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
-			setsockopt(*sk, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-		}
-		int socketFlags = fcntl(*sk, F_GETFL, 0);
-		fcntl(*sk, F_SETFL, socketFlags | O_NONBLOCK);
-		int valResp=connect(*sk, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
-		if(valResp<0 && errno!=EINPROGRESS) return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
-		struct timeval tv;
-		fd_set writefds;
-		FD_ZERO(&writefds);
-		FD_SET(*sk,&writefds);
-		tv.tv_sec=SOCKET_CONNECT_TIMEOUT_S;
-		tv.tv_usec=0;
-		if(select(*sk+1,NULL,&writefds,NULL,&tv)<=0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
-		if(type==SSL_CONN_TYPE){
-			fcntl(*sk, F_SETFL, socketFlags);
-			if((sslConn=SSL_new(sslCtx))==NULL){
-				clean_ssl(sslConn);
-				return set_last_activity_error(SSL_CONTEXT_ERROR, "");
-			}
-			if(!SSL_set_fd(sslConn,*sk)){
-				clean_ssl(sslConn);
-				return set_last_activity_error(SSL_FD_ERROR, "");
-			}
-			SSL_set_connect_state(sslConn);
-			SSL_set_tlsext_host_name(sslConn, url);
-			if(!SSL_connect(sslConn)){
-				clean_ssl(sslConn);
-				return set_last_activity_error(SSL_CONNECT_ERROR, "");
-			}
-		}
-		fcntl(*sk, F_SETFL, O_NONBLOCK);
-		pfds[0].fd=*sk;
-		pfds[0].events=POLLOUT;
-		numEvents=poll(pfds,1,SOCKET_SEND_TIMEOUT_MS);
-		if(numEvents==0){
-			if(contSendingAttemps==0){
-				show_message("\n  Timeout sending message. Trying to re-connect and sending the message again...",0,
-						errno, ERROR_MESSAGE, true, false, false);
-				contSendingAttemps++;
-				continue;
-			}
-			show_message("  Second timeout (IP locked?). Returning...",0, errno, ERROR_MESSAGE, true, false,false);
-			return SENDING_PACKETS_ERROR;
-		}
-		pollinHappened=pfds[0].revents & POLLOUT;
-		if(pollinHappened){
-			switch(type){
-			case SOCKET_CONN_TYPE:
-			case SSH_CONN_TYPE:
-				bytesSent=send(*sk, msg, msgSize, 0);
-				break;
-			case SSL_CONN_TYPE:
-				bytesSent=SSL_write(sslConn, msg, msgSize);
-				break;
-			default:
-				break;
-			}
-			if(bytesSent<=0){
-				if(contSendingAttemps==0){
-					show_message("\nError sending message. Trying to re-connect and sending the message again...",0, 0,
-							ERROR_MESSAGE, true, false, false);
-					contSendingAttemps++;
-					continue;
-				}else{
-					show_message("Error sending message (IP locked?). Returning...",0,0,
-							ERROR_MESSAGE, true, false, false);
-					clean_ssl(sslConn);
-					return set_last_activity_error(SENDING_PACKETS_ERROR, "");
-				}
-			}else{
-				break;
-			}
-		}else{
+	fd_set rFdset, wFdset;
+	int retVal=0;
+	if(type==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
+	if(*sk==0){
+		if(create_socket_conn(sk, ip, port)<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
+	}
+	if(type==SSL_CONN_TYPE){
+		if((sslConn=SSL_new(sslCtx))==NULL){
 			clean_ssl(sslConn);
-			return POLLIN_ERROR;
+			return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 		}
-	}while(contSendingAttemps<2);
+		if(!SSL_set_fd(sslConn,*sk)){
+			clean_ssl(sslConn);
+			return set_last_activity_error(SSL_FD_ERROR, "");
+		}
+		SSL_set_connect_state(sslConn);
+		SSL_set_tlsext_host_name(sslConn, url);
+		if(!SSL_connect(sslConn)){
+			clean_ssl(sslConn);
+			return set_last_activity_error(SSL_CONNECT_ERROR, "");
+		}
+	}
+	struct timeval tvSendTo;
+	tvSendTo.tv_sec=SOCKET_SEND_TIMEOUT_S;
+	tvSendTo.tv_usec=0;
+	FD_ZERO(&wFdset);
+	FD_SET(*sk, &wFdset);
+	if((retVal=select(*sk+1,NULL,&wFdset,NULL,&tvSendTo))<=0){
+		if(retVal<0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+		return set_last_activity_error(SENDING_PACKETS_TO_ERROR, "");
+	}
+	switch(type){
+	case SOCKET_CONN_TYPE:
+	case SSH_CONN_TYPE:
+		bytesSent=send(*sk, msg, msgSize, 0);
+		break;
+	case SSL_CONN_TYPE:
+		bytesSent=SSL_write(sslConn, msg, msgSize);
+		break;
+	default:
+		break;
+	}
+	if(bytesSent<=0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
 	int bytesReceived=0,totalBytesReceived=0;
-	pfds[0].events=POLLIN;
 	char buffer[BUFFER_SIZE_16K]="", *bufferHTTP=NULL;
 	if((bufferHTTP=malloc(1))==NULL){
 		clean_ssl(sslConn);
@@ -357,48 +305,47 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 	}
 	bufferHTTP[0]='\0';
 	int cont=0;
+	struct timeval tvRecvTo;
+	tvRecvTo.tv_sec=SOCKET_RECV_TIMEOUT_S + extraTimeOut;
+	tvRecvTo.tv_usec=0;
 	do{
 		memset(buffer,0,BUFFER_SIZE_16K);
-		numEvents=poll(pfds, 1, SOCKET_RECV_TIMEOUT_MS + extraTimeOut);
-		if(numEvents==0) break;
-		pollinHappened=pfds[0].revents & POLLIN;
-		if (pollinHappened){
-			switch(type){
-			case SOCKET_CONN_TYPE:
-			case SSH_CONN_TYPE:
-				bytesReceived=recv(*sk, buffer, BUFFER_SIZE_16K,0);
-				break;
-			case SSL_CONN_TYPE:
-				bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
-				break;
-			default:
-				break;
-			}
-			// info received
-			if(bytesReceived>0){
-				totalBytesReceived+=bytesReceived;
-				bufferHTTP=realloc(bufferHTTP, totalBytesReceived+1);
-				if(bufferHTTP==NULL){
-					clean_ssl(sslConn);
-					return set_last_activity_error(REALLOC_ERROR, "");
-				}
-				for(int i=0;i<bytesReceived;i++,cont++) bufferHTTP[cont]=buffer[i];
-				continue;
-			}
-			// server OK closed the connection
-			if(bytesReceived==0) break;
-			// socket still open
-			if(bytesReceived<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
-			// error receiving
-			if(bytesReceived<0 && (errno!=EAGAIN)){
-				clean_ssl(sslConn);
-				// reseted by peer
-				free(bufferHTTP);
-				return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
-			}
-		}else{
+		FD_ZERO(&rFdset);
+		FD_SET(*sk, &rFdset);
+		if((retVal=select(*sk+1,&rFdset,NULL,NULL,&tvRecvTo))<=0){
+			if(retVal<0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+			if(strlen(bufferHTTP)>0) break;
+			return set_last_activity_error(RECEIVING_PACKETS_TO_ERROR, "");
+		}
+		switch(type){
+		case SOCKET_CONN_TYPE:
+		case SSH_CONN_TYPE:
+			bytesReceived=recv(*sk, buffer, BUFFER_SIZE_16K,0);
+			break;
+		case SSL_CONN_TYPE:
+			bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
+			break;
+		default:
+			break;
+		}
+		// server OK closed the connection
+		if(bytesReceived==0 || (buffer[0]=='0' && bytesReceived==5)) break;
+		// error receiving
+		if(bytesReceived<0 && (errno!=EAGAIN)){
+			clean_ssl(sslConn);
+			// reseted by peer
 			free(bufferHTTP);
-			return set_last_activity_error(POLLIN_ERROR, "");
+			return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+		}
+		// info received
+		if(bytesReceived>0){
+			totalBytesReceived+=bytesReceived;
+			bufferHTTP=realloc(bufferHTTP, totalBytesReceived+1);
+			if(bufferHTTP==NULL){
+				clean_ssl(sslConn);
+				return set_last_activity_error(REALLOC_ERROR, "");
+			}
+			for(int i=0;i<bytesReceived;i++,cont++) bufferHTTP[cont]=buffer[i];
 		}
 	}while(true);
 	for(int i=0;i<maxSizeResponse && i<totalBytesReceived;i++) (*serverResp)[i]=bufferHTTP[i];

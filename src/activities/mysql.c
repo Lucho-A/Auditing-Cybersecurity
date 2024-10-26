@@ -32,7 +32,7 @@ int mysql(int type){
 	case MYSQL_BANNER_GRABBING:
 		unsigned char *serverResp=NULL;
 		int sk=0;
-		int lenght=send_msg_to_server(&sk,target.targetIp, NULL, portUnderHacking,SOCKET_CONN_TYPE,
+		int lenght=send_msg_to_server(&sk,target.targetIp, target.strTargetURL, portUnderHacking,SOCKET_CONN_TYPE,
 				"\n",strlen("\n"), &serverResp, BUFFER_SIZE_128B,0);
 		close(sk);
 		if(lenght==0){

@@ -122,7 +122,7 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 		long int sizeResponse){
 	int bytesSent=0, localSocketCon=0;
 	struct timeval timeout;
-	timeout.tv_sec = 10;
+	timeout.tv_sec = SOCKET_SEND_TIMEOUT_S;
 	timeout.tv_usec = 0;
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family=AF_INET;

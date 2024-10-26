@@ -18,7 +18,7 @@ static int check_conn_type(){
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port=htons(portUnderHacking);
 	serverAddress.sin_addr.s_addr= target.targetIp.s_addr;
-	if(create_socket_conn(&sk)!=RETURN_OK) return RETURN_ERROR;
+	if(create_socket_conn(&sk, target.targetIp, portUnderHacking)!=RETURN_OK) return RETURN_ERROR;
 	// check SSH
 	LIBSSH2_SESSION *sshSession=NULL;
 	if((sshSession = libssh2_session_init())==NULL) return set_last_activity_error(SSH_HANDSHAKE_ERROR,"");

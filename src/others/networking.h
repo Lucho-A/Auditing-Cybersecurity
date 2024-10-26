@@ -61,7 +61,7 @@ int init_networking();
 void ip_to_hostname(char *, char *);
 char* hostname_to_ip(char *);
 unsigned short csum(unsigned short *,int);
-int create_socket_conn(int *);
+int create_socket_conn(int *, struct in_addr, int);
 int send_msg_to_server(int *, struct in_addr, char *, int, int, char *, long int, unsigned char **, long int,long int);
 int get_port_index(int);
 char * get_ttl_description(int);

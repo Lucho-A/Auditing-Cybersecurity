@@ -5,6 +5,7 @@ Criticality: low
 
 BUG_FIXED:
 - 1.9    -> fixed return when the ip is not found into network
+- i) 1.1)-> fixed no responses from websites that requires setting explicit hostname (SSL);
 
 IMPROVEMENT:
 - cancelling & cleaning procedures optimized

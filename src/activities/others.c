@@ -48,7 +48,8 @@ int others(int type){
 					continue;
 				}
 				char bufferHistory[BUFFER_SIZE_1K]="";
-				snprintf(bufferHistory,sizeof(bufferHistory), stringTemplates[selectedOpt-1], target.strTargetURL, portUnderHacking);
+				snprintf(bufferHistory,sizeof(bufferHistory), stringTemplates[selectedOpt-1],
+						target.strTargetURL, portUnderHacking);
 				add_history(bufferHistory);
 				free(msg);
 				continue;
@@ -56,9 +57,9 @@ int others(int type){
 			unsigned char *serverResp=NULL;
 			int c=format_strings_from_files(msg,msg);
 			int sk=0;
-			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strHostname,portUnderHacking,
+			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strTargetURL, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
-					msg, c, &serverResp,BUFFER_SIZE_128K, 5000);
+					msg, c, &serverResp,BUFFER_SIZE_128K, 0);
 			free(msg);
 			close(sk);
 			if(bytesRecv<0){

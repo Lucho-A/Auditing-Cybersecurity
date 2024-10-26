@@ -43,7 +43,7 @@ int ftp(int type){
 	case FTP_BANNER_GRABBING:
 		unsigned char *serverResp=NULL;
 		int conn=0;
-		int bytesRecv=send_msg_to_server(&conn,target.targetIp, NULL,
+		int bytesRecv=send_msg_to_server(&conn,target.targetIp, target.strTargetURL,
 				portUnderHacking,target.ports[portUnderHacking].connectionType,
 				"\n", strlen("\n"), &serverResp,BUFFER_SIZE_128B,0);
 		if(bytesRecv<0) error_handling(0,false);

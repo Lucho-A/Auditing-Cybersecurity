@@ -20,7 +20,7 @@ static int create_ssh_connection(LIBSSH2_SESSION **sshConn, int *socketConn){
 int ssh_check_user(char *username, char *password){
 	LIBSSH2_SESSION *sshSessionConn=NULL;
 	int sk=0;
-	if((create_socket_conn(&sk))<0){
+	if((create_socket_conn(&sk,target.targetIp, portUnderHacking))<0){
 		if(!lastActivityError.blocked){
 			lastActivityError.blocked=true;
 			lastActivityError.err=errno;

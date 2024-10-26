@@ -139,7 +139,7 @@ static int smb_banner_grabbing(){
 			0x00,0x02,'C','I','F','S', //6
 			0x00};
 	payloadLen=185;
-	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, NULL, portUnderHacking,
+	bytesReceived=send_msg_to_server(&smbConn, target.targetIp, target.strTargetURL, portUnderHacking,
 			target.ports[portUnderHacking].connectionType,
 			payloadSmbv1, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 	if(bytesReceived>0 && serverResp[5]=='S' && serverResp[6]=='M' && serverResp[7]=='B'){
@@ -163,7 +163,7 @@ static int smb_banner_grabbing(){
 					0x77,0x73,0x20,0x32,0x30,0x30,0x30,0x20,0x35,0x2e,0x30,0x00};
 			payloadLen=147;
 			free(serverResp);
-			bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
+			bytesReceived=send_msg_to_server(&smbConn,target.targetIp, target.strTargetURL, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
 					payload, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 			if(bytesReceived==RETURN_ERROR){
@@ -231,7 +231,7 @@ static int smb_banner_grabbing(){
 			0x00};
 	payloadLen=70;
 	free(serverResp);
-	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
+	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, target.strTargetURL, portUnderHacking,
 			target.ports[portUnderHacking].connectionType,
 			payloadSmbv2, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 	if(bytesReceived>0) {
