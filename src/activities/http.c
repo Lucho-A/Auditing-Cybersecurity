@@ -163,33 +163,61 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 			return set_last_activity_error(SSL_CONNECT_ERROR, "");
 		}
 	}
-	if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
-		bytesSent=send(localSocketCon,msg,strlen(msg),0);
-	}else{
-		bytesSent=SSL_write(sslConn,msg,strlen(msg));
-	}
-	if(bytesSent<=0){
-		if(connType==SSL_CONN_TYPE){
-			clean_ssl(sslConn);
-			return SSL_get_error(sslConn, bytesSent);
+	struct timeval tvSendTo;
+	tvSendTo.tv_sec=SOCKET_SEND_TIMEOUT_S;
+	tvSendTo.tv_usec=0;
+	do{
+		FD_ZERO(&wFdset);
+		FD_SET(localSocketCon, &wFdset);
+		if((retVal=select(localSocketCon+1,NULL,&wFdset,NULL,&tvSendTo))<=0){
+			if(retVal<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(retVal<0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+			return set_last_activity_error(SENDING_PACKETS_TO_ERROR, "");
 		}
-		return bytesSent;
-	}
+		if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
+			bytesSent=send(localSocketCon,msg,strlen(msg),0);
+		}else{
+			bytesSent=SSL_write(sslConn,msg,strlen(msg));
+		}
+		if(bytesSent<=0){
+			if(bytesSent<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(connType==SSL_CONN_TYPE){
+				clean_ssl(sslConn);
+				return SSL_get_error(sslConn, bytesSent);
+			}
+			return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+		}
+		break;
+	}while(true);
 	int bytesReceived=0,contI=0;
 	char buffer[BUFFER_SIZE_8K]={'\0'};
 	snprintf(serverResp,BUFFER_SIZE_128B,"%s","");
-	if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
-		bytesReceived=recv(localSocketCon, buffer, BUFFER_SIZE_8K,0);
-	}else{
-		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
-	}
-	if(bytesReceived<=0){
-		if(connType==SSL_CONN_TYPE){
-			clean_ssl(sslConn);
-			return SSL_get_error(sslConn, bytesReceived);
+	struct timeval tvRecvTo;
+	tvRecvTo.tv_sec=SOCKET_RECV_TIMEOUT_S;
+	tvRecvTo.tv_usec=0;
+	do{
+		FD_ZERO(&rFdset);
+		FD_SET(localSocketCon, &rFdset);
+		if((retVal=select(localSocketCon+1,&rFdset,NULL,NULL,&tvRecvTo))<=0){
+			if(retVal<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(retVal<0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+			return set_last_activity_error(RECEIVING_PACKETS_TO_ERROR, "");
 		}
-		return bytesReceived;
-	}
+		if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
+			bytesReceived=recv(localSocketCon, buffer, BUFFER_SIZE_8K,0);
+		}else{
+			bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
+		}
+		if(bytesReceived<=0){
+			if(bytesSent<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(connType==SSL_CONN_TYPE){
+				clean_ssl(sslConn);
+				return SSL_get_error(sslConn, bytesReceived);
+			}
+			return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+		}
+		break;
+	}while(true);
 	for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];
 	serverResp[contI]='\0';
 	close(localSocketCon);
