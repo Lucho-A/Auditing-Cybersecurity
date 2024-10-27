@@ -1,7 +1,7 @@
-### auditing-cybersecurity-v1.3.1 - Under Dev./Testing
+### auditing-cybersecurity-v1.3.1 - Under dev./testing
 
-Updated:  <br>
-Criticality: low
+Updated: <br>
+Criticality: medium
 
 BUG_FIXED:
 - 1.9    -> fixed return when the ip is not found into network
@@ -11,7 +11,8 @@ IMPROVEMENT:
 - cancelling & cleaning procedures optimized
 - -d     -> (experimental) threading optimized and safer
 - 1.9    -> (experimental) threading optimized and safer
-- 1.9    -> (experimental) broadcasting improvement
+- 1.9    -> (experimental) broadcasting improved
+- 2.5    -> (under evaluation) improved the robustness of the algorithm
 - SIGHUP & SIGQUIT handled
 
 OTHERS:
