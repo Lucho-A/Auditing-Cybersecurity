@@ -247,7 +247,7 @@ int set_last_activity_error(int, char const *);
 int open_file(char *, char *, FILE **);
 int open_file_str(char *, char *, FILE **, char ***);
 int show_message(char *, int , int , int , bool, bool, bool);
-char * get_readline(char *, bool );
+char * get_readline(char *, bool);
 int format_strings_from_files(char *, char *);
 void show_intro(char *, char *);
 void show_intro_banner();

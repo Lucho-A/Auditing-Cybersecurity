@@ -21,8 +21,12 @@ char * get_readline(char *prompt, bool addHistory){
 		free(lineRead);
 		lineRead=(char *)NULL;
 	}
-	printf("%s",prompt);
-	lineRead=readline(" ");
+	if(addHistory){
+		lineRead=readline(prompt);
+	}else{
+		printf("%s",prompt);
+		lineRead=readline(" ");
+	}
 	if(lineRead && *lineRead && addHistory) add_history (lineRead);
 	return (lineRead);
 }
