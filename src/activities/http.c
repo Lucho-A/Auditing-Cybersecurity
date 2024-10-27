@@ -120,7 +120,7 @@ static int get_cert_info(){
 
 static int send_http_msg_to_server(struct in_addr ip,int port, int connType, char *msg, char *serverResp,
 		long int sizeResponse){
-	int bytesSent=0, localSocketCon=0;
+	int bytesSent=0,bytesReceived=0, localSocketCon=0;
 	struct timeval timeout;
 	timeout.tv_sec = SOCKET_SEND_TIMEOUT_S;
 	timeout.tv_usec = 0;
@@ -128,51 +128,55 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 	serverAddress.sin_family=AF_INET;
 	serverAddress.sin_port=htons(port);
 	serverAddress.sin_addr.s_addr=ip.s_addr;
-	if((localSocketCon=socket(AF_INET, SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
-	setsockopt(localSocketCon, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
-	setsockopt(localSocketCon, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
-	setsockopt(localSocketCon, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
-	int socketFlags=fcntl(localSocketCon, F_GETFL, 0);
-	fcntl(localSocketCon, F_SETFL, socketFlags | O_NONBLOCK);
-	int retVal=connect(localSocketCon, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
-	if(retVal<0 && errno!=EINPROGRESS) return SOCKET_CONNECTION_ERROR;
-	fd_set rFdset, wFdset;
-	FD_ZERO(&rFdset);
-	FD_SET(localSocketCon, &rFdset);
-	wFdset=rFdset;
-	if((retVal=select(localSocketCon+1,&rFdset,&wFdset,NULL,&timeout))<=0){
-		if(retVal==0) return SOCKET_CONNECTION_TIMEOUT_ERROR;
-		return retVal;
-	}
-	fcntl(localSocketCon, F_SETFL, socketFlags & ~O_NONBLOCK);
-	SSL *sslConn=NULL;
-	if(connType==SSL_CONN_TYPE){
-		sslConn = SSL_new(sslCtx);
-		if(sslConn==NULL){
-			clean_ssl(sslConn);
-			return set_last_activity_error(SSL_CONNECTION_ERROR, "");
-		}
-		if(!SSL_set_fd(sslConn, localSocketCon)){
-			clean_ssl(sslConn);
-			return set_last_activity_error(SSL_FD_ERROR, "");
-		}
-		SSL_set_connect_state(sslConn);
-		SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
-		if(!SSL_connect(sslConn)){
-			clean_ssl(sslConn);
-			return set_last_activity_error(SSL_CONNECT_ERROR, "");
-		}
-	}
-	struct timeval tvSendTo;
-	tvSendTo.tv_sec=SOCKET_SEND_TIMEOUT_S;
-	tvSendTo.tv_usec=0;
 	do{
+		if((localSocketCon=socket(AF_INET, SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
+		setsockopt(localSocketCon, SOL_SOCKET, SO_BINDTODEVICE, networkInfo.interfaceName, strlen(networkInfo.interfaceName));
+		setsockopt(localSocketCon, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
+		setsockopt(localSocketCon, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
+		int socketFlags=fcntl(localSocketCon, F_GETFL, 0);
+		fcntl(localSocketCon, F_SETFL, socketFlags | O_NONBLOCK);
+		int retVal=connect(localSocketCon, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
+		if(retVal<0 && errno!=EINPROGRESS) return SOCKET_CONNECTION_ERROR;
+		fd_set rFdset, wFdset;
+		FD_ZERO(&rFdset);
+		FD_SET(localSocketCon, &rFdset);
+		wFdset=rFdset;
+		if((retVal=select(localSocketCon+1,&rFdset,&wFdset,NULL,&timeout))<=0){
+			if(retVal==0) return SOCKET_CONNECTION_TIMEOUT_ERROR;
+			return retVal;
+		}
+		fcntl(localSocketCon, F_SETFL, socketFlags & ~O_NONBLOCK);
+		SSL *sslConn=NULL;
+		if(connType==SSL_CONN_TYPE){
+			sslConn = SSL_new(sslCtx);
+			if(sslConn==NULL){
+				clean_ssl(sslConn);
+				return set_last_activity_error(SSL_CONNECTION_ERROR, "");
+			}
+			if(!SSL_set_fd(sslConn, localSocketCon)){
+				clean_ssl(sslConn);
+				return set_last_activity_error(SSL_FD_ERROR, "");
+			}
+			SSL_set_connect_state(sslConn);
+			SSL_set_tlsext_host_name(sslConn, target.strTargetURL);
+			if(!SSL_connect(sslConn)){
+				clean_ssl(sslConn);
+				return set_last_activity_error(SSL_CONNECT_ERROR, "");
+			}
+		}
+		struct timeval tvSendTo;
+		tvSendTo.tv_sec=SOCKET_SEND_TIMEOUT_S;
+		tvSendTo.tv_usec=0;
 		FD_ZERO(&wFdset);
 		FD_SET(localSocketCon, &wFdset);
 		if((retVal=select(localSocketCon+1,NULL,&wFdset,NULL,&tvSendTo))<=0){
-			if(retVal<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(retVal==0 ||(retVal<0 && (errno==EAGAIN || errno==EWOULDBLOCK || errno==EINPROGRESS))){
+				close(localSocketCon);
+				continue;
+			}
 			if(retVal<0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
-			return set_last_activity_error(SENDING_PACKETS_TO_ERROR, "");
+			close(localSocketCon);
+			continue;
 		}
 		if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
 			bytesSent=send(localSocketCon,msg,strlen(msg),0);
@@ -180,48 +184,59 @@ static int send_http_msg_to_server(struct in_addr ip,int port, int connType, cha
 			bytesSent=SSL_write(sslConn,msg,strlen(msg));
 		}
 		if(bytesSent<=0){
-			if(bytesSent<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(bytesSent==0 || (bytesSent<0 && (errno==EAGAIN || errno==EWOULDBLOCK || errno==EINPROGRESS))){
+				close(localSocketCon);
+				continue;
+			}
 			if(connType==SSL_CONN_TYPE){
 				clean_ssl(sslConn);
 				return SSL_get_error(sslConn, bytesSent);
 			}
 			return set_last_activity_error(SENDING_PACKETS_ERROR, "");
 		}
-		break;
-	}while(true);
-	int bytesReceived=0,contI=0;
-	char buffer[BUFFER_SIZE_8K]={'\0'};
-	snprintf(serverResp,BUFFER_SIZE_128B,"%s","");
-	struct timeval tvRecvTo;
-	tvRecvTo.tv_sec=SOCKET_RECV_TIMEOUT_S;
-	tvRecvTo.tv_usec=0;
-	do{
+		int contI=0;
+		char buffer[BUFFER_SIZE_8K]={'\0'};
+		snprintf(serverResp,BUFFER_SIZE_128B,"%s","");
+		struct timeval tvRecvTo;
+		tvRecvTo.tv_sec=SOCKET_RECV_TIMEOUT_S;
+		tvRecvTo.tv_usec=0;
 		FD_ZERO(&rFdset);
 		FD_SET(localSocketCon, &rFdset);
 		if((retVal=select(localSocketCon+1,&rFdset,NULL,NULL,&tvRecvTo))<=0){
-			if(retVal<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(retVal==0 ||(retVal<0 && (errno==EAGAIN || errno==EWOULDBLOCK || errno==EINPROGRESS))){
+				close(localSocketCon);
+				continue;
+			}
 			if(retVal<0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
-			return set_last_activity_error(RECEIVING_PACKETS_TO_ERROR, "");
+			close(localSocketCon);
+			continue;
 		}
 		if(connType==SOCKET_CONN_TYPE || connType==SSH_CONN_TYPE){
 			bytesReceived=recv(localSocketCon, buffer, BUFFER_SIZE_8K,0);
 		}else{
 			bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_8K);
 		}
+		if(bytesReceived==0){
+			close(localSocketCon);
+			continue;
+		}
 		if(bytesReceived<=0){
-			if(bytesSent<0 && (errno==EAGAIN || errno==EWOULDBLOCK)) continue;
+			if(bytesReceived==0 ||(bytesReceived<0 && (errno==EAGAIN || errno==EWOULDBLOCK || errno==EINPROGRESS))){
+				close(localSocketCon);
+				continue;
+			}
 			if(connType==SSL_CONN_TYPE){
 				clean_ssl(sslConn);
 				return SSL_get_error(sslConn, bytesReceived);
 			}
 			return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
 		}
+		for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];
+		serverResp[contI]='\0';
+		close(localSocketCon);
+		clean_ssl(sslConn);
 		break;
 	}while(true);
-	for(int i=0; contI<sizeResponse && i<bytesReceived; i++, contI++) serverResp[contI]=buffer[i];
-	serverResp[contI]='\0';
-	close(localSocketCon);
-	clean_ssl(sslConn);
 	return bytesReceived;
 }
 

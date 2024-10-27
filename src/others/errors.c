@@ -42,8 +42,7 @@ int error_handling(int errorType, bool exitProgram){
 				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr, NULL));
 		break;
 	case SENDING_PACKETS_TO_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Receiving packets timeout",
-				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr,NULL));
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Receiving packets timeout");
 		break;
 	case GETADDRINFO_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s", "Error getting address info",strerror(lastActivityError.err));
@@ -57,8 +56,7 @@ int error_handling(int errorType, bool exitProgram){
 				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr,NULL));
 		break;
 	case RECEIVING_PACKETS_TO_ERROR:
-		snprintf(errorDescription, sizeof(errorDescription), "%s. %s. %s", "Receiving packets timeout",
-				strerror(lastActivityError.err),ERR_error_string(lastActivityError.sslErr,NULL));
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Receiving packets timeout");
 		break;
 	case ZERO_BYTES_RECV_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "(Zero bytes received)");
