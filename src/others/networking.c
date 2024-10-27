@@ -314,7 +314,7 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 		FD_SET(*sk, &rFdset);
 		if((retVal=select(*sk+1,&rFdset,NULL,NULL,&tvRecvTo))<=0){
 			if(retVal<0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
-			if(strlen(bufferHTTP)>0) break;
+			if(totalBytesReceived>0) break;
 			return set_last_activity_error(RECEIVING_PACKETS_TO_ERROR, "");
 		}
 		switch(type){
@@ -351,7 +351,6 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 	for(int i=0;i<maxSizeResponse && i<totalBytesReceived;i++) (*serverResp)[i]=bufferHTTP[i];
 	free(bufferHTTP);
 	clean_ssl(sslConn);
-	if(totalBytesReceived==0) return set_last_activity_error(ZERO_BYTES_RECV_ERROR, "");
 	return totalBytesReceived;
 }
 

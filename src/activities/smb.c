@@ -231,7 +231,7 @@ static int smb_banner_grabbing(){
 			0x00};
 	payloadLen=70;
 	free(serverResp);
-	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, target.strTargetURL, portUnderHacking,
+	bytesReceived=send_msg_to_server(&smbConn,target.targetIp, NULL, portUnderHacking,
 			target.ports[portUnderHacking].connectionType,
 			payloadSmbv2, payloadLen, &serverResp, BUFFER_SIZE_16K, 0);
 	if(bytesReceived>0) {
