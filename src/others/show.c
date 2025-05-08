@@ -44,7 +44,7 @@ void show_help(char *msgError){
 	printf("$ auditing-cybersecurity -t lucho-a.github.io --all --no-intro -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -p 2221 -n -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity --help\n\n");
-	printf("See https://github.com/Lucho-A/Auditing-Cybersecurity for a full description.\n\n");
+	printf("See https://github.com/lucho-a/auditing-cybersecurity for a full description.\n\n");
 }
 
 void show_intro_banner(){

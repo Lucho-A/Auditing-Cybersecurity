@@ -33,7 +33,7 @@ int mysql(int type){
 		unsigned char *serverResp=NULL;
 		int sk=0;
 		int lenght=send_msg_to_server(&sk,target.targetIp, target.strTargetURL, portUnderHacking,SOCKET_CONN_TYPE,
-				"\n",strlen("\n"), &serverResp, BUFFER_SIZE_128B,0);
+				"\n",strlen("\n"), &serverResp, BUFFER_SIZE_128B,0, false);
 		close(sk);
 		if(lenght==0){
 			show_message("No server response\n", 0, 0, ERROR_MESSAGE, false, false, false);

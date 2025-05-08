@@ -24,7 +24,7 @@ static int connect_to_github(unsigned char **serverResp){
 	ip.s_addr=inet_addr(inet_ntoa(*addrList[0]));
 	int conn=0;
 	if(send_msg_to_server(&conn,ip,"api.github.com",443, SSL_CONN_TYPE, msg,strlen(msg),
-			serverResp, BUFFER_SIZE_8K,0)<0) return RETURN_ERROR;
+			serverResp, BUFFER_SIZE_8K,0, false)<0) return RETURN_ERROR;
 	close(conn);
 	return RETURN_OK;
 }

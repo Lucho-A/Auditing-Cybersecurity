@@ -43,10 +43,14 @@ int any(int type){
 		for(int i=0;i<msgs && cancelCurrentProcess==false;i++){
 			int sk=0;
 			ssize_t c=format_strings_from_files(queries[i], msg);
+			char askTor=ask_tor_service();
+			if(askTor=='C') break;
+			bool usingTor=false;
+			if(askTor=='Y') usingTor=true;
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strTargetURL, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
-					msg,c,&serverResp,BUFFER_SIZE_128K,0);
-			printf("  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
+					msg,c,&serverResp,BUFFER_SIZE_128K,0, usingTor);
+			printf("\n  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
 			if(bytesRecv<=0){
 				error_handling(0,false);
 				free(serverResp);
@@ -273,7 +277,7 @@ int any(int type){
 			free_char_double_pointer(&sqlmapCommands, totalStrings);
 			break;
 		case ANY_ARP_SNIFFING:
-			arp(ANY_ARP_SNIFFING);
+			return arp(ANY_ARP_SNIFFING);
 			PRINT_RESET;
 			break;
 		default:

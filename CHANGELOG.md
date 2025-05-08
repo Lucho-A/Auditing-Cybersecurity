@@ -1,3 +1,22 @@
+### auditing-cybersecurity-v1.3.2 - Under Dev./Testing
+
+Updated:  <br>
+Criticality: low
+
+FEATURE:
+- 1.1, i    -> (experimental) allows sending messages using ToR service (1)
+
+BUG_FIXED:
+- v    -> fixed no returning results
+- fixed buffer overflow when hostname more than 50 characters
+- some memory leaks solved
+
+OTHERS:
+- updated libOCl
+- minor changes, code optimized & code cleaned-up
+
+(1) Setting the server ip and port, was added into 'setting.txt' file
+
 ### auditing-cybersecurity-v1.3.1
 
 Updated: 2024-10-28 <br>

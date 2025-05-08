@@ -19,6 +19,8 @@ int error_handling(int errorType, bool exitProgram){
 	switch(lastActivityError.errorType){
 	case RETURN_OK:
 		return RETURN_OK;
+	case EXIT_PROGRAM:
+		return RETURN_ERROR;
 	case SOCKET_CREATION_ERROR:
 		snprintf(errorDescription, sizeof(errorDescription), "%s. %s","Error creating socket", strerror(lastActivityError.err));
 		break;
@@ -126,6 +128,15 @@ int error_handling(int errorType, bool exitProgram){
 		break;
 	case OLLAMA_SERVER_UNAVAILABLE:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Ollama server unavailable");
+		break;
+	case SOCKS5_USERPASS_NEGOTIATION_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Socks5 user/pass negotiation error");
+		break;
+	case SOCKS5_CONVERTING_IP_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Socks5 error converting IP");
+		break;
+	case SOCKS5_CONNECTION_ERROR:
+		snprintf(errorDescription, sizeof(errorDescription), "%s", "Socks5 error connecting to server");
 		break;
 	default:
 		snprintf(errorDescription, sizeof(errorDescription), "%s", "Error not handled");

@@ -12,6 +12,53 @@
 
 #define ACTIVITY_NOT_SELECTED		100
 
+void ocl_callback(char *token, bool done){
+	char buffer[5]="";
+	char *buff=malloc(strlen(token)+1);
+	memset(buff,0,strlen(token)+1);
+	int cont=0;
+	for(size_t i=0;i<strlen(token);i++,cont++){
+		if(token[i]=='\\'){
+			switch(token[i+1]){
+			case 'n':
+				buff[cont]='\n';
+				break;
+			case 'r':
+				buff[cont]='\r';
+				break;
+			case 't':
+				buff[cont]='\r';
+				break;
+			case '\\':
+				buff[cont]='\\';
+				break;
+			case '"':
+				buff[cont]='\"';
+				break;
+			case 'u':
+				snprintf(buffer,5,"%c%c%c%c",token[i+2],token[i+3],token[i+4],token[i+5]);
+				buff[cont]=(int)strtol(buffer,NULL,16);
+				i+=4;
+				break;
+			default:
+				break;
+			}
+			i++;
+			continue;
+		}
+		buff[cont]=token[i];
+	}
+	buff[cont]=0;
+	for(size_t i=0;i<strlen(buff);i++){
+		usleep(15000);
+		fputc(buff[i], stdout);
+		fflush(stdout);
+	}
+	if(done)printf("\n");
+	free(buff);
+	return;
+}
+
 static int check_conn_type(){
 	int sk=0;
 	struct sockaddr_in serverAddress;
@@ -23,7 +70,7 @@ static int check_conn_type(){
 	LIBSSH2_SESSION *sshSession=NULL;
 	if((sshSession = libssh2_session_init())==NULL) return set_last_activity_error(SSH_HANDSHAKE_ERROR,"");
 	libssh2_session_set_timeout(sshSession, SSH_TIMEOUT_MS);
-	libssh2_session_banner_set(sshSession,"SSH-2.0-OpenSSH_for_Windows_8.1");
+	libssh2_session_banner_set(sshSession, "SSH-2.0-OpenSSH_for_Windows_8.1");
 	if(libssh2_session_handshake(sshSession, sk)==0){
 		libssh2_session_free(sshSession);
 		close(sk);
@@ -51,19 +98,14 @@ static int check_conn_type(){
 		if(errSSLConn==SSL_ERROR_SSL) break;
 	}while((errSSLConn==SSL_ERROR_WANT_READ || errSSLConn==SSL_ERROR_WANT_WRITE || errSSLConn==SSL_ERROR_WANT_CONNECT) && time(0)<tInit);
 	close(sk);
-	if(sslConn!=NULL){
-		SSL_shutdown(sslConn);
-		SSL_certs_clear(sslConn);
-		SSL_clear(sslConn);
-		SSL_free(sslConn);
-	}
+	if(sslConn!=NULL) clean_ssl(sslConn);
 	if(respSSLConn>0) return SSL_CONN_TYPE;
 	return SOCKET_CONN_TYPE;
 }
 
 static int hack_port() {
 	show_options();
-	char prompt[BUFFER_SIZE_256B]="";
+	char prompt[BUFFER_SIZE_512B]="";
 	snprintf(prompt,sizeof(prompt),"%s@%s%s:%s%d%s:",C_DEFAULT,C_HWHITE,target.strTargetIp,C_HCYAN,portUnderHacking,C_DEFAULT);
 	while(true){
 		cancelCurrentProcess=false;
@@ -76,7 +118,10 @@ static int hack_port() {
 		lastActivityError.sslErr=0;
 		memset(lastActivityError.errorAditionalDescription,0,sizeof(lastActivityError.errorAditionalDescription));
 		char *c=get_readline(prompt, false);
-		if(strcmp(c,"")==0) continue;
+		if(strcmp(c,"")==0){
+			free(c);
+			continue;
+		}
 		printf("\n");
 		if(strcmp(c,"1.1")==0) valResp=any(ANY_BANNER_GRABBING);
 		if(strcmp(c,"1.2")==0) valResp=any(ANY_NMAP_VULNER_SCAN);
@@ -155,28 +200,21 @@ static int hack_port() {
 			return RETURN_CLOSE;
 		}
 		if(valResp==ACTIVITY_NOT_SELECTED){
-			if((valResp=OCl_send_chat(ocl,c))!=RETURN_OK){
-				switch(valResp){
-				case OCL_ERR_RESPONSE_MESSAGE_ERROR:
-					show_message(OCL_get_response_error(ocl), strlen(OCL_get_response_error(ocl)),
-							0, ERROR_MESSAGE, true,false,false);
-					break;
-				default:
-					if(oclCanceled){
-						printf("\n");
-						break;
-					}
-					show_message(OCL_error_handling(valResp), strlen(OCL_error_handling(valResp)),
-							0, ERROR_MESSAGE, true, false, false);
+			if((valResp=OCl_send_chat(ocl,c,NULL, ocl_callback))!=RETURN_OK){
+				show_message(OCL_error_handling(ocl, valResp), strlen(OCL_error_handling(ocl, valResp)), 0, ERROR_MESSAGE, true,false,false);
+				if(oclCanceled){
+					printf("\n");
 					break;
 				}
+				break;
 			}
-			PRINT_RESET
 		}
-		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,false);
 		free(c);
-		PRINT_RESET;
+		PRINT_RESET
+		if(!canceledBySignal && valResp!=RETURN_OK) error_handling(0,false);
 	}
+	PRINT_RESET;
+	return RETURN_OK;
 }
 
 int hack_port_request(){

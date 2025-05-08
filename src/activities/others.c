@@ -1,4 +1,5 @@
 
+#include <ctype.h>
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
@@ -26,12 +27,16 @@ int others(int type){
 		if(totalStrings==RETURN_ERROR) return set_last_activity_error(OPENING_FILE_ERROR,"");
 		fclose(f);
 		do{
-			msg=get_readline("![#]=templates,;=exit)->", true);
+			msg=get_readline("![#]=templates,;=exit)-> ", true);
 			if(strcmp(msg,"")==0){
 				PRINT_RESET;
+				free(msg);
 				continue;
 			}
-			if(strcmp(msg,";")==0) break;
+			if(strcmp(msg,";")==0){
+				free(msg);
+				break;
+			}
 			if(strcmp(msg,"!")==0){
 				for(int i=0;i<totalStrings;i++) printf("\n  %d) %s", i+1, stringTemplates[i]);
 				free(msg);
@@ -48,8 +53,7 @@ int others(int type){
 					continue;
 				}
 				char bufferHistory[BUFFER_SIZE_1K]="";
-				snprintf(bufferHistory,sizeof(bufferHistory), stringTemplates[selectedOpt-1],
-						target.strTargetURL, portUnderHacking);
+				snprintf(bufferHistory,sizeof(bufferHistory), stringTemplates[selectedOpt-1],target.strTargetURL, portUnderHacking);
 				add_history(bufferHistory);
 				free(msg);
 				continue;
@@ -57,9 +61,16 @@ int others(int type){
 			unsigned char *serverResp=NULL;
 			int c=format_strings_from_files(msg,msg);
 			int sk=0;
+			char askTor=ask_tor_service();
+			if(askTor=='C'){
+				free(msg);
+				continue;
+			}
+			bool usingTor=false;
+			if (askTor=='Y') usingTor=true;
 			int bytesRecv=send_msg_to_server(&sk,target.targetIp, target.strTargetURL, portUnderHacking,
 					target.ports[portUnderHacking].connectionType,
-					msg, c, &serverResp,BUFFER_SIZE_128K, 0);
+					msg, c, &serverResp,BUFFER_SIZE_128K, 0, usingTor);
 			free(msg);
 			close(sk);
 			if(bytesRecv<0){
@@ -111,7 +122,7 @@ int others(int type){
 				if(msg[i]==' ' || msg[i]=='\"') msg[i]='+';
 			}
 			snprintf(httpMsg,BUFFER_SIZE_512B,
-					"GET /api/cve/?search=%s HTTP/1.1\r\n"
+					"GET /api/cve?search=%s HTTP/1.1\r\n"
 					"Host: %s\r\n"
 					"Authorization: Basic YXVkaXRpbmctYW5kLXNlY3VyaXR5Ok1yQW5kZXJzb25PcGVuQ1ZF\r\n"
 					"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\r\n"
@@ -119,7 +130,7 @@ int others(int type){
 			free(msg);
 			int bytesRecv=0, sk=0;
 			if((bytesRecv=send_msg_to_server(&sk,ip,host, 443, SSL_CONN_TYPE, httpMsg,strlen(httpMsg),
-					&serverResp,BUFFER_SIZE_16K,30000))<0){
+					&serverResp,BUFFER_SIZE_16K,30000, false))<0){
 				return RETURN_ERROR;
 			}
 			close(sk);

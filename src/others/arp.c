@@ -258,7 +258,7 @@ int arp(int type){
 		if(arpHandle!=NULL) pcap_breakloop(arpHandle);
 		pthread_detach(startMonitoringSniffingPackets);
 		pcap_freecode(&fp);
-		printf("\n  Sniffing finished.");
+		printf("\n  Sniffing finished\n");
 		break;
 	case OTHERS_ARP_DISCOVER:
 	case OTHERS_ARP_DISCOVER_D:

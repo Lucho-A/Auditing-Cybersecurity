@@ -23,7 +23,7 @@
 #define PROGRAM_NAME 					"Auditing-Cybersecurity"
 #define PROGRAM_MAJOR_VERSION			"1"
 #define PROGRAM_MINOR_VERSION			"3"
-#define PROGRAM_MICRO_VERSION			"1"
+#define PROGRAM_MICRO_VERSION			"2"
 #define PROGRAM_VERSION					PROGRAM_MAJOR_VERSION"."PROGRAM_MINOR_VERSION"."PROGRAM_MICRO_VERSION
 
 #define ALL_PORTS						65536
@@ -34,12 +34,12 @@
 #define SEND_PACKET_PER_PORT_DELAY_US	0
 #define BRUTE_FORCE_DELAY_US 			100000
 #define BRUTE_FORCE_TIMEOUT 			3
-#define CURL_TIMEOUT					5L
-#define SOCKET_CONNECT_TIMEOUT_S		5
-#define SOCKET_RECV_TIMEOUT_S			5
-#define SOCKET_SEND_TIMEOUT_S			5
-#define SSH_TIMEOUT_MS					5000
-#define SSL_TIMEOUT_S					5
+#define CURL_TIMEOUT					10L
+#define SOCKET_CONNECT_TIMEOUT_S		10
+#define SOCKET_RECV_TIMEOUT_S			10
+#define SOCKET_SEND_TIMEOUT_S			10
+#define SSH_TIMEOUT_MS					10000
+#define SSL_TIMEOUT_S					10
 #define SNIFFING_THREAD_DELAY_US		10000000
 #define ARP_DISCOVER_TIMEOUT_S			2
 #define ARP_DISCOVER_DELAY_US			30000000
@@ -83,7 +83,8 @@ enum programVersion{
 };
 
 enum errors{
-	SOCKET_CREATION_ERROR=-100,
+	EXIT_PROGRAM=-100,
+	SOCKET_CREATION_ERROR,
 	SOCKET_CONNECTION_TIMEOUT_ERROR,
 	SOCKET_CONNECTION_ERROR,
 	SOCKET_CONNECTION_CLOSED_ERROR,
@@ -121,7 +122,10 @@ enum errors{
 	FTP_ERROR,
 	MYSQL_CONNECTION_ERROR,
 	SMB_CONTEXT_CREATION_ERROR,
-	OLLAMA_SERVER_UNAVAILABLE
+	OLLAMA_SERVER_UNAVAILABLE,
+	SOCKS5_USERPASS_NEGOTIATION_ERROR,
+	SOCKS5_CONVERTING_IP_ERROR,
+	SOCKS5_CONNECTION_ERROR
 };
 
 enum msgLevels{
@@ -215,6 +219,11 @@ struct LastestError{
 	bool blocked;
 };
 
+struct ToRInfo{
+	char *ip;
+	int port;
+};
+
 struct OllamaInfo{
 	char *ip;
 	char *port;
@@ -224,8 +233,13 @@ struct OllamaInfo{
 	char *temp;
 };
 
+struct Settings{
+	struct OllamaInfo oi;
+	struct ToRInfo ti;
+};
+
 extern OCl *ocl;
-extern struct OllamaInfo oi;
+extern struct Settings settings;
 extern bool canceledBySignal;
 extern bool cancelCurrentProcess;
 extern bool discover;
@@ -255,6 +269,7 @@ void show_options();
 void show_help(char *);
 int system_call(char *);
 int request_quantity_threads(int);
+char ask_tor_service();
 int read_usernames_and_password_files(struct BfaInfo *, char *, char *);
 void free_char_double_pointer(char ***, size_t);
 

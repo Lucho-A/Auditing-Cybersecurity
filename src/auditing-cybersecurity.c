@@ -21,11 +21,11 @@
 #include "activities/activities.h"
 #include "others/networking.h"
 
-struct LastestError lastActivityError;
-struct ServerTarget target;
-struct NetworkInfo networkInfo;
+struct LastestError lastActivityError={0};
+struct ServerTarget target={0};
+struct NetworkInfo networkInfo={0};
 OCl *ocl=NULL;
-struct OllamaInfo oi;
+struct Settings settings={0};
 int portUnderHacking=0;
 bool cancelCurrentProcess=false;
 bool canceledBySignal=false;
@@ -39,8 +39,21 @@ int prevInput=0;
 static int closeMrAnderson(){
 	PRINT_RESET
 	SSL_CTX_free(sslCtx);
-	if(resourcesLocation!=NULL) free(resourcesLocation);
+	free(resourcesLocation);
 	if(ocl!=NULL) OCl_load_model(ocl, false);
+	free(target.ports);
+	free(settings.oi.ip);
+	free(settings.oi.port);
+	free(settings.oi.model);
+	free(settings.oi.numCtx);
+	free(settings.oi.temp);
+	free(settings.oi.maxHistoryCtx);
+	OCl_free(ocl);
+	OCl_shutdown();
+	rl_free_undo_list();
+	rl_clear_history();
+	rl_clear_pending_input();
+	rl_free_line_state();
 	return RETURN_OK;
 }
 
@@ -70,6 +83,7 @@ static void signal_handler(int signalType){
 
 static int readline_input(FILE *stream){
 	int c=fgetc(stream);
+	if(c==10) return 0;
 	if(c==13 && prevInput==27){
 		if(strlen(rl_line_buffer)==0){
 			rl_done=true;
@@ -99,6 +113,7 @@ static int initMrAnderson(){
 	lastActivityError.errorType=0;
 	lastActivityError.blocked=false;
 	SSL_library_init();
+	rl_initialize();
 	if((sslCtx=SSL_CTX_new(TLS_method()))==NULL) return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 	if(!discover){
 		libssh2_init(0);
@@ -109,54 +124,67 @@ static int initMrAnderson(){
 		int chars;
 		size_t len;
 		char *line=NULL;
-		oi.ip=OCL_OLLAMA_SERVER_ADDR;
-		oi.port=OCL_OLLAMA_SERVER_PORT;
-		oi.temp=OCL_TEMP;
-		oi.maxHistoryCtx=OCL_MAX_HISTORY_CTX;
+		settings.oi.ip=OCL_OLLAMA_SERVER_ADDR;
+		settings.oi.port=OCL_OLLAMA_SERVER_PORT;
+		settings.oi.temp=OCL_TEMP;
+		settings.oi.maxHistoryCtx=OCL_MAX_HISTORY_CTX;
 		while((chars=getline(&line, &len, f))!=-1){
 			if((strstr(line,"[OLLAMA_SERVER_ADDR]"))==line){
 				chars=getline(&line, &len, f);
-				oi.ip=malloc(chars+1);
-				memset(oi.ip,0,chars+1);
-				for(int i=0;i<chars-1;i++) oi.ip[i]=line[i];
+				settings.oi.ip=malloc(chars+1);
+				memset(settings.oi.ip,0,chars+1);
+				for(int i=0;i<chars-1;i++) settings.oi.ip[i]=line[i];
 				continue;
 			}
 			if((strstr(line,"[OLLAMA_SERVER_PORT]"))==line){
 				chars=getline(&line, &len, f);
-				oi.port=malloc(chars+1);
-				memset(oi.port,0,chars+1);
-				for(int i=0;i<chars-1;i++) oi.port[i]=line[i];
+				settings.oi.port=malloc(chars+1);
+				memset(settings.oi.port,0,chars+1);
+				for(int i=0;i<chars-1;i++) settings.oi.port[i]=line[i];
 				continue;
 			}
 			if((strstr(line,"[OLLAMA_SERVER_MODEL]"))==line){
 				chars=getline(&line, &len, f);
-				oi.model=malloc(chars+1);
-				memset(oi.model,0,chars+1);
-				for(int i=0;i<chars-1;i++) oi.model[i]=line[i];
+				settings.oi.model=malloc(chars+1);
+				memset(settings.oi.model,0,chars+1);
+				for(int i=0;i<chars-1;i++) settings.oi.model[i]=line[i];
 				continue;
 			}
 			if((strstr(line,"[OLLAMA_SERVER_NUM_CTX]"))==line){
 				chars=getline(&line, &len, f);
-				oi.numCtx=malloc(chars+1);
-				memset(oi.numCtx,0,chars+1);
-				for(int i=0;i<chars-1;i++) oi.numCtx[i]=line[i];
+				settings.oi.numCtx=malloc(chars+1);
+				memset(settings.oi.numCtx,0,chars+1);
+				for(int i=0;i<chars-1;i++) settings.oi.numCtx[i]=line[i];
 				continue;
 			}
 			if((strstr(line,"[OLLAMA_SERVER_MAX_HISTORY_CTX]"))==line){
 				chars=getline(&line, &len, f);
-				oi.maxHistoryCtx=malloc(chars+1);
-				memset(oi.maxHistoryCtx,0,chars+1);
-				for(int i=0;i<chars-1;i++) oi.maxHistoryCtx[i]=line[i];
+				settings.oi.maxHistoryCtx=malloc(chars+1);
+				memset(settings.oi.maxHistoryCtx,0,chars+1);
+				for(int i=0;i<chars-1;i++) settings.oi.maxHistoryCtx[i]=line[i];
 				continue;
 			}
 			if((strstr(line,"[OLLAMA_SERVER_TEMP]"))==line){
 				chars=getline(&line, &len, f);
-				oi.temp=malloc(chars+1);
-				memset(oi.temp,0,chars+1);
-				for(int i=0;i<chars-1;i++) oi.temp[i]=line[i];
+				settings.oi.temp=malloc(chars+1);
+				memset(settings.oi.temp,0,chars+1);
+				for(int i=0;i<chars-1;i++) settings.oi.temp[i]=line[i];
+				continue;
+			}
+			if((strstr(line,"[TOR_SERVER]"))==line){
+				chars=getline(&line, &len, f);
+				settings.ti.ip=malloc(chars+1);
+				memset(settings.ti.ip,0,chars+1);
+				for(int i=0;i<chars-1;i++) settings.ti.ip[i]=line[i];
+				continue;
+			}
+			if((strstr(line,"[TOR_PORT]"))==line){
+				chars=getline(&line, &len, f);
+				settings.ti.port=strtol(line,NULL,10);
 				continue;
 			}
 		}
+		free(line);
 	}
 	return init_networking();
 }
@@ -275,13 +303,21 @@ int main(int argc, char *argv[]){
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
 	printf("%s\nStarting: %s\n",C_DEFAULT,strTimeStamp);
 	if(discover){
-		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0,true);
+		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0,false);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
-	if(scan_init(urlIp)!=RETURN_OK) error_handling(0,true);
-	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, true)!=RETURN_OK) error_handling(0,true);
-	if(hack_port_request()!=RETURN_OK) error_handling(0,true);
+	if(scan_init(urlIp)!=RETURN_OK){
+		error_handling(0,false);
+		closeMrAnderson();
+		exit(EXIT_SUCCESS);
+	}
+	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, true)!=RETURN_OK){
+		error_handling(0,false);
+		closeMrAnderson();
+		exit(EXIT_SUCCESS);
+	}
+	if(hack_port_request()!=RETURN_OK) error_handling(0,false);
 	closeMrAnderson();
 	exit(EXIT_SUCCESS);
 }

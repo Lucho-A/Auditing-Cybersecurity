@@ -5,6 +5,12 @@
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <openssl/ssl.h>
+#include <stdbool.h>
+
+enum ifStatuses{
+	IF_SELECTING_NOT_SUPPORTED=-5,
+	IF_TOR
+};
 
 enum portStatuses{
 	PORT_FILTERED=0,
@@ -31,16 +37,16 @@ struct PseudoHeader{
 
 struct Port{
 	int portStatus;
-	char serviceName[50];
-	char operatingSystem[50];
+	char serviceName[255];
+	char operatingSystem[255];
 	int connectionType;
 };
 
 struct ServerTarget{
 	struct in_addr targetIp;
-	char strTargetIp[50];
-	char strTargetURL[50];
-	char strHostname[50];
+	char strTargetIp[255];
+	char strTargetURL[255];
+	char strHostname[255];
 	int cantPortsToScan;
 	struct Port *ports;
 };
@@ -62,7 +68,7 @@ void ip_to_hostname(char *, char *);
 char* hostname_to_ip(char *);
 unsigned short csum(unsigned short *,int);
 int create_socket_conn(int *, struct in_addr, int);
-int send_msg_to_server(int *, struct in_addr, char *, int, int, char *, long int, unsigned char **, long int,long int);
+int send_msg_to_server(int *, struct in_addr, char *, int, int, char *, long int, unsigned char **, long int,long int, bool);
 int get_port_index(int);
 char * get_ttl_description(int);
 void show_opened_ports();

@@ -50,3 +50,23 @@ int request_quantity_threads(int threadsDefault){
 		return threadsDefault;
 	}while(true);
 }
+
+char ask_tor_service(){
+	char *askTor=NULL;
+	do{
+		askTor=get_readline("Use ToR service? (y|N|c): ", false);
+		if(strlen(askTor)>1){
+			free(askTor);
+			continue;
+		}
+		if(strcmp(askTor,"")==0) askTor[0]='N';
+		askTor[0]=toupper(askTor[0]);
+		if(askTor[0]=='N' || askTor[0]=='Y' || askTor[0]=='C') break;
+	}while(true);
+	char c=askTor[0];
+	free(askTor);
+	return c;
+}
+
+
+

@@ -13,12 +13,12 @@
 #include "libpcap.h"
 
 void clean_ssl(SSL *ssl){
-	if(ssl!=NULL){
-		SSL_shutdown(ssl);
-		SSL_certs_clear(ssl);
-		SSL_clear(ssl);
-		SSL_free(ssl);
-	}
+	SSL_free_buffers(ssl);
+	SSL_certs_clear(ssl);
+	SSL_clear(ssl);
+	SSL_shutdown(ssl);
+	SSL_free(ssl);
+	ssl = NULL;
 }
 
 char * get_ttl_description(int ttlValue){
@@ -51,7 +51,7 @@ static int get_public_ip(unsigned char **serverResp){
 	int conn=0;
 	int br=0;
 	if((br=send_msg_to_server(&conn,ip,"api.ipify.org",443, SSL_CONN_TYPE, msg,strlen(msg),
-			serverResp, BUFFER_SIZE_8K,0))<0) return RETURN_ERROR;
+			serverResp, BUFFER_SIZE_8K,0,false))<0) return RETURN_ERROR;
 	close(conn);
 	return br;
 }
@@ -75,7 +75,12 @@ static void get_local_ip(char *buffer){
 	close(socketConn);
 }
 
-int init_networking(){
+int selecting_interface(bool torSupported, bool selectingSupported){
+	if(!selectingSupported){
+		char *msg="Interface/device selection not supported. Using default...";
+		show_message(msg, strlen(msg), 0, INFO_MESSAGE, true, false, true);
+		return IF_SELECTING_NOT_SUPPORTED;
+	}
 	char errbuf[PCAP_ERRBUF_SIZE]="";
 	pcap_if_t *devs=NULL, *dev=NULL;
 	pcap_init(PCAP_CHAR_ENC_UTF_8,errbuf);
@@ -92,14 +97,15 @@ int init_networking(){
 	}
 	if(cantDevs==0){
 		pcap_freealldevs(devs);
+		pcap_freealldevs(dev);
 		return set_last_activity_error(DEVICE_NOT_FOUND_ERROR, "");
 	}
 	printf("\n");
 	if(cantDevs==1){
 		snprintf(networkInfo.interfaceName,255,"%s",devs->name);
-		printf("Only one device found. Using: %s%s%s\n",C_HWHITE, networkInfo.interfaceName, C_DEFAULT);
+		printf("Only one interface/device found. Using: %s%s%s\n",C_HWHITE, networkInfo.interfaceName, C_DEFAULT);
 	}else{
-		printf("Devices found:\n\n");
+		printf("Select interface/device:\n\n");
 		int cont=1;
 		for(dev=devs;dev!=NULL;dev=dev->next){
 			if((dev->flags & PCAP_IF_UP) && (dev->flags & PCAP_IF_RUNNING) && !(dev->flags & PCAP_IF_LOOPBACK)
@@ -108,13 +114,21 @@ int init_networking(){
 				cont++;
 			}
 		}
+		if(torSupported) printf("\t%d) %s%s%s\n",cont++, C_HWHITE, "ToR", C_DEFAULT);
+		printf("\t%d) %s%s%s\n",cont, C_HWHITE, "exit", C_DEFAULT);
 		do{
-			char *c=get_readline("\nSelect device number:",false);
+			char *c=get_readline("\n:",false);
 			selectedOpt=strtol(c,NULL,10);
 			free(c);
-			if(selectedOpt<1 || selectedOpt>cantDevs) continue;
+			if(selectedOpt<1 || selectedOpt>cont) continue;
 			break;
 		}while(true);
+		if(selectedOpt==cont-1 && torSupported) return IF_TOR;
+		if(selectedOpt==cont){
+			pcap_freealldevs(devs);
+			pcap_freealldevs(dev);
+			return set_last_activity_error(EXIT_PROGRAM, "");
+		}
 		int i=1;
 		for(dev=devs;dev!=NULL;dev=dev->next,i++){
 			if((dev->flags & PCAP_IF_UP) && (dev->flags & PCAP_IF_RUNNING) && !(dev->flags & PCAP_IF_LOOPBACK) && i==selectedOpt){
@@ -124,6 +138,11 @@ int init_networking(){
 		}
 	}
 	pcap_freealldevs(devs);
+	return RETURN_OK;
+}
+
+int init_networking(){
+	if(selecting_interface(false, true)!=RETURN_OK) return RETURN_ERROR;
 	char addressPath[BUFFER_SIZE_512B]="";
 	snprintf(addressPath,BUFFER_SIZE_512B, "/sys/class/net/%s/address", networkInfo.interfaceName);
 	FILE *f=fopen(addressPath,"r");
@@ -152,6 +171,7 @@ int init_networking(){
 		PRINT_RESET
 	}
 	free(publicIp);
+	char errbuf[PCAP_ERRBUF_SIZE]="";
 	if (pcap_lookupnet(networkInfo.interfaceName, &networkInfo.net, &networkInfo.mask, errbuf)==-1) {
 		show_message("Unable to getting the netmask.",0, 0, ERROR_MESSAGE, true, false, false);
 		networkInfo.net=networkInfo.mask=0;
@@ -189,10 +209,10 @@ int init_networking(){
 		fflush(stdout);
 		OCl_init();
 		int retVal=0;
-		if((retVal=OCl_get_instance(&ocl, oi.ip, oi.port, OCL_SOCKET_CONNECT_TIMEOUT_S, OCL_SOCKET_SEND_TIMEOUT_S,
-				OCL_SOCKET_RECV_TIMEOUT_S,OCL_RESPONSE_SPEED, NULL, oi.model,
-				"IT Auditor and IT Security expert", oi.maxHistoryCtx, oi.temp,oi.numCtx,NULL))!=RETURN_OK)
-			show_message(OCL_error_handling(retVal), strlen(OCL_error_handling(retVal)), 0,ERROR_MESSAGE , true, false, false);
+		if((retVal=OCl_get_instance(&ocl, settings.oi.ip, settings.oi.port, OCL_SOCKET_CONNECT_TIMEOUT_S, OCL_SOCKET_SEND_TIMEOUT_S,
+				OCL_SOCKET_RECV_TIMEOUT_S,settings.oi.model,"1800", "IT Auditor and IT Security expert", settings.oi.maxHistoryCtx,
+				settings.oi.temp,0,settings.oi.numCtx,NULL,NULL))!=RETURN_OK)
+			show_message(OCL_error_handling(ocl,retVal), strlen(OCL_error_handling(ocl, retVal)), 0,ERROR_MESSAGE , true, false, false);
 		int ollamaStatus=OCl_check_service_status(ocl);
 		if(ollamaStatus==RETURN_ERROR){
 			printf("%s%s",C_HRED,"connection error");
@@ -201,7 +221,7 @@ int init_networking(){
 			if(ollamaStatus==RETURN_OK){
 				printf("%srunning",C_HGREEN);
 			}else{
-				printf("%snot available: %s",C_HRED, OCL_error_handling(retVal));
+				printf("%snot available: %s",C_HRED, OCL_error_handling(ocl, retVal));
 			}
 		}
 		PRINT_RESET;
@@ -221,6 +241,65 @@ void show_filtered_ports(){
 		if(target.ports[i].portStatus==PORT_FILTERED) printf("%s  Port: %d \t(%s?)\n",C_HYELLOW,i, target.ports[i].serviceName);
 	}
 	printf("%s",C_DEFAULT);
+}
+
+int create_tor_handshake(int *sk, struct in_addr ip, int port){
+	struct timeval timeout;
+	timeout.tv_sec=SOCKET_CONNECT_TIMEOUT_S;
+	timeout.tv_usec=0;
+	if((*sk=socket(AF_INET,SOCK_STREAM, 0))<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
+	setsockopt(*sk, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
+	setsockopt(*sk, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout);
+	struct sockaddr_in serverAddress;
+	serverAddress.sin_family=AF_INET;
+	serverAddress.sin_port=htons(settings.ti.port);
+	inet_pton(AF_INET, settings.ti.ip, &serverAddress.sin_addr);
+	int resp=connect(*sk,(struct sockaddr *)&serverAddress,sizeof(serverAddress));
+	if (resp<0) return set_last_activity_error(SOCKET_CONNECTION_TIMEOUT_ERROR, "");
+	size_t br=0;
+	uint8_t sockMet[3];
+	sockMet[0]=0x05;
+	sockMet[1]=0x01;
+	sockMet[2]=0x02;
+	if(send(*sk,sockMet,sizeof(sockMet),0)<=0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+	char buff[16*1024];
+	if(recv(*sk,buff,8196,0)<=0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+	uint8_t userPassNeg[6];
+	userPassNeg[0]=0x01;
+	userPassNeg[1]=2;
+	userPassNeg[2]=rand()%255;
+	userPassNeg[3]=rand()%255;
+	userPassNeg[4]=1;
+	userPassNeg[5]='A';
+	if(send(*sk,userPassNeg,sizeof(userPassNeg),0)<=0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+	if((br=recv(*sk,buff,8196,0))<=0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+	if(buff[1]!=0x00)  return set_last_activity_error(SOCKS5_USERPASS_NEGOTIATION_ERROR, "");
+	char *strIp=inet_ntoa(ip);
+	if(strIp==NULL)return set_last_activity_error(SOCKS5_CONVERTING_IP_ERROR, "");
+	uint8_t request[10]={0};
+	int idx=4;
+	for(size_t i=0;i<strlen(strIp);i++){
+		if(strIp[i]=='.'){
+			idx++;
+			continue;
+		}
+		request[idx]=request[idx]*10+strIp[i]-'0';
+	}
+	char strPort[4]="", oct1[2]="", oct2[3]="";
+	snprintf(strPort,4,"%2X",port);
+	oct1[0]=strPort[0];
+	oct2[0]=strPort[1];
+	oct2[1]=strPort[2];
+	request[0]=0x05;
+	request[1]=0x01;
+	request[2]=0x00;
+	request[3]=0x01;
+	request[8]=strtol(oct1,NULL,16);
+	request[9]=strtol(oct2,NULL,16);
+	if(send(*sk,request,10,0)<=0) return set_last_activity_error(SENDING_PACKETS_ERROR, "");
+	if((br=recv(*sk,buff,8196,0))<=0) return set_last_activity_error(RECEIVING_PACKETS_ERROR, "");
+	if(buff[1]!=0x00) return set_last_activity_error(SOCKS5_CONNECTION_ERROR, "");
+	return RETURN_OK;
 }
 
 int create_socket_conn(int *sk, struct in_addr ip, int port){
@@ -249,7 +328,8 @@ int create_socket_conn(int *sk, struct in_addr ip, int port){
 }
 
 int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type, char *msg,
-		long int msgSize, unsigned char **serverResp, long int maxSizeResponse, long int extraTimeOut){
+		long int msgSize, unsigned char **serverResp, long int maxSizeResponse, long int extraTimeOut,
+		bool usingTor){
 	*serverResp=malloc(maxSizeResponse);
 	memset(*serverResp,0,maxSizeResponse);
 	int bytesSent=0;
@@ -257,14 +337,18 @@ int send_msg_to_server(int *sk, struct in_addr ip, char *url, int port, int type
 	fd_set rFdset, wFdset;
 	int retVal=0;
 	if(type==UNKNOWN_CONN_TYPE) return set_last_activity_error(UNKNOW_CONNECTION_ERROR, "");
-	if(*sk==0){
+	if(*sk==0 && !usingTor){
 		if(create_socket_conn(sk, ip, port)<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
+	}
+	if(*sk==0 && usingTor){
+		if(create_tor_handshake(sk, ip, port)<0) return set_last_activity_error(SOCKET_CREATION_ERROR, "");
 	}
 	if(type==SSL_CONN_TYPE){
 		if((sslConn=SSL_new(sslCtx))==NULL){
 			clean_ssl(sslConn);
 			return set_last_activity_error(SSL_CONTEXT_ERROR, "");
 		}
+		SSL_CTX_set_verify(sslCtx, SSL_VERIFY_NONE, NULL);
 		if(!SSL_set_fd(sslConn,*sk)){
 			clean_ssl(sslConn);
 			return set_last_activity_error(SSL_FD_ERROR, "");
@@ -359,7 +443,7 @@ void ip_to_hostname(char *ip, char *hostname){
 	memset(&sa, 0, sizeof sa);
 	sa.sin_family = AF_INET;
 	inet_pton(AF_INET, ip, &sa.sin_addr);
-	char host[1024], service[20];
+	char host[255], service[20];
 	int valResp=getnameinfo((struct sockaddr*)&sa, sizeof(sa), host, sizeof host, service, sizeof service, 0);
 	(!valResp)?(snprintf(hostname,sizeof(host),"%s",host)):(snprintf(hostname,sizeof(host),"%s",""));
 }
