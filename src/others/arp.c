@@ -235,6 +235,7 @@ int arp(int type){
 		if(pcap_compile(arpHandle,&fp,pcapFilter,0,networkInfo.net)==-1){
 			pcap_close(arpHandle);
 			pcap_freecode(&fp);
+			printf("%s", target.strTargetIp);
 			return show_message("Error parsing filter",0, 0, ERROR_MESSAGE, true, false, false);
 		}
 		if(pcap_setfilter(arpHandle,&fp)==-1){

@@ -21,28 +21,6 @@ static void get_iana_service_name(int port, char *serviceName){
 }
 
 int scan_init(char *urlIp){
-	printf("\n");
-	if(inet_addr(urlIp)!=-1){
-		printf("No need to resolve the IP (%s%s%s)\n\n",C_HWHITE,urlIp,C_DEFAULT);
-		if((strstr(urlIp, "10.")!=urlIp && strstr(urlIp, "172.16")!=urlIp && strstr(urlIp, "192.168")!=urlIp)
-				&& networkInfo.internetAccess==false){
-			printf("Public IP: %sno Internet access.%s \n\n",C_HRED,C_DEFAULT);
-			exit(EXIT_SUCCESS);
-		}
-		target.targetIp.s_addr=inet_addr(urlIp);
-	}else{
-		char *ip=hostname_to_ip(urlIp);
-		if(ip==NULL || networkInfo.internetAccess==false){
-			printf("URL (%s%s%s) resolved to: %sunable to resolve the host.%s \n\n",C_HWHITE,urlIp,C_DEFAULT,C_HRED,C_DEFAULT);
-			exit(EXIT_SUCCESS);
-		}
-		printf("URL (%s%s%s) resolved to: %s%s%s \n\n",C_HWHITE,urlIp,C_DEFAULT,C_HWHITE,ip,C_DEFAULT);
-		target.targetIp.s_addr=inet_addr(ip);
-	}
-	snprintf(target.strTargetURL,sizeof(target.strTargetURL),"%s",urlIp);
-	snprintf(target.strTargetIp, sizeof(target.strTargetIp),"%s", inet_ntoa(*((struct in_addr*)&target.targetIp.s_addr)));
-	ip_to_hostname(target.strTargetIp, target.strHostname);
-	printf("Hostname: %s%s%s\n\n",C_HWHITE,target.strHostname,C_DEFAULT);
 	FILE *ports=NULL;
 	if(open_file(resourcesLocation,"ports.txt", &ports)==RETURN_ERROR) return set_last_activity_error(OPENING_PORT_FILE_ERROR, "");
 	target.ports= (struct Port *) malloc(ALL_PORTS * sizeof(struct Port));
@@ -123,6 +101,7 @@ static void * start_reading_packets(void *args){
 }
 
 int scan_ports(int singlePortToScan, int showSummarize){
+	PRINT_RESET
 	if(singlePortToScan!=0) target.cantPortsToScan=1;
 	struct timespec tInit, tEnd;
 	clock_gettime(CLOCK_REALTIME, &tInit);

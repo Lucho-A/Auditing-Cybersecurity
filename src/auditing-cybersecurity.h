@@ -243,6 +243,7 @@ extern struct Settings settings;
 extern bool canceledBySignal;
 extern bool cancelCurrentProcess;
 extern bool discover;
+extern bool sniffing;
 extern struct ServerTarget target;
 extern struct NetworkInfo networkInfo;
 extern int portUnderHacking;

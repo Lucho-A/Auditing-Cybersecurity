@@ -205,8 +205,31 @@ int init_networking(){
 	}else{
 		printf("%s%s",C_HRED,"Unable to check updates");
 	}
-	PRINT_RESET;
+	PRINT_RESET
 	if(!discover){
+		PRINT_RESET
+		if(inet_addr(target.strTargetURL)!=-1){
+			printf("No need to resolve the IP (%s%s%s)\n\n",C_HWHITE,target.strTargetURL,C_DEFAULT);
+			if((strstr(target.strTargetURL, "10.")!=target.strTargetURL && strstr(target.strTargetURL, "172.16")!=target.strTargetURL && strstr(target.strTargetURL, "192.168")!=target.strTargetURL)
+					&& networkInfo.internetAccess==false){
+				printf("Public IP: %sno Internet access.%s \n\n",C_HRED,C_DEFAULT);
+				exit(EXIT_SUCCESS);
+			}
+			target.targetIp.s_addr=inet_addr(target.strTargetURL);
+		}else{
+			char *ip=hostname_to_ip(target.strTargetURL);
+			if(ip==NULL || networkInfo.internetAccess==false){
+				printf("URL (%s%s%s) resolved to: %sunable to resolve the host.%s \n\n",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HRED,C_DEFAULT);
+				exit(EXIT_SUCCESS);
+			}
+			printf("URL (%s%s%s) resolved to: %s%s%s \n\n",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HWHITE,ip,C_DEFAULT);
+			target.targetIp.s_addr=inet_addr(ip);
+		}
+		snprintf(target.strTargetIp, sizeof(target.strTargetIp),"%s", inet_ntoa(*((struct in_addr*)&target.targetIp.s_addr)));
+		ip_to_hostname(target.strTargetIp, target.strHostname);
+		printf("Hostname: %s%s%s\n",C_HWHITE,target.strHostname,C_DEFAULT);
+	}
+	if(!discover && !sniffing){
 		printf("\nChecking Ollama server status: ");
 		fflush(stdout);
 		OCl_init();

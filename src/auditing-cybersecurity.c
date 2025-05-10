@@ -29,7 +29,7 @@ struct Settings settings={0};
 int portUnderHacking=0;
 bool cancelCurrentProcess=false;
 bool canceledBySignal=false;
-bool discover=false;
+bool discover=false, sniffing=false;
 pcap_t *arpHandle=NULL;
 char *resourcesLocation=NULL;
 long int sendPacketPerPortDelayUs=SEND_PACKET_PER_PORT_DELAY_US;
@@ -192,7 +192,7 @@ static int initMrAnderson(){
 int main(int argc, char *argv[]){
 	show_intro(PROGRAM_NAME, PROGRAM_VERSION);
 	bool noIntro=false;
-	char urlIp[255]="", msgError[BUFFER_SIZE_512B]="";
+	char msgError[BUFFER_SIZE_512B]="";
 	int singlePortToScan=0;
 	target.cantPortsToScan=0;
 	for(int i=1;i<argc;i++){
@@ -214,8 +214,12 @@ int main(int argc, char *argv[]){
 				show_help("\nTarget not specified\n");
 				exit(EXIT_SUCCESS);
 			}
-			snprintf(urlIp,sizeof(urlIp),"%s",argv[i+1]);
+			snprintf(target.strTargetURL,255,"%s",argv[i+1]);
 			i++;
+			continue;
+		}
+		if(strcmp(argv[i],"-f")==0 || strcmp(argv[i],"--sniffing")==0){
+			sniffing=true;
 			continue;
 		}
 		if(strcmp(argv[i],"-P")==0 || strcmp(argv[i],"--ports")==0){
@@ -281,7 +285,7 @@ int main(int argc, char *argv[]){
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
-	if(strcmp(urlIp,"")==0 && !discover){
+	if((strcmp(target.strTargetURL,"")==0 && !discover)){
 		show_help("\nYou must enter the url|ip to be scanned\n");
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
@@ -302,12 +306,17 @@ int main(int argc, char *argv[]){
 	char strTimeStamp[50]="";
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
 	printf("%s\nStarting: %s\n",C_DEFAULT,strTimeStamp);
+	if(sniffing){
+		if(any(ANY_ARP_SNIFFING)!=RETURN_OK) error_handling(0,false);
+		closeMrAnderson();
+		exit(EXIT_SUCCESS);
+	}
 	if(discover){
 		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0,false);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
-	if(scan_init(urlIp)!=RETURN_OK){
+	if(scan_init(target.strTargetURL)!=RETURN_OK){
 		error_handling(0,false);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);

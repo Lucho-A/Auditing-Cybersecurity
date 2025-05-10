@@ -6,6 +6,9 @@ Criticality: low
 FEATURE:
 - 1.1, i    -> (experimental) allows sending messages using ToR service (1)
 
+IMPROVEMENT:
+- (experimental) added parameter '--f | --sniffing' for allowing carried out 1.9) (Sniffing/DoS ARP Flooding attack) to IPs without opened ports.
+
 BUG_FIXED:
 - v    -> fixed no returning results
 - fixed buffer overflow when hostname more than 50 characters
