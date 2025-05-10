@@ -193,7 +193,7 @@ enum activitiesTypes{
 	OTHERS_SHOW_ACTIVIIES,
 	OTHERS_WHOIS,
 	OTHERS_SEARCH_CVE,
-	OTHERS_EXIT,
+	OTHERS_EXIT
 };
 
 static const long RETURN_THREAD_OK;

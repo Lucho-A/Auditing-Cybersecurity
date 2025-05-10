@@ -70,6 +70,7 @@ struct _ocl_response{
 	int promptEvalCount;
 	int evalCount;
 	double tokensPerSec;
+	bool done;
 };
 
 static void sfree(void *p){
@@ -440,6 +441,7 @@ int OCl_get_instance(OCl **ocl, const char *serverAddr, const char *serverPort, 
 	(*ocl)->ocl_resp->promptEvalCount=0;
 	(*ocl)->ocl_resp->evalCount=0;
 	(*ocl)->ocl_resp->tokensPerSec=0.0;
+	(*ocl)->ocl_resp->done=false;
 	OCl_set_role(*ocl, systemRole);
 	OCl_set_server_addr(*ocl, serverAddr);
 	if((retVal=OCl_set_server_port(*ocl, serverPort))!=OCL_RETURN_OK) return retVal;
@@ -580,13 +582,13 @@ char * OCL_error_handling(OCl *ocl, int error){
 		snprintf(error_hndl, BUFFER_SIZE_2K,"OCl ERROR: 'Max. Context Message' value out-of-boundaries. ");
 		break;
 	case OCL_ERR_SERVICE_UNAVAILABLE:
-		snprintf(error_hndl, BUFFER_SIZE_2K,"OCl ERROR: Service unavailable ");
+		snprintf(error_hndl, BUFFER_SIZE_2K,"OCl ERROR: Service unavailable: %s", ocl->ocl_resp->error);
 		break;
 	case OCL_ERR_GETTING_MODELS:
 		snprintf(error_hndl, BUFFER_SIZE_2K,"OCl ERROR: Error getting models ");
 		break;
 	case OCL_ERR_LOADING_MODEL:
-		snprintf(error_hndl, BUFFER_SIZE_2K,"OCl ERROR: Error loading model. %s", ocl->ocl_resp->error);
+		snprintf(error_hndl, BUFFER_SIZE_2K,"OCl ERROR: Error loading model: %s", ocl->ocl_resp->error);
 		break;
 	case OCL_ERR_UNLOADING_MODEL:
 		snprintf(error_hndl, BUFFER_SIZE_2K,"OCl ERROR: Error unloading model ");
@@ -732,9 +734,8 @@ static int send_message(OCl *ocl, char const *payload, void (*callback)(const ch
 	memset(ocl->ocl_resp->content,0,BUFFER_SIZE_128K);
 	memset(ocl->ocl_resp->response,0,BUFFER_SIZE_128K);
 	memset(ocl->ocl_resp->error,0,BUFFER_SIZE_1K);
-	bool done=false;
-	bool respOk=false;
-	do{
+	ocl->ocl_resp->done=false;
+	while(true && !oclCanceled){
 		FD_ZERO(&rFdset);
 		FD_SET(socketConn, &rFdset);
 		if((retVal=select(socketConn+1,&rFdset,NULL,NULL,&tvRecvTo))<=0){
@@ -751,21 +752,6 @@ static int send_message(OCl *ocl, char const *payload, void (*callback)(const ch
 		}
 		char buffer[BUFFER_SIZE_16K]="";
 		bytesReceived=SSL_read(sslConn,buffer, BUFFER_SIZE_16K);
-		const char *err=NULL;
-		if(((err=strstr(buffer,"{\"error\":\""))!=NULL) &&
-				((strncmp(buffer, "HTTP/1.1 404 Not Found", strlen("HTTP/1.1 404 Not Found"))==0) ||
-				(strncmp(buffer, "HTTP/1.1 400 Bad Request", strlen("HTTP/1.1 400 Bad Request"))==0))){
-			strcat(ocl->ocl_resp->error,err);
-			close(socketConn);
-			clean_ssl(sslConn);
-			return OCL_ERR_MSG_FOUND;
-		}
-		if(!respOk && strncmp(buffer, "HTTP/1.1 200 OK", strlen("HTTP/1.1 200 OK"))!=0){
-			close(socketConn);
-			clean_ssl(sslConn);
-			return OCL_ERR_SERVICE_UNAVAILABLE;
-		}
-		respOk=true;
 		if(bytesReceived<0){
 			oclSslError=SSL_get_error(sslConn, bytesReceived);
 			clean_ssl(sslConn);
@@ -774,6 +760,7 @@ static int send_message(OCl *ocl, char const *payload, void (*callback)(const ch
 		if(bytesReceived==0) break;
 		if(bytesReceived>0){
 			totalBytesReceived+=bytesReceived;
+			strcat(ocl->ocl_resp->response,buffer);
 			char token[128]="";
 			if(get_string_from_token(buffer, "\"content\":", token, '"')){
 				char const *b=strstr(token,"\\\"},");
@@ -789,18 +776,29 @@ static int send_message(OCl *ocl, char const *payload, void (*callback)(const ch
 						}
 					}
 				}
-				if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) done=true;
-				if(callback!=NULL) callback(token, done);
+				if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) ocl->ocl_resp->done=true;
+				if(callback!=NULL) callback(token, ocl->ocl_resp->done);
 				strcat(ocl->ocl_resp->content,token);
+				if(ocl->ocl_resp->done) break;
+				continue;
 			}
-			if(strstr(buffer,"\"done\":false")!=NULL || strstr(buffer,"\"done\": false")!=NULL) continue;
-			if(done || strstr(buffer,"{\"models\":[{\"")!=NULL){
-				strcat(ocl->ocl_resp->response,buffer);
-				break;
+			if(strstr(buffer,"{\"models\":[{\"")!=NULL) break;
+			char httpResponse[128]="";
+			for(int i=0;buffer[i]!='\r' && buffer[i]!='\n';i++) httpResponse[i]=buffer[i];
+			if(strcmp(httpResponse,"HTTP/1.1 200 OK")==0) return OCL_RETURN_OK;
+			char *err=NULL;
+			if((err=strstr(buffer,"{\"error\":\""))!=NULL){
+				snprintf(ocl->ocl_resp->error,BUFFER_SIZE_1K,"%s: %s", httpResponse, err);
+				close(socketConn);
+				clean_ssl(sslConn);
+				return OCL_ERR_MSG_FOUND;
 			}
+			snprintf(ocl->ocl_resp->error,BUFFER_SIZE_1K,"%s", httpResponse);
+			close(socketConn);
+			clean_ssl(sslConn);
+			return OCL_ERR_SERVICE_UNAVAILABLE;
 		}
-		if(!SSL_pending(sslConn)) break;
-	}while(true && !oclCanceled);
+	}
 	close(socketConn);
 	clean_ssl(sslConn);
 	return totalBytesReceived;
@@ -981,7 +979,8 @@ int OCl_send_chat(OCl *ocl, const char *message, const char *imageFile, void (*c
 		sfree(messageParsed);
 		return OCL_ERR_RECV_TIMEOUT;
 	}
-	if((strstr(ocl->ocl_resp->response,"\"done\":true")==NULL || strstr(ocl->ocl_resp->response,"\"done\": true")!=NULL) && !oclCanceled){
+
+	if(!ocl->ocl_resp->done && !oclCanceled){
 		sfree(messageParsed);
 		return OCL_ERR_PARTIAL_RESPONSE_RECV;
 	}

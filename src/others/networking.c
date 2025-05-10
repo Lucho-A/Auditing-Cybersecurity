@@ -13,12 +13,14 @@
 #include "libpcap.h"
 
 void clean_ssl(SSL *ssl){
-	SSL_free_buffers(ssl);
-	SSL_certs_clear(ssl);
-	SSL_clear(ssl);
-	SSL_shutdown(ssl);
-	SSL_free(ssl);
-	ssl = NULL;
+	if(ssl){
+		SSL_free_buffers(ssl);
+		SSL_certs_clear(ssl);
+		SSL_clear(ssl);
+		SSL_shutdown(ssl);
+		SSL_free(ssl);
+		ssl = NULL;
+	}
 }
 
 char * get_ttl_description(int ttlValue){
@@ -476,4 +478,3 @@ unsigned short csum(unsigned short *ptr,int nbytes){
 	r=(short)~sum;
 	return(r);
 }
-
