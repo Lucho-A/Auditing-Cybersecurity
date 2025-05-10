@@ -28,6 +28,7 @@ void show_help(char *msgError){
 	printf("-v | --version: show version.\n");
 	printf("-h | --help: show this.\n");
 	printf("-d | --discover: search for devices in the network.\n");
+	printf("-f | --sniffing: capture packets from/to a device in the network.\n");
 	printf("-t | --target [string]: url|ip to scan.\n");
 	printf("-P | --ports [int]: number of ports to scan (1-5000).\n");
 	printf("-p | --port [int]: scan just one port.\n");
