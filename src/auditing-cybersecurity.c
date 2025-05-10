@@ -115,7 +115,7 @@ static int initMrAnderson(){
 	SSL_library_init();
 	rl_initialize();
 	if((sslCtx=SSL_CTX_new(TLS_method()))==NULL) return set_last_activity_error(SSL_CONTEXT_ERROR, "");
-	if(!discover){
+	if(!discover && !sniffing){
 		libssh2_init(0);
 		rl_getc_function=readline_input;
 		FILE *f=NULL;
@@ -290,7 +290,7 @@ int main(int argc, char *argv[]){
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
-	if(resourcesLocation==NULL && !discover){
+	if(resourcesLocation==NULL && !discover && !sniffing){
 		show_help("\nYou must enter the resource folder path.\n");
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
