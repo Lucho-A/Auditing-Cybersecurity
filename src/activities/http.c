@@ -332,8 +332,11 @@ int http(int type){
 				,msg, serverResp, BUFFER_SIZE_1K);
 		if(bytesRecv>0 && (strstr(serverResp," 200 ")!=NULL || strstr(serverResp," 204 ")!=NULL)){
 			show_message(serverResp,bytesRecv,0, RESULT_MESSAGE,true, false, false);
-			if(strstr(serverResp," POST")!=NULL || strstr(serverResp," PUT")!=NULL || strstr(serverResp," DELETE")!=NULL)
+			if(strstr(serverResp," POST")!=NULL || strstr(serverResp," PUT")!=NULL || strstr(serverResp," DELETE")!=NULL){
 				show_message("POST, PUT or DELETE option(s) found",0, 0, ERROR_MESSAGE, false, false, false);
+			}else{
+				show_message("No methods allowed found.",0,0, ERROR_MESSAGE, false, false, false);
+			}
 			printf("\n");
 			break;
 		}
