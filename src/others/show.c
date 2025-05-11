@@ -28,7 +28,7 @@ void show_help(char *msgError){
 	printf("-v | --version: show version.\n");
 	printf("-h | --help: show this.\n");
 	printf("-d | --discover: search for devices in the network.\n");
-	printf("-f | --sniffing: capture packets from/to a device in the network.\n");
+	printf("-f | --sniffing: capture packets from/to a device in the network/DoS ARP Flooding attack.\n");
 	printf("-t | --target [string]: url|ip to scan.\n");
 	printf("-P | --ports [int]: number of ports to scan (1-5000).\n");
 	printf("-p | --port [int]: scan just one port.\n");
@@ -38,6 +38,7 @@ void show_help(char *msgError){
 	printf("-n | --no-intro: no 'Waking Up' intro.\n\n");
 	printf("Examples: \n\n");
 	printf("$ auditing-cybersecurity --discover --no-intro\n");
+	printf("$ auditing-cybersecurity -t 192.168.1.23 -f -n\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 500 -r /home/user/res/\n");
 	printf("$ auditing-cybersecurity -t lucho-a.github.io -P 100 --scan-delay 100000 -r /home/user/res/\n");
