@@ -210,16 +210,19 @@ int init_networking(){
 		if(inet_addr(target.strTargetURL)!=INADDR_NONE){
 			if((strstr(target.strTargetURL, "10.")!=target.strTargetURL && strstr(target.strTargetURL, "172.16")!=target.strTargetURL && strstr(target.strTargetURL, "192.168")!=target.strTargetURL)
 					&& networkInfo.internetAccess==false){
-				printf("Public IP: %sno Internet access.%s \n\n",C_HRED,C_DEFAULT);
+				printf("\nPublic IP: %sno Internet access.%s",C_HRED,C_DEFAULT);
+				PRINT_RESET
 			}
 			target.targetIp.s_addr=inet_addr(target.strTargetURL);
 		}else{
 			char *ip=hostname_to_ip(target.strTargetURL);
 			if(ip==NULL || networkInfo.internetAccess==false){
-				printf("URL (%s%s%s) resolved to: %sunable to resolve the host.%s \n\n",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HRED,C_DEFAULT);
+				printf("\nURL (%s%s%s) resolved to: %sunable to resolve the host.%s",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HRED,C_DEFAULT);
+				PRINT_RESET
 				return RETURN_CLOSE;
 			}
-			printf("URL (%s%s%s) resolved to: %s%s%s \n\n",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HWHITE,ip,C_DEFAULT);
+			printf("\nURL (%s%s%s) resolved to: %s%s%s",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HWHITE,ip,C_DEFAULT);
+			PRINT_RESET
 			target.targetIp.s_addr=inet_addr(ip);
 		}
 		snprintf(target.strTargetIp, sizeof(target.strTargetIp),"%s", inet_ntoa(*((struct in_addr*)&target.targetIp.s_addr)));
