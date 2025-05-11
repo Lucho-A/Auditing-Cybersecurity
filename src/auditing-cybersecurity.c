@@ -93,8 +93,11 @@ static int readline_input(FILE *stream){
 		prevInput=0;
 		return 0;
 	}
-	if(c==8 && rl_point==0) return 0;
-	if(c==9) rl_insert_text("\t");
+	if((c==8 || c==127) && rl_point==0) return 0;
+	if(prevInput==' ' && c==' '){
+		rl_insert_text("\t");
+		prevInput=0;
+	}
 	if(c==-1 || c==4){
 		rl_delete_text(0,strlen(rl_line_buffer));
 		rl_redisplay();
@@ -202,7 +205,6 @@ int main(int argc, char *argv[]){
 		}
 		if(strcmp(argv[i],"-h")==0 || strcmp(argv[i],"--help")==0){
 			show_help("");
-			closeMrAnderson();
 			exit(EXIT_FAILURE);
 		}
 		if(strcmp(argv[i],"-d")==0 || strcmp(argv[i],"--discover")==0){
@@ -247,6 +249,7 @@ int main(int argc, char *argv[]){
 			if(strtol(argv[i+1],NULL,10)>0 && strtol(argv[i+1],NULL,10)<ALL_PORTS){
 				target.cantPortsToScan=1;
 				singlePortToScan=strtol(argv[i+1],NULL,10);
+				portUnderHacking=singlePortToScan;
 				i++;
 				continue;
 			}
@@ -297,36 +300,38 @@ int main(int argc, char *argv[]){
 	}
 	if(!noIntro) show_intro_banner();
 	if(initMrAnderson()!=RETURN_OK){
-		error_handling(0,false);
+		error_handling(0);
 		closeMrAnderson();
 		exit(EXIT_FAILURE);
 	}
+	checking_updates();
+	check_ollama_server_status();
 	time_t timestamp = time(NULL);
 	struct tm tm = *localtime(&timestamp);
 	char strTimeStamp[50]="";
 	snprintf(strTimeStamp,sizeof(strTimeStamp),"%d/%02d/%02d %02d:%02d:%02d UTC:%s",tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_zone);
 	printf("%s\nStarting: %s\n",C_DEFAULT,strTimeStamp);
 	if(sniffing){
-		if(any(ANY_ARP_SNIFFING)!=RETURN_OK) error_handling(0,false);
+		if(any(ANY_ARP_SNIFFING)!=RETURN_OK) error_handling(0);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
 	if(discover){
-		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0,false);
+		if(others(OTHERS_ARP_DISCOVER_D)!=RETURN_OK) error_handling(0);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
 	if(scan_init(target.strTargetURL)!=RETURN_OK){
-		error_handling(0,false);
+		error_handling(0);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
 	if(target.cantPortsToScan!=0) if(scan_ports(singlePortToScan, true)!=RETURN_OK){
-		error_handling(0,false);
+		error_handling(0);
 		closeMrAnderson();
 		exit(EXIT_SUCCESS);
 	}
-	if(hack_port_request()!=RETURN_OK) error_handling(0,false);
+	if(hack_port_request()!=RETURN_OK) error_handling(0);
 	closeMrAnderson();
 	exit(EXIT_SUCCESS);
 }

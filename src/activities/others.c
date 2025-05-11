@@ -74,7 +74,7 @@ int others(int type){
 			free(msg);
 			close(sk);
 			if(bytesRecv<0){
-				error_handling(0,false);
+				error_handling(0);
 				continue;
 			}
 			if(bytesRecv>0 && strcmp((char *) serverResp,"")!=0)
@@ -186,7 +186,6 @@ int others(int type){
 		break;
 	case OTHERS_EXIT:
 		printf("%s",C_DEFAULT);
-		exit(EXIT_SUCCESS);
 	default:
 		break;
 	}

@@ -167,7 +167,7 @@ static int smb_banner_grabbing(){
 					target.ports[portUnderHacking].connectionType,
 					payload, payloadLen, &serverResp, BUFFER_SIZE_16K, 0, false);
 			if(bytesReceived==RETURN_ERROR){
-				error_handling(0,false);
+				error_handling(0);
 			}else{
 				int pos=9, lenght=0;
 				unsigned char buffer[5];

@@ -52,3 +52,29 @@ int check_updates(){
 	return OUT_OF_DATE;
 }
 
+int checking_updates(){
+	printf("\nChecking updates: ");
+	fflush(stdout);
+	if(networkInfo.internetAccess){
+		int latestVersion=check_updates();
+		if(latestVersion==RETURN_ERROR){
+			printf("%s%s",C_HRED,"connection error");
+		}else{
+			switch(latestVersion){
+			case UPDATED:
+				printf("%sup-to-date",C_HGREEN);
+				break;
+			case OUT_OF_DATE:
+				printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest",C_HRED);
+				break;
+			default:
+				printf("%susing a dev/testing version",C_HRED);
+				break;
+			}
+		}
+	}else{
+		printf("%s%s",C_HRED,"Unable to check updates");
+	}
+	PRINT_RESET
+	return RETURN_OK;
+}

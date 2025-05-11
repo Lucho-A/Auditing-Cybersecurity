@@ -20,7 +20,7 @@ static void get_iana_service_name(int port, char *serviceName){
 	(service_resp==NULL)?(strcpy(serviceName,"???")):(strcpy(serviceName, service_resp->s_name));
 }
 
-int scan_init(char *urlIp){
+int scan_init(){
 	FILE *ports=NULL;
 	if(open_file(resourcesLocation,"ports.txt", &ports)==RETURN_ERROR) return set_last_activity_error(OPENING_PORT_FILE_ERROR, "");
 	target.ports= (struct Port *) malloc(ALL_PORTS * sizeof(struct Port));
@@ -216,11 +216,10 @@ int scan_ports(int singlePortToScan, int showSummarize){
 		printf("%s",C_HYELLOW);
 		printf("\tFiltered: %d\n",contFilteredPorts);
 		printf("%s",C_HRED);
-		printf("\tOpened: %d\n\n",contOpenedPorts);
+		printf("\tOpened: %d\n",contOpenedPorts);
 	}
 	close(socketConn);
 	cancelCurrentProcess=false;
-	printf("%s",C_DEFAULT);
 	return RETURN_OK;
 }
 

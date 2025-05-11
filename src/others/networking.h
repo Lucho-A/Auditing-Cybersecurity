@@ -61,6 +61,7 @@ struct NetworkInfo{
 	u_int mask;
 	u_int net;
 	int internetAccess;
+	char publicIp[16];
 };
 
 int init_networking();
@@ -74,7 +75,8 @@ char * get_ttl_description(int);
 void show_opened_ports();
 void show_filtered_ports();
 int update();
-int check_updates();
+int checking_updates();
+int check_ollama_server_status();
 void clean_ssl(SSL *);
 
 #endif /* OTHERS_NETWORKING_H_ */

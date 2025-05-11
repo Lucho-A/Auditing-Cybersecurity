@@ -11,7 +11,7 @@ int set_last_activity_error(int errorType, char const *errorAditionalDescription
 	return RETURN_ERROR;
 }
 
-int error_handling(int errorType, bool exitProgram){
+int error_handling(int errorType){
 	char errorMsg[BUFFER_SIZE_1K]="", errorDescription[BUFFER_SIZE_512B]="";
 	if(errorType<0) lastActivityError.errorType=errorType;
 	if(lastActivityError.err==0) lastActivityError.err=errno;
@@ -145,11 +145,6 @@ int error_handling(int errorType, bool exitProgram){
 	snprintf(errorMsg, sizeof(errorMsg), "%s. %s", errorDescription, lastActivityError.errorAditionalDescription);
 	show_message(errorMsg,0, 0, ERROR_MESSAGE, true, false, false);
 	if(lastActivityError.err==1) show_message("Are you root and/or any firewall restriction?", 0, 0, ERROR_MESSAGE, true, false, true);
-	if(exitProgram){
-		PRINT_RESET;
-		PRINT_RESET;
-		exit(EXIT_FAILURE);
-	}
 	PRINT_RESET;
 	return RETURN_ERROR;
 }

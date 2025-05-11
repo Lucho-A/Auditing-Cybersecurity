@@ -229,4 +229,3 @@ void show_options(){
 	printf("\t\t\tc)  Change port");
 	printf("\t\t\tq)  Exit\n\n");
 }
-

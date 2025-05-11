@@ -52,7 +52,7 @@ int any(int type){
 					msg,c,&serverResp,BUFFER_SIZE_128K,0, usingTor);
 			printf("\n  Msg: %s%s%s\n",C_HWHITE,queries[i],C_DEFAULT);
 			if(bytesRecv<=0){
-				error_handling(0,false);
+				error_handling(0);
 				free(serverResp);
 				continue;
 			}

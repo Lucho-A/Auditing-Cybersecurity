@@ -68,12 +68,12 @@ static void get_local_ip(char *buffer){
 	serv.sin_family=AF_INET;
 	serv.sin_addr.s_addr=inet_addr(dnsIp);
 	serv.sin_port=htons(dns_port);
-	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0) error_handling(SOCKET_CONNECTION_ERROR,true);
+	if(connect(socketConn,(const struct sockaddr*) &serv,sizeof(serv))<0) error_handling(SOCKET_CONNECTION_ERROR);
 	struct sockaddr_in name;
 	socklen_t namelen=sizeof(name);
-	if(getsockname(socketConn,(struct sockaddr*) &name, &namelen)<0) error_handling(GETSOCKNAME_ERROR,true);
+	if(getsockname(socketConn,(struct sockaddr*) &name, &namelen)<0) error_handling(GETSOCKNAME_ERROR);
 	const char *p=inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
-	if(p==NULL) error_handling(INET_NTOP_ERROR,true);
+	if(p==NULL) error_handling(INET_NTOP_ERROR);
 	close(socketConn);
 }
 
@@ -143,6 +143,25 @@ int selecting_interface(bool torSupported, bool selectingSupported){
 	return RETURN_OK;
 }
 
+int check_ollama_server_status(){
+	printf("\nChecking Ollama server status: ");
+	fflush(stdout);
+	OCl_init();
+	int retVal=0;
+	if((retVal=OCl_get_instance(&ocl, settings.oi.ip, settings.oi.port, OCL_SOCKET_CONNECT_TIMEOUT_S, OCL_SOCKET_SEND_TIMEOUT_S,
+			OCL_SOCKET_RECV_TIMEOUT_S,settings.oi.model,"1800", "IT Auditor and IT Security expert", settings.oi.maxHistoryCtx,
+			settings.oi.temp,0,settings.oi.numCtx,NULL,NULL))!=RETURN_OK)
+		show_message(OCL_error_handling(ocl,retVal), strlen(OCL_error_handling(ocl, retVal)), 0,ERROR_MESSAGE , true, false, false);
+	int ollamaStatus=OCl_check_service_status(ocl);
+	if(ollamaStatus!=RETURN_OK){
+		printf("%snot available: %s",C_HRED, OCL_error_handling(ocl, ollamaStatus));
+	}else{
+		printf("%srunning",C_HGREEN);
+	}
+	PRINT_RESET;
+	return RETURN_OK;
+}
+
 int init_networking(){
 	if(selecting_interface(false, true)!=RETURN_OK) return RETURN_ERROR;
 	char addressPath[BUFFER_SIZE_512B]="";
@@ -153,25 +172,28 @@ int init_networking(){
 	if(f!=NULL) fclose(f);
 	if(networkInfo.interfaceMac==NULL) return set_last_activity_error(DEVICE_MAC_NOT_FOUND_ERROR, "");
 	networkInfo.interfaceMac[strlen(networkInfo.interfaceMac)-1]='\0';
-	printf("\nDevice MAC: %s%s%s\n", C_HWHITE, networkInfo.interfaceMac, C_DEFAULT);
+	printf("\nDevice MAC: %s%s", C_HWHITE, networkInfo.interfaceMac);
+	PRINT_RESET
 	sscanf(networkInfo.interfaceMac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
 			&networkInfo.interfaceMacHex[0], &networkInfo.interfaceMacHex[1], &networkInfo.interfaceMacHex[2],
 			&networkInfo.interfaceMacHex[3], &networkInfo.interfaceMacHex[4], &networkInfo.interfaceMacHex[5]);
 	get_local_ip(networkInfo.interfaceIp);
-	printf("\nLocal IP: %s%s%s\n", C_HWHITE, networkInfo.interfaceIp, C_DEFAULT);
+	printf("\nLocal IP: %s%s", C_HWHITE, networkInfo.interfaceIp);
+	PRINT_RESET
 	unsigned char *publicIp=NULL;
 	int br=get_public_ip(&publicIp);
 	if(br<1){
-		printf("\nPublic IP: %sNo Internet connection%s\n",C_HRED,C_DEFAULT);
 		networkInfo.internetAccess=false;
+		networkInfo.publicIp[0]=0;
+		printf("\nPublic IP: %sNo Internet connection",C_HRED);
 	}else{
 		char *buffer="";
 		buffer=strstr((char *) publicIp,"\n\r\n");
-		printf("\nPublic IP: %s", C_HWHITE);
-		for(size_t i=3;i<strlen(buffer);i++) printf("%c", buffer[i]);
+		for(size_t i=3;i<strlen(buffer);i++) networkInfo.publicIp[i-3]=buffer[i];
 		networkInfo.internetAccess=true;
-		PRINT_RESET
+		printf("\nPublic IP: %s%s", C_HWHITE, networkInfo.publicIp);
 	}
+	PRINT_RESET
 	free(publicIp);
 	char errbuf[PCAP_ERRBUF_SIZE]="";
 	if (pcap_lookupnet(networkInfo.interfaceName, &networkInfo.net, &networkInfo.mask, errbuf)==-1) {
@@ -179,77 +201,31 @@ int init_networking(){
 		networkInfo.net=networkInfo.mask=0;
 	}
 	networkInfo.netMask.s_addr=networkInfo.net&networkInfo.mask;
-	printf("\nLocal network: %s%s%s\n", C_HWHITE, inet_ntoa(networkInfo.netMask), C_DEFAULT);
+	printf("\nLocal network: %s%s", C_HWHITE, inet_ntoa(networkInfo.netMask));
+	PRINT_RESET
 	networkInfo.netBroadcast.s_addr=networkInfo.netMask.s_addr | ~networkInfo.mask;
-	printf("\nBroadcast: %s%s%s\n", C_HWHITE, inet_ntoa(networkInfo.netBroadcast), C_DEFAULT);
-	printf("\nChecking updates: ");
-	fflush(stdout);
-	if(networkInfo.internetAccess){
-		int latestVersion=check_updates();
-		if(latestVersion==RETURN_ERROR){
-			printf("%s%s",C_HRED,"connection error");
-			PRINT_RESET;
-		}else{
-			switch(latestVersion){
-			case UPDATED:
-				printf("%sup-to-date",C_HGREEN);
-				break;
-			case OUT_OF_DATE:
-				printf("%sout-of-date. You can download the latest version from: https://github.com/Lucho-A/Auditing-Cybersecurity/releases/tag/Latest",C_HRED);
-				break;
-			default:
-				printf("%sUsing a dev/testing version",C_HRED);
-				break;
-			}
-		}
-	}else{
-		printf("%s%s",C_HRED,"Unable to check updates");
-	}
+	printf("\nBroadcast: %s%s", C_HWHITE, inet_ntoa(networkInfo.netBroadcast));
 	PRINT_RESET
 	if(!discover){
-		PRINT_RESET
-		if(inet_addr(target.strTargetURL)!=-1){
-			printf("No need to resolve the IP (%s%s%s)\n\n",C_HWHITE,target.strTargetURL,C_DEFAULT);
+		if(inet_addr(target.strTargetURL)!=INADDR_NONE){
 			if((strstr(target.strTargetURL, "10.")!=target.strTargetURL && strstr(target.strTargetURL, "172.16")!=target.strTargetURL && strstr(target.strTargetURL, "192.168")!=target.strTargetURL)
 					&& networkInfo.internetAccess==false){
 				printf("Public IP: %sno Internet access.%s \n\n",C_HRED,C_DEFAULT);
-				exit(EXIT_SUCCESS);
 			}
 			target.targetIp.s_addr=inet_addr(target.strTargetURL);
 		}else{
 			char *ip=hostname_to_ip(target.strTargetURL);
 			if(ip==NULL || networkInfo.internetAccess==false){
 				printf("URL (%s%s%s) resolved to: %sunable to resolve the host.%s \n\n",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HRED,C_DEFAULT);
-				exit(EXIT_SUCCESS);
+				return RETURN_CLOSE;
 			}
 			printf("URL (%s%s%s) resolved to: %s%s%s \n\n",C_HWHITE,target.strTargetURL,C_DEFAULT,C_HWHITE,ip,C_DEFAULT);
 			target.targetIp.s_addr=inet_addr(ip);
 		}
 		snprintf(target.strTargetIp, sizeof(target.strTargetIp),"%s", inet_ntoa(*((struct in_addr*)&target.targetIp.s_addr)));
 		ip_to_hostname(target.strTargetIp, target.strHostname);
-		printf("Hostname: %s%s%s\n",C_HWHITE,target.strHostname,C_DEFAULT);
-	}
-	if(!discover && !sniffing){
-		printf("\nChecking Ollama server status: ");
-		fflush(stdout);
-		OCl_init();
-		int retVal=0;
-		if((retVal=OCl_get_instance(&ocl, settings.oi.ip, settings.oi.port, OCL_SOCKET_CONNECT_TIMEOUT_S, OCL_SOCKET_SEND_TIMEOUT_S,
-				OCL_SOCKET_RECV_TIMEOUT_S,settings.oi.model,"1800", "IT Auditor and IT Security expert", settings.oi.maxHistoryCtx,
-				settings.oi.temp,0,settings.oi.numCtx,NULL,NULL))!=RETURN_OK)
-			show_message(OCL_error_handling(ocl,retVal), strlen(OCL_error_handling(ocl, retVal)), 0,ERROR_MESSAGE , true, false, false);
-		int ollamaStatus=OCl_check_service_status(ocl);
-		if(ollamaStatus==RETURN_ERROR){
-			printf("%s%s",C_HRED,"connection error");
-			PRINT_RESET;
-		}else{
-			if(ollamaStatus==RETURN_OK){
-				printf("%srunning",C_HGREEN);
-			}else{
-				printf("%snot available: %s",C_HRED, OCL_error_handling(ocl, retVal));
-			}
-		}
-		PRINT_RESET;
+		printf("\nHostname: %s%s",C_HWHITE,target.strHostname);
+		PRINT_RESET
 	}
 	return RETURN_OK;
 }

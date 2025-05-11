@@ -253,11 +253,11 @@ extern char *resourcesLocation;
 extern long int sendPacketPerPortDelayUs;
 extern 	SSL_CTX *sslCtx;
 
-int scan_init(char *);
+int scan_init();
 int scan_ports();
 int hack_port_request();
 
-int error_handling(int, bool);
+int error_handling(int);
 int set_last_activity_error(int, char const *);
 int open_file(char *, char *, FILE **);
 int open_file_str(char *, char *, FILE **, char ***);

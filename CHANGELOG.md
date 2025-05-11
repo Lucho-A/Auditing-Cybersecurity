@@ -16,6 +16,7 @@ BUG_FIXED:
 
 OTHERS:
 - updated libOCl
+- when prompting, two followed spaces for adding a tab ('\t').
 - minor changes, code optimized & code cleaned-up
 
 (1) Setting the server ip and port, was added into 'setting.txt' file

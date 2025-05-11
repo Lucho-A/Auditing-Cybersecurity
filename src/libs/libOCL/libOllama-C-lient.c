@@ -241,7 +241,10 @@ int OCl_init(){
 	ERR_load_crypto_strings();
 	if((oclSslCtx=SSL_CTX_new(TLS_client_method()))==NULL) return OCL_ERR_SSL_CONTEXT;
 	SSL_CTX_set_verify(oclSslCtx, SSL_VERIFY_PEER, NULL);
-	if(!SSL_CTX_set_default_verify_paths(oclSslCtx)) return OCL_ERR_SSL_CERT_PATH_NOT_FOUND;
+	if(!SSL_CTX_set_default_verify_paths(oclSslCtx)){
+		OCl_shutdown();
+		return OCL_ERR_SSL_CERT_PATH_NOT_FOUND;
+	}
 	oclCanceled=false;
 	oclSslError=0;
 	return OCL_RETURN_OK;
@@ -696,10 +699,7 @@ static int send_message(OCl *ocl, char const *payload, void (*callback)(const ch
 	if(socketConn<=0) return socketConn;
 	if(oclSslCtx==NULL) return OCL_ERR_SSLCTX_NULL;
 	SSL *sslConn=NULL;
-	if((sslConn=SSL_new(oclSslCtx))==NULL){
-		clean_ssl(sslConn);
-		return OCL_ERR_SSL_CONTEXT;
-	}
+	if((sslConn=SSL_new(oclSslCtx))==NULL) return OCL_ERR_SSL_CONTEXT;
 	if(!SSL_set_fd(sslConn, socketConn)){
 		clean_ssl(sslConn);
 		return OCL_ERR_SSL_FD;
