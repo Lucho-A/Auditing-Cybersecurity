@@ -121,6 +121,8 @@ double OCL_get_response_total_duration(const OCl *);
 int OCL_get_response_prompt_eval_count(const OCl *);
 int OCL_get_response_eval_count(const OCl *);
 double OCL_get_response_tokens_per_sec(const OCl *);
+int OCL_get_response_chars_content(const OCl *);
+long int OCL_get_response_size(const OCl *ocl);
 
 int OCl_set_model(OCl *, const char *);
 int OCl_set_role(OCl *, const char *);
