@@ -1,7 +1,7 @@
-### auditing-cybersecurity-v1.3.2 - Under Dev./Testing
+### auditing-cybersecurity-v1.3.2
 
-Updated:  <br>
-Criticality: low
+Updated:  2025/05/15 <br>
+Severity: low
 
 FEATURE:
 - 1.1, i    -> (experimental) allows sending messages using ToR service (1)
@@ -24,7 +24,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.3.1
 
 Updated: 2024-10-28 <br>
-Criticality: medium
+Severity: medium
 
 BUG_FIXED:
 - 1.9    -> fixed return when the ip is not found into network
@@ -45,7 +45,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.3.0
 
 Updated: 2024-10-20 <br>
-Criticality: medium
+Severity: medium
 
 BUG_FIXED:
 - crl-c doesn't stop Ollama responses fixed
@@ -68,7 +68,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.9
 
 Updated: 2024-10-15 <br>
-Criticality: medium
+Severity: medium
 
 BUG_FIXED:
 - 1.9, 2.6, s   -> fixed no entering command issue
@@ -93,7 +93,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.8
 
 Updated: 2024-04-14 <br>
-Criticality: medium
+Severity: medium
 
 BUG_FIXED:
 - 2.3   -> fixed false -
@@ -124,7 +124,7 @@ SHA2-256(auditing-cybersecurity_1.2_7.deb)=22e647522d8db007d11df72e3f2551a05b4a5
 SHA2-256(auditing-cybersecurity_1.2_7-amd64.tar.gz)=ca484435f5d54dd006fbe8233e15d905911bf3f75b18625b51d5ee83b3de37cd
 
 Updated: 2024-01-03
-Criticality: high
+Severity: high
 
 BUG_FIXED:
 - a lot.
@@ -157,7 +157,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.6
 
 Updated: 2023-07-17
-Criticality: medium
+Severity: medium
 
 BUG_FIXED:
 - 1.11	-> fixed string parsing.
@@ -171,7 +171,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.5
 
 Updated: 2023-07-17
-Criticality: medium
+Severity: medium
 
 FEATURE:
 - 1.11	-> added activity for, since given an string, searching CVE's into www.opencve.io.
@@ -187,7 +187,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.4
 
 Updated: 2023-07-16
-Criticality: medium
+Severity: medium
 
 FEATURE:
 
@@ -202,7 +202,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.3
 
 Updated: 2023-07-14
-Criticality: medium
+Severity: medium
 
 IMPROVEMENT:
 - 2.2   -> validate the 'not after' and 'not before' cert dates against the current day, and show the info in more human readable way.
@@ -218,7 +218,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.2
 
 UUpdated: 2023-07-12
-Criticality: medium
+Severity: medium
 
 FEATURE:
 
@@ -242,7 +242,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.1
 
 Updated: 2023-07-07
-Criticality: medium
+Severity: medium
 
 FEATURE:
 - 2.6	-> now, like '1.9', 'i', or 's', in order to organize useful http/https commands, the activity reads a file 'http_commands.txt' (with '!'), and add to history prompt the command !# selected. As usual, into the file, '%s' (in first place) add the URL, and '%d' add the port.
@@ -259,7 +259,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.2.0
 
 Updated: 2023-07-04
-Criticality: high
+Severity: high
 
 FEATURE:
 
@@ -278,7 +278,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.1.9
 
 Updated: 2023-05-16
-Criticality: medium
+Severity: medium
 
 FEATURE:
 - 6.1	-> I was researching and working on the SMB protocol in order to come up with eventual DoS/scanners/exploit hack procedures, and because I prefer evaluate separately SMBv1 than v2 or v3 ('smb_version' msfconsole evaluates some aspects, like capabilities or preferred dialect, among others, jointly). At the moment, I developed a service banner grabbing for SMBv1, only. So, I still keep the 'smb_version' msfconsole scanner execution because SMBv2/3, and debugging (double checking results).
@@ -299,7 +299,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.1.8
 
 Updated: 2023-05-07
-Criticality: medium
+Severity: medium
 
 IMPROVEMENT:
 - 1.6 	-> changed "run" by "exploit" msf command.
@@ -328,7 +328,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.1.7
 
 Updated: 2023-04-17
-Criticality: MEDIUM
+Severity: MEDIUM
 
 FEATURES:
 - 1.9	-> similar to (i) and (s) options, now, because there are so many different useful sqlmap's commands, and in order to have separated these sort of commands from the rest, the activity reads a file ("sql_commands.txt") entering '!', and add the '!#' string (where # is the number of the string in the file) to the prompt history (up and down arrows). Additionally, asks and adds the 'url' and '--cookie' options (optional).
@@ -357,7 +357,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.1.6
 
 Updated 2023-04-13:
-Update criticality: MEDIUM
+Update Severity: MEDIUM
 
 IMPROVEMENT:
 - no asking for interface when only one is found.
@@ -379,7 +379,7 @@ OTHERS:
 ### auditing-cybersecurity-v1.1.5
 
 Updated 2023-04-10:
-Update criticality: MEDIUM
+Update Severity: MEDIUM
 
 IMPROVEMENT:
 - now, it's possible to select other than wireless interfaces, for instance, VPN's. Additionally, it was removed "loopback", and "any" options.
