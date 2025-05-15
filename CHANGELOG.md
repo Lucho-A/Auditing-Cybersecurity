@@ -7,7 +7,7 @@ FEATURE:
 - 1.1, i    -> (experimental) allows sending messages using ToR service (1)
 
 IMPROVEMENT:
-- (experimental) added parameter '--f | --sniffing' for allowing carry out 1.9) (Sniffing/DoS ARP Flooding attack) to IPs without opened ports.
+- added parameter '--f | --sniffing' for allowing carry out 1.9) (Sniffing/DoS ARP Flooding attack) to IPs without opened ports.
 
 BUG_FIXED:
 - v    -> fixed no returning results
