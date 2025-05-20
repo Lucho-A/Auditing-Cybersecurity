@@ -779,6 +779,19 @@ static int send_message(OCl *ocl, char const *payload, void (*callback)(const ch
 			strncat(ocl->ocl_resp->response,buffer, bufferAssigned-1);
 			char token[128]="";
 			if(get_string_from_token(buffer, "\"content\":\"", token, '"')){
+				char const *b=strstr(token,"\\\"},");
+				if(b){
+					int idx=0;
+					for(size_t i=0;i<strlen(token);i++,idx++){
+						if(b==&token[i]){
+							token[idx]='\\';
+							token[idx+1]=0;
+							i+=3;
+						}else{
+							token[idx]=token[i];
+						}
+					}
+				}
 				if(strstr(buffer,"\"done\":true")!=NULL || strstr(buffer,"\"done\": true")!=NULL) ocl->ocl_resp->done=true;
 				if(callback!=NULL) callback(token, ocl->ocl_resp->done);
 				strncat(ocl->ocl_resp->content,token, bufferAssigned-1);
